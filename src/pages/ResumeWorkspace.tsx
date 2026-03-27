@@ -20,7 +20,25 @@ const suggestions = [
 
 export default function ResumeWorkspace() {
   const [uploaded, setUploaded] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const fitScore = 72;
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      setUploaded(true);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -39,10 +57,19 @@ export default function ResumeWorkspace() {
           {!uploaded ? (
             <div
               onClick={() => setUploaded(true)}
-              className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-border rounded-xl cursor-pointer hover:border-primary/40 hover:bg-primary/5 transition-all p-10"
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              className={`flex-1 flex flex-col items-center justify-center border-2 border-dashed rounded-xl cursor-pointer transition-all p-10 ${
+                isDragging
+                  ? "border-primary bg-primary/10 shadow-lg scale-[1.02]"
+                  : "border-border hover:border-primary/40 hover:bg-primary/5"
+              }`}
             >
-              <Upload className="w-12 h-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold text-foreground mb-2">Upload Your Resume</h3>
+              <Upload className={`w-12 h-12 mb-4 transition-transform ${isDragging ? "text-primary scale-110" : "text-muted-foreground"}`} />
+              <h3 className="text-lg font-semibold text-foreground mb-2">
+                {isDragging ? "Drop to Upload" : "Upload Your Resume"}
+              </h3>
               <p className="text-sm text-muted-foreground text-center mb-4">
                 Drag & drop your PDF or DOCX file, or click to browse
               </p>
