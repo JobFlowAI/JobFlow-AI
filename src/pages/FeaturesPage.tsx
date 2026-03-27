@@ -8,7 +8,7 @@ const features = [
   {
     icon: Brain,
     title: "AI-Powered Resume Optimization",
-    description: "Our advanced NLP engine analyzes your resume against job descriptions, identifying missing keywords, weak phrases, and formatting issues that cause ATS rejections. Get actionable suggestions that boost your pass rate to 93%.",
+    description: "Our advanced NLP engine analyzes your resume against job descriptions. Identify missing keywords, weak phrases, and formatting issues that cause ATS rejections. Get actionable suggestions that boost your pass rate to 93%.",
     color: "text-primary",
     bg: "bg-primary/10",
   },
