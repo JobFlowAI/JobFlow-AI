@@ -82,8 +82,10 @@ const Branding = () => (
 export default function ResumeWorkspace() {
   const [mode, setMode] = useState<"manual" | "upload">("upload");
   const [uploaded, setUploaded] = useState(false);
+  const [uploadedFileName, setUploadedFileName] = useState("John_Doe_Resume.pdf");
   const [isDragging, setIsDragging] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState("modern");
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [resumeData, setResumeData] = useState<ResumeData>({
     personal: { 
       firstName: "", 
@@ -180,13 +182,28 @@ export default function ResumeWorkspace() {
     setIsDragging(true);
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      setUploadedFileName(file.name);
+      setUploaded(true);
+      toast.success(`Resume "${file.name}" uploaded! AI is analyzing...`);
+    }
+  };
+
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const file = e.dataTransfer.files[0];
+      setUploadedFileName(file.name);
       setUploaded(true);
-      toast.success("Resume uploaded! AI is analyzing...");
+      toast.success(`Resume "${file.name}" uploaded! AI is analyzing...`);
     }
+  };
+
+  const triggerFileUpload = () => {
+    fileInputRef.current?.click();
   };
 
   return (
@@ -202,7 +219,10 @@ export default function ResumeWorkspace() {
             <Button 
               variant={mode === "upload" ? "default" : "ghost"} 
               size="sm" 
-              onClick={() => setMode("upload")}
+              onClick={() => {
+                if (mode === "upload") triggerFileUpload();
+                else setMode("upload");
+              }}
               className="gap-2"
             >
               <Upload className="w-4 h-4" /> Upload
@@ -234,32 +254,41 @@ export default function ResumeWorkspace() {
           {mode === "upload" ? (
             <div className="space-y-6">
               {!uploaded ? (
-                <div
-                  onClick={() => setUploaded(true)}
-                  onDragOver={handleDragOver}
-                  onDragLeave={() => setIsDragging(false)}
-                  onDrop={handleDrop}
-                  className={`min-h-[400px] flex flex-col items-center justify-center border-2 border-dashed rounded-xl cursor-pointer transition-all p-10 ${
-                    isDragging
-                      ? "border-primary bg-primary/10 shadow-lg scale-[1.02]"
-                      : "border-border hover:border-primary/40 hover:bg-primary/5"
-                  }`}
-                >
-                  <Upload className={`w-12 h-12 mb-4 transition-transform ${isDragging ? "text-primary scale-110" : "text-muted-foreground"}`} />
-                  <h3 className="text-lg font-semibold text-foreground mb-2">
-                    {isDragging ? "Drop to Upload" : "Upload Your Resume"}
-                  </h3>
-                  <p className="text-sm text-muted-foreground text-center mb-4">
-                    Drag & drop your PDF or DOCX file, or click to browse
-                  </p>
-                  <span className="text-xs text-muted-foreground bg-secondary/50 px-3 py-1 rounded-full italic">Optimized for AI Analysis</span>
-                </div>
+                <>
+                  <input 
+                    type="file" 
+                    ref={fileInputRef} 
+                    onChange={handleFileChange} 
+                    accept=".pdf,.docx" 
+                    className="hidden" 
+                  />
+                  <div
+                    onClick={triggerFileUpload}
+                    onDragOver={handleDragOver}
+                    onDragLeave={() => setIsDragging(false)}
+                    onDrop={handleDrop}
+                    className={`min-h-[400px] flex flex-col items-center justify-center border-2 border-dashed rounded-xl cursor-pointer transition-all p-10 ${
+                      isDragging
+                        ? "border-primary bg-primary/10 shadow-lg scale-[1.02]"
+                        : "border-border hover:border-primary/40 hover:bg-primary/5"
+                    }`}
+                  >
+                    <Upload className={`w-12 h-12 mb-4 transition-transform ${isDragging ? "text-primary scale-110" : "text-muted-foreground"}`} />
+                    <h3 className="text-lg font-semibold text-foreground mb-2">
+                      {isDragging ? "Drop to Upload" : "Upload Your Resume"}
+                    </h3>
+                    <p className="text-sm text-muted-foreground text-center mb-4">
+                      Drag & drop your PDF or DOCX file, or click to browse
+                    </p>
+                    <span className="text-xs text-muted-foreground bg-secondary/50 px-3 py-1 rounded-full italic">Optimized for AI Analysis</span>
+                  </div>
+                </>
               ) : (
                 <div className="space-y-6">
-                   <div className="flex-1 flex flex-col items-center justify-center space-y-4 text-center py-10 border border-border rounded-xl bg-secondary/20">
+                  <div className="flex-1 flex flex-col items-center justify-center space-y-4 text-center py-10 border border-border rounded-xl bg-secondary/20">
                     <FileText className="w-16 h-16 text-muted-foreground opacity-20" />
                     <div>
-                      <p className="text-lg font-medium text-foreground">John_Doe_Resume.pdf</p>
+                      <p className="text-lg font-medium text-foreground">{uploadedFileName}</p>
                       <p className="text-sm text-muted-foreground tracking-tight italic opacity-60">Uploaded just now</p>
                     </div>
                     <div className="flex gap-2 text-xs font-semibold text-success bg-success/5 px-4 py-2 rounded-full border border-success/10 shadow-sm">
