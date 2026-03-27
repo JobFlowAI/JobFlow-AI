@@ -52,7 +52,14 @@ export default function LandingFooter() {
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
             <button className="hover:text-foreground transition-colors">Twitter</button>
             <button className="hover:text-foreground transition-colors">LinkedIn</button>
-            <button className="hover:text-foreground transition-colors">GitHub</button>
+            <a
+              href="https://github.com/shahrozimran/JobFlow-AI"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-foreground transition-colors"
+            >
+              GitHub
+            </a>
           </div>
         </div>
       </div>
