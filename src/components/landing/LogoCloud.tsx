@@ -1,22 +1,49 @@
+"use client";
+
 import { motion } from "framer-motion";
 
-export default function LogoCloud() {
-  const logos = ["Stripe", "Vercel", "Linear", "Notion", "Figma", "OpenAI"];
+const logos = [
+  { name: "Stripe", style: "font-black tracking-tighter uppercase" },
+  { name: "▲ Vercel", style: "font-bold tracking-tight" },
+  { name: "Linear", style: "font-bold tracking-tight" },
+  { name: "Notion", style: "font-serif italic font-bold tracking-tight" },
+  { name: "Figma", style: "font-bold tracking-tight" },
+  { name: "OpenAI", style: "font-bold tracking-tighter" },
+];
 
+function LogoRow() {
   return (
-    <section className="py-16 border-y border-border/40 bg-card/30 backdrop-blur-sm relative z-10">
+    <>
+      {logos.map((logo) => (
+        <div
+          key={logo.name}
+          className={`text-xl md:text-2xl text-foreground/40 select-none whitespace-nowrap ${logo.style}`}
+        >
+          {logo.name}
+        </div>
+      ))}
+    </>
+  );
+}
+
+export default function LogoCloud() {
+  return (
+    <section className="py-12 border-y border-border/30 bg-muted/20 relative z-10 overflow-hidden">
       <div className="max-w-6xl mx-auto px-6 text-center">
-        <p className="text-sm font-semibold text-muted-foreground mb-8 tracking-widest uppercase">
+        <p className="text-xs font-semibold text-muted-foreground mb-8 tracking-widest uppercase">
           Trusted by professionals from
         </p>
-        <div className="flex flex-wrap justify-center items-center gap-10 md:gap-20 opacity-50 grayscale hover:grayscale-0 transition-all duration-700 p-4">
-          <div className="text-2xl font-black tracking-tighter uppercase">Stripe</div>
-          <div className="text-2xl font-bold tracking-tight">▲ Vercel</div>
-          <div className="text-2xl font-bold tracking-tight flex items-center gap-1">
-             <div className="w-4 h-4 bg-foreground rounded-sm" /> Square
+        <div className="relative overflow-hidden">
+          {/* Fade edges */}
+          <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-muted/20 to-transparent z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-muted/20 to-transparent z-10 pointer-events-none" />
+
+          <div className="flex gap-12 marquee" aria-hidden="true">
+            <LogoRow />
+            <LogoRow />
+            <LogoRow />
+            <LogoRow />
           </div>
-          <div className="text-2xl font-serif italic font-bold tracking-tight">Notion</div>
-          <div className="text-2xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-foreground to-muted-foreground">OpenAI</div>
         </div>
       </div>
     </section>
