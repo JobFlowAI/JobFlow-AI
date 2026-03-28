@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@config "../../tailwind.config.ts";
 
 @layer base {
   :root {
@@ -8,8 +9,8 @@
     --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
-    --primary: 221.2 83.2% 53.3%; /* Standard Blue */
-    --primary-foreground: 210 40% 98%;
+    --primary: 240 5.9% 10%; /* Monochromatic Dark/Black */
+    --primary-foreground: 0 0% 98%;
     --secondary: 240 4.8% 95.9%;
     --secondary-foreground: 240 5.9% 10%;
     --muted: 240 4.8% 95.9%;
@@ -20,17 +21,17 @@
     --destructive-foreground: 0 0% 98%;
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
-    --ring: 221.2 83.2% 53.3%;
+    --ring: 240 5.9% 10%;
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 240 5.9% 10%;
-    --sidebar-primary: 221.2 83.2% 53.3%;
+    --sidebar-primary: 240 5.9% 10%;
     --sidebar-primary-foreground: 0 0% 98%;
     --sidebar-accent: 240 4.8% 95.9%;
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 240 5.9% 90%;
-    --sidebar-ring: 221.2 83.2% 53.3%;
+    --sidebar-ring: 240 5.9% 10%;
     --sidebar-muted: 240 3.8% 46.1%;
   }
 
@@ -41,8 +42,8 @@
     --card-foreground: 0 0% 98%;
     --popover: 240 10% 3.9%;
     --popover-foreground: 0 0% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 0 0% 98%; /* Monochromatic Light/White */
+    --primary-foreground: 240 5.9% 10%;
     --secondary: 240 3.7% 15.9%;
     --secondary-foreground: 0 0% 98%;
     --muted: 240 3.7% 15.9%;
@@ -53,16 +54,16 @@
     --destructive-foreground: 0 0% 98%;
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
-    --ring: 217.2 91.2% 59.8%;
+    --ring: 0 0% 98%;
 
     --sidebar-background: 240 10% 3.9%;
     --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 217.2 91.2% 59.8%;
-    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-primary: 0 0% 98%;
+    --sidebar-primary-foreground: 240 5.9% 10%;
     --sidebar-accent: 240 3.7% 15.9%;
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-ring: 0 0% 98%;
     --sidebar-muted: 240 5% 64.9%;
   }
 }
@@ -125,12 +126,12 @@
     transform: translateY(-2px);
   }
 
-  /* ── Gradient text (monochrome blue only — no purple) ── */
+  /* ── Gradient text (monochrome only) ── */
   .gradient-text {
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    background-image: linear-gradient(135deg, hsl(221, 83%, 53%), hsl(199, 89%, 48%));
+    background-image: linear-gradient(135deg, hsl(var(--foreground)), hsl(var(--muted-foreground)));
   }
 
   .gradient-text-alt {
@@ -152,21 +153,21 @@
     left: -50%;
     width: 200%;
     height: 200%;
-    background: radial-gradient(circle at 20% 50%, hsla(221, 83%, 53%, 0.08) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, hsla(199, 89%, 48%, 0.06) 0%, transparent 50%),
-                radial-gradient(circle at 50% 80%, hsla(152, 76%, 40%, 0.04) 0%, transparent 50%);
+    background: radial-gradient(circle at 20% 50%, hsla(var(--foreground), 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, hsla(var(--foreground), 0.02) 0%, transparent 50%),
+                radial-gradient(circle at 50% 80%, hsla(var(--foreground), 0.01) 0%, transparent 50%);
     animation: meshFloat 20s ease-in-out infinite;
     pointer-events: none;
     z-index: 0;
   }
 
-  /* ── Glow effects (blue only) ── */
+  /* ── Glow effects (monochrome only) ── */
   .glow-blue {
-    box-shadow: 0 0 30px rgba(59, 130, 246, 0.2), 0 0 60px rgba(59, 130, 246, 0.1);
+    box-shadow: 0 0 30px hsla(var(--foreground), 0.05), 0 0 60px hsla(var(--foreground), 0.02);
   }
   .glow-border {
-    border-color: rgba(59, 130, 246, 0.3);
-    box-shadow: 0 0 15px rgba(59, 130, 246, 0.1), inset 0 0 15px rgba(59, 130, 246, 0.05);
+    border-color: hsla(var(--foreground), 0.1);
+    box-shadow: 0 0 15px hsla(var(--foreground), 0.05), inset 0 0 15px hsla(var(--foreground), 0.02);
   }
 
   /* ── Sidebar ── */
@@ -191,15 +192,15 @@
     font-weight: 600;
   }
 
-  /* ── Gradient backgrounds (blue → cyan, no purple) ── */
+  /* ── Gradient backgrounds (monochrome) ── */
   .gradient-hero {
     background: linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--muted)) 100%);
   }
   .gradient-premium {
-    background: linear-gradient(135deg, hsl(221, 83%, 53%), hsl(199, 89%, 48%));
+    background: linear-gradient(135deg, hsl(var(--foreground)), hsl(var(--muted-foreground)));
   }
   .gradient-premium-subtle {
-    background: linear-gradient(135deg, hsl(221, 83%, 53%, 0.1), hsl(199, 89%, 48%, 0.1));
+    background: linear-gradient(135deg, hsla(var(--foreground), 0.05), hsla(var(--foreground), 0.02));
   }
 
   /* ── Marquee for logo cloud ── */
