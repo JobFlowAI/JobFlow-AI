@@ -175,7 +175,7 @@ export default function AboutPage() {
                   transition={{ delay: i * 0.1 }}
                   className="card-elevated card-hover p-6 text-center"
                 >
-                  <div className="w-16 h-16 rounded-full bg-foreground mx-auto mb-4 flex items-center justify-center text-foreground-foreground text-lg font-bold">
+                  <div className="w-16 h-16 rounded-full bg-foreground mx-auto mb-4 flex items-center justify-center text-background text-lg font-bold">
                     {person.avatar}
                   </div>
                   <h3 className="font-semibold text-foreground">{person.name}</h3>

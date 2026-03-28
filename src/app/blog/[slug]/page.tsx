@@ -68,7 +68,7 @@ export default function BlogPost() {
 
             <div className="flex flex-wrap items-center justify-between gap-6 pb-10 border-b border-border mb-10">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-foreground flex items-center justify-center text-foreground-foreground font-bold">
+                <div className="w-12 h-12 rounded-full bg-foreground flex items-center justify-center text-background font-bold">
                   {post.author[0]}
                 </div>
                 <div>

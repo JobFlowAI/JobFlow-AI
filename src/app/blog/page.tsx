@@ -66,7 +66,7 @@ export default function Blog() {
                   onClick={() => setSelectedCategory(cat)}
                   className={`px-4 py-2 rounded-full border transition-all text-sm font-medium ${
                     selectedCategory === cat 
-                    ? "bg-foreground border-primary text-foreground-foreground" 
+                    ? "bg-foreground border-primary text-background" 
                     : "border-border hover:border-primary text-muted-foreground hover:text-foreground"
                   }`}
                 >
@@ -99,7 +99,7 @@ export default function Blog() {
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     />
                     <div className="absolute top-4 left-4">
-                      <span className="px-3 py-1 rounded-full bg-foreground text-foreground-foreground text-xs font-bold leading-none">
+                      <span className="px-3 py-1 rounded-full bg-foreground text-background text-xs font-bold leading-none">
                         {post.category}
                       </span>
                     </div>
@@ -171,7 +171,7 @@ export default function Blog() {
                   placeholder="name@example.com" 
                   className="flex-grow bg-background border border-border rounded-xl px-5 py-3 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all text-foreground"
                 />
-                <button className="px-8 py-3 rounded-xl bg-foreground text-foreground-foreground font-semibold hover:opacity-90 transition-opacity whitespace-nowrap">
+                <button className="px-8 py-3 rounded-xl bg-foreground text-background font-semibold hover:opacity-90 transition-opacity whitespace-nowrap">
                   Subscribe
                 </button>
               </form>

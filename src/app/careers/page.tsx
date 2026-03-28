@@ -106,7 +106,7 @@ export default function Careers() {
                   </p>
                   <a 
                     href="mailto:aifunk63@gmail.com"
-                    className="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-foreground text-foreground-foreground font-semibold hover:opacity-90 transition-all shadow-lg shadow-primary/20"
+                    className="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-foreground text-background font-semibold hover:opacity-90 transition-all shadow-lg shadow-primary/20"
                   >
                     Apply Spontaneously <ArrowRight className="w-4 h-4" />
                   </a>
