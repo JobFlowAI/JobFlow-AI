@@ -18,6 +18,20 @@ export default function PricingSection() {
       cta: "Get Started Free"
     },
     {
+      name: "Plus",
+      desc: "Perfect for active job seekers.",
+      price: "$10",
+      period: "/mo",
+      featured: false,
+      features: [
+        "10 Auto-Optimizations",
+        "Advanced ATS Score Checking",
+        "Standard Outreach Templates",
+        "Basic Cover Letter Generation",
+      ],
+      cta: "Start Plus Plan"
+    },
+    {
       name: "Pro",
       desc: "For serious professionals seeking edge.",
       price: "$29",
@@ -25,25 +39,12 @@ export default function PricingSection() {
       featured: true,
       features: [
         "Unlimited Auto-Optimizations",
-        "Advanced ATS Score Checking",
-        "Personalized Outreach Email Generator",
-        "Cover Letter Generation",
+        "Unlimited ATS Score Checking",
+        "Personalized Outreach Engine",
+        "Advanced Cover Letter Generation",
         "Priority Support",
       ],
       cta: "Start Pro Trial"
-    },
-    {
-      name: "Enterprise",
-      desc: "Custom deployment for organizations.",
-      price: "Custom",
-      featured: false,
-      features: [
-        "Bulk Resume Processing",
-        "Custom ATS Integrations",
-        "Dedicated Account Manager",
-        "SLA Guarantee",
-      ],
-      cta: "Contact Sales"
     }
   ];
 

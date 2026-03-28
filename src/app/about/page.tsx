@@ -208,7 +208,7 @@ export default function AboutPage() {
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => router.push("/dashboard")}
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-foreground text-foreground-foreground font-semibold text-lg hover:opacity-90 transition-opacity"
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-foreground text-background font-semibold text-lg hover:opacity-90 transition-opacity"
             >
               Get Started Free <ArrowRight className="w-5 h-5" />
             </motion.button>
