@@ -68,7 +68,7 @@ export default function LandingNav() {
           </Link>
           <Link
             href="/dashboard"
-            className="px-5 py-2 rounded-full gradient-premium text-background text-sm font-semibold hover:opacity-90 transition-all shadow-md hover:shadow-lg hover:shadow-foreground/10 active:scale-95"
+            className="px-5 py-2 rounded-full bg-foreground text-background text-sm font-semibold hover:opacity-90 transition-all shadow-md hover:shadow-lg hover:shadow-foreground/10 active:scale-95"
           >
             Get Started
           </Link>
@@ -118,7 +118,7 @@ export default function LandingNav() {
               <Link
                 href="/dashboard"
                 onClick={() => setIsOpen(false)}
-                className="mt-2 text-center py-3 mx-4 rounded-full gradient-premium text-background font-semibold hover:opacity-90 transition-all shadow-md"
+                className="mt-2 text-center py-3 mx-4 rounded-full bg-foreground text-background font-semibold hover:opacity-90 transition-all shadow-md hover:shadow-lg"
               >
                 Get Started Free
               </Link>
