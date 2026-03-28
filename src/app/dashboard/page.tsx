@@ -1,171 +1,249 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { FileText, Briefcase, TrendingUp, Zap, ArrowRight, ChevronRight } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  FileText, Briefcase, TrendingUp, Zap, ArrowRight, 
+  ChevronRight, Filter, Search, ArrowUpRight, CheckCircle2,
+  Clock, XCircle, LayoutGrid
+} from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useProfile } from "@/hooks/useProfile";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
-const recentMatches = [
-  { title: "Senior Frontend Engineer", company: "Stripe", score: 92, status: "matched" },
-  { title: "Full Stack Developer", company: "Vercel", score: 85, status: "matched" },
-  { title: "React Developer", company: "Linear", score: 78, status: "analyzing" },
-  { title: "Software Engineer II", company: "Notion", score: 88, status: "matched" },
-];
-
-const creditBreakdown = [
-  { label: "Resume Parsing", cost: 2, used: 12, icon: FileText },
-  { label: "ATS Analysis", cost: 2, used: 18, icon: TrendingUp },
-  { label: "Email Outreach", cost: 1, used: 7, icon: Zap },
+// Mock data based on the "Schedules" reference image
+const trackingHistory = [
+  { id: 1, company: "Hyperrise", role: "Senior Frontend Engineer", strategy: "ATS Optimized", status: "Active", date: "1 Aug 2024", score: 92 },
+  { id: 2, company: "Hyperrise", role: "Full Stack Developer", strategy: "Creative Edge", status: "Active", date: "1 Aug 2024", score: 88 },
+  { id: 3, company: "Vercel", role: "React Developer", strategy: "ATS Optimized", status: "Draft", date: "28 Jul 2024", score: null },
+  { id: 4, company: "Stripe", role: "Product Designer", strategy: "Dark Designer", status: "Complete", date: "15 Jul 2024", score: 95 },
+  { id: 5, company: "Linear", role: "Software Engineer II", strategy: "ATS Optimized", status: "Active", date: "10 Jul 2024", score: 85 },
 ];
 
 export default function Dashboard() {
   const router = useRouter();
+  const { profile, isHydrated } = useProfile();
+
+  if (!isHydrated) return <div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 rounded-full border-4 border-primary border-t-transparent animate-spin" /></div>;
+
+  const requiresOnboarding = !profile.personal.firstName;
+
+  if (requiresOnboarding) {
+    return (
+      <div className="relative min-h-[calc(100vh-4rem)] flex items-center justify-center p-4">
+        <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-primary/5 -z-10 pointer-events-none" />
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="max-w-xl w-full bg-background/80 backdrop-blur-2xl border border-border/50 shadow-2xl rounded-[2rem] p-10 text-center"
+        >
+          <div className="w-20 h-20 bg-primary/10 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-inner border border-primary/20">
+            <UserIcon className="w-10 h-10 text-primary" />
+          </div>
+          <h1 className="text-3xl font-black tracking-tight mb-4 text-foreground">Welcome to JobFlow AI</h1>
+          <p className="text-muted-foreground mb-10 leading-relaxed max-w-md mx-auto">
+            To generate highly optimized, tailored resumes, we first need to build your Master Profile. This happens only once.
+          </p>
+          <Button 
+            size="lg" 
+            className="w-full text-base font-bold rounded-2xl h-14 bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25 transition-all"
+            onClick={() => router.push("/dashboard/settings")}
+          >
+            Create Master Profile <ArrowRight className="w-5 h-5 ml-2" />
+          </Button>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative min-h-[calc(100vh-4rem)] p-4 md:p-8 overflow-hidden">
-      {/* Subtle Mesh Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-secondary/30 -z-10 pointer-events-none" />
       
-      <div className="max-w-5xl mx-auto space-y-8">
+      <div className="max-w-6xl mx-auto space-y-10">
         <motion.div 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="space-y-1"
+          className="flex flex-col md:flex-row md:items-end justify-between gap-4"
         >
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Welcome back, John</h1>
-          <p className="text-muted-foreground text-lg tracking-tight">Here's what's happening with your job search today.</p>
-        </motion.div>
-
-        {/* Credit Widget */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.05 }}
-          className="bg-background/60 backdrop-blur-xl border border-border/50 shadow-sm rounded-3xl p-6 md:p-8"
-        >
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold tracking-tight text-foreground">Credit Overview</h2>
-            <button className="text-sm font-medium text-primary hover:underline underline-offset-4">View History</button>
+          <div className="space-y-1">
+            <h1 className="text-4xl font-black tracking-tight text-foreground">Overview</h1>
+            <p className="text-muted-foreground text-lg tracking-tight">Welcome back, {profile.personal.firstName}. Your job search performance.</p>
           </div>
-          
-          <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
-             {/* Progress Ring */}
-            <div className="relative w-32 h-32 flex-shrink-0">
-              <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90 filter drop-shadow-sm">
-                <circle cx="50" cy="50" r="42" fill="none" stroke="hsl(var(--secondary))" strokeWidth="8" />
-                <circle
-                  cx="50" cy="50" r="42" fill="none" stroke="hsl(var(--primary))" strokeWidth="8"
-                  strokeDasharray={`${(145 / 200) * 264} 264`}
-                  strokeLinecap="round"
-                  className="drop-shadow-sm transition-all duration-1000 ease-out"
-                />
-              </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-3xl font-bold tracking-tighter text-foreground">145</span>
-                <span className="text-xs font-medium text-muted-foreground">/ 200</span>
-              </div>
-            </div>
-
-            {/* Breakdown Grid */}
-            <div className="flex-1 w-full grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {creditBreakdown.map((item) => (
-                <div key={item.label} className="p-4 rounded-2xl bg-secondary/30 border border-border/40 flex flex-col items-start transition-colors hover:bg-secondary/50">
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="w-8 h-8 rounded-full bg-background shadow-sm flex items-center justify-center">
-                      <item.icon className="w-4 h-4 text-primary" />
-                    </div>
-                  </div>
-                  <p className="text-2xl font-bold tracking-tight text-foreground">{item.used}</p>
-                  <p className="text-sm font-medium text-muted-foreground mb-1">{item.label}</p>
-                  <p className="text-xs text-muted-foreground/70">{item.cost} credits / action</p>
-                </div>
-              ))}
-            </div>
+          <div className="flex gap-3">
+             <Button variant="outline" className="rounded-xl font-bold bg-background shadow-sm border-border/50">
+               <FileText className="w-4 h-4 mr-2" /> Export Data
+             </Button>
+             <Button className="rounded-xl font-bold shadow-lg shadow-primary/20" onClick={() => router.push('/dashboard/resume-workspace')}>
+               <Zap className="w-4 h-4 mr-2" /> Generate Resume
+             </Button>
           </div>
         </motion.div>
 
-        {/* Quick Actions */}
-        <div className="grid md:grid-cols-2 gap-6">
-          <motion.button
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            onClick={() => router.push("/dashboard/resume-workspace")}
-            className="group relative overflow-hidden bg-background/60 backdrop-blur-xl border border-border/50 shadow-sm hover:shadow-md rounded-3xl p-8 text-left transition-all duration-300 hover:-translate-y-1"
-          >
-            <div className="absolute top-0 right-0 p-8 opacity-0 group-hover:opacity-100 transition-opacity translate-x-4 group-hover:translate-x-0 duration-300">
-              <ChevronRight className="w-6 h-6 text-primary" />
-            </div>
-            <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-6 shadow-sm border border-primary/20">
-              <FileText className="w-7 h-7 text-primary" />
-            </div>
-            <h3 className="text-xl font-bold tracking-tight text-foreground mb-2">Resume Optimization</h3>
-            <p className="text-sm text-muted-foreground mb-6 leading-relaxed max-w-sm">
-              Upload your resume and let our AI tailor it for ATS tracking immediately.
-            </p>
-            <span className="inline-flex items-center gap-2 text-sm text-primary font-semibold">
-              Get Started <ArrowRight className="w-4 h-4" />
-            </span>
-          </motion.button>
-
-          <motion.button
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
-            onClick={() => router.push("/dashboard/outreach")}
-            className="group relative overflow-hidden bg-background/60 backdrop-blur-xl border border-border/50 shadow-sm hover:shadow-md rounded-3xl p-8 text-left transition-all duration-300 hover:-translate-y-1"
-          >
-            <div className="absolute top-0 right-0 p-8 opacity-0 group-hover:opacity-100 transition-opacity translate-x-4 group-hover:translate-x-0 duration-300">
-              <ChevronRight className="w-6 h-6 text-success" />
-            </div>
-            <div className="w-14 h-14 rounded-2xl bg-success/10 flex items-center justify-center mb-6 shadow-sm border border-success/20">
-              <Briefcase className="w-7 h-7 text-success" />
-            </div>
-            <h3 className="text-xl font-bold tracking-tight text-foreground mb-2">Automated Outreach</h3>
-            <p className="text-sm text-muted-foreground mb-6 leading-relaxed max-w-sm">
-              Find perfectly matched roles and send personalized connection emails in bulk.
-            </p>
-            <span className="inline-flex items-center gap-2 text-sm text-success font-semibold">
-              Discover Jobs <ArrowRight className="w-4 h-4" />
-            </span>
-          </motion.button>
+        {/* Analytics Row */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <StatCard title="Total Resumes Generated" value="24" trend="+3 this week" icon={FileText} color="text-blue-500" bg="bg-blue-500/10" border="border-blue-500/20" />
+          <StatCard title="Avg. ATS Match Rate" value="89%" trend="+5% improvement" icon={TrendingUp} color="text-success" bg="bg-success/10" border="border-success/20" />
+          <StatCard title="AI Credits Remaining" value="145" trend="Renews in 12 days" icon={Zap} color="text-gold" bg="bg-gold/10" border="border-gold/20" />
         </div>
 
-        {/* Recent Matches */}
+        {/* Data Table replacing the dummy matches */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bg-background/60 backdrop-blur-xl border border-border/50 shadow-sm rounded-3xl p-6 md:p-8"
+           initial={{ opacity: 0, y: 20 }}
+           animate={{ opacity: 1, y: 0 }}
+           transition={{ delay: 0.1 }}
+           className="bg-background/80 backdrop-blur-xl border border-border/50 shadow-sm rounded-3xl overflow-hidden"
         >
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold tracking-tight text-foreground">Recent Matches</h2>
-            <button className="text-sm font-medium text-primary hover:underline underline-offset-4">View All</button>
-          </div>
-          <div className="space-y-0 divide-y divide-border/40 -mx-4">
-            {recentMatches.map((match) => (
-              <div
-                key={match.title}
-                className="flex items-center justify-between px-4 py-4 hover:bg-secondary/30 transition-colors cursor-pointer group"
-              >
-                <div>
-                  <p className="font-semibold tracking-tight text-foreground group-hover:text-primary transition-colors">{match.title}</p>
-                  <p className="text-sm text-muted-foreground">{match.company}</p>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className={`px-4 py-1.5 rounded-full text-xs font-bold ${
-                    match.status === "matched"
-                      ? "bg-success/10 text-success border border-success/20"
-                      : "bg-gold/10 text-gold border border-gold/20"
-                  }`}>
-                    {match.score}% fit
-                  </div>
-                  <ChevronRight className="w-5 h-5 text-muted-foreground/50 group-hover:text-foreground transition-colors" />
-                </div>
-              </div>
-            ))}
-          </div>
+           <div className="p-6 border-b border-border/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+             <div className="flex items-center gap-2">
+               <Button variant="outline" size="sm" className="rounded-lg h-9 bg-secondary/50 font-semibold border-border/50 text-foreground">All</Button>
+               <Button variant="ghost" size="sm" className="rounded-lg h-9 font-medium text-muted-foreground hover:text-foreground">Active</Button>
+               <Button variant="ghost" size="sm" className="rounded-lg h-9 font-medium text-muted-foreground hover:text-foreground">Complete</Button>
+             </div>
+             
+             <div className="flex items-center gap-3">
+               <Button variant="outline" size="sm" className="rounded-lg h-9 gap-2 text-muted-foreground border-border/50">
+                 <Filter className="w-4 h-4" /> Filters
+               </Button>
+               <div className="relative">
+                 <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                 <Input className="w-[200px] h-9 pl-9 rounded-lg bg-background border-border/50 text-sm focus-visible:ring-1" placeholder="Search..." />
+               </div>
+             </div>
+           </div>
+
+           <div className="overflow-x-auto">
+             <table className="w-full text-sm text-left">
+               <thead className="bg-secondary/20 text-muted-foreground font-semibold text-xs uppercase tracking-wider">
+                 <tr>
+                   <th className="px-6 py-4 rounded-tl-3xl"><LayoutGrid className="w-4 h-4" /></th>
+                   <th className="px-6 py-4">Target Company</th>
+                   <th className="px-6 py-4">Status</th>
+                   <th className="px-6 py-4">Role & Strategy</th>
+                   <th className="px-6 py-4">ATS Fit</th>
+                   <th className="px-6 py-4">Date Generated</th>
+                   <th className="px-6 py-4 rounded-tr-3xl"></th>
+                 </tr>
+               </thead>
+               <tbody className="divide-y divide-border/30">
+                 {trackingHistory.map((item) => (
+                   <tr key={item.id} className="hover:bg-secondary/20 transition-colors group">
+                     <td className="px-6 py-4">
+                       <input type="checkbox" className="rounded border-muted-foreground/30 text-primary focus:ring-primary shadow-sm" />
+                     </td>
+                     <td className="px-6 py-4 font-bold text-foreground flex items-center gap-3">
+                       <div className="w-8 h-8 rounded-lg bg-foreground text-background flex items-center justify-center shadow-sm">
+                         <span className="font-black text-sm">{item.company.charAt(0)}</span>
+                       </div>
+                       {item.company}
+                     </td>
+                     <td className="px-6 py-4">
+                       <StatusBadge status={item.status} />
+                     </td>
+                     <td className="px-6 py-4">
+                       <p className="font-semibold text-foreground">{item.role}</p>
+                       <p className="text-xs text-muted-foreground">{item.strategy}</p>
+                     </td>
+                     <td className="px-6 py-4 font-semibold">
+                       {item.score ? (
+                         <span className="text-success bg-success/10 px-2.5 py-1 rounded-md border border-success/20">{item.score}% Match</span>
+                       ) : (
+                         <span className="text-muted-foreground">—</span>
+                       )}
+                     </td>
+                     <td className="px-6 py-4 text-muted-foreground font-medium">{item.date}</td>
+                     <td className="px-6 py-4 text-right">
+                       <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted-foreground group-hover:text-foreground">
+                         <span className="sr-only">Open menu</span>
+                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" /></svg>
+                       </Button>
+                     </td>
+                   </tr>
+                 ))}
+               </tbody>
+             </table>
+           </div>
+           
+           <div className="p-4 border-t border-border/40 flex items-center justify-between text-sm text-muted-foreground">
+             <div className="flex items-center gap-2">
+               1-5 of 240 <span className="hidden sm:inline">• Results per page</span>
+               <select className="bg-background border border-border/50 rounded-md px-2 py-1 ml-1 text-foreground focus:outline-none focus:ring-1">
+                 <option>10</option>
+                 <option>20</option>
+                 <option>50</option>
+               </select>
+             </div>
+             <div className="flex gap-1">
+                <Button variant="outline" size="sm" className="w-8 h-8 p-0 rounded-md border-border/50 text-foreground" disabled><ChevronRight className="w-4 h-4 rotate-180" /></Button>
+                <div className="flex items-center justify-center px-4 font-semibold text-foreground">1/9</div>
+                <Button variant="outline" size="sm" className="w-8 h-8 p-0 rounded-md border-border/50 text-foreground"><ChevronRight className="w-4 h-4" /></Button>
+             </div>
+           </div>
         </motion.div>
       </div>
     </div>
+  );
+}
+
+function StatCard({ title, value, trend, icon: Icon, color, bg, border }: any) {
+  return (
+    <motion.div 
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="bg-background/80 backdrop-blur-xl border border-border/50 p-6 rounded-3xl shadow-sm hover:shadow-md transition-shadow"
+    >
+      <div className="flex items-center justify-between mb-4">
+        <div className={`w-12 h-12 rounded-2xl ${bg} ${color} flex items-center justify-center border ${border}`}>
+          <Icon className="w-6 h-6" />
+        </div>
+        <span className="text-xs font-bold text-success bg-success/10 border border-success/20 px-2 py-1 rounded-full">{trend}</span>
+      </div>
+      <div>
+        <p className="text-sm font-semibold text-muted-foreground mb-1">{title}</p>
+        <p className="text-3xl font-black tracking-tight text-foreground">{value}</p>
+      </div>
+    </motion.div>
+  );
+}
+
+function StatusBadge({ status }: { status: string }) {
+  if (status === "Active") {
+    return (
+      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-500/10 text-blue-500 border border-blue-500/20">
+        <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" /> Active
+      </span>
+    );
+  }
+  if (status === "Draft") {
+    return (
+      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-muted text-muted-foreground border border-border/50">
+        <Clock className="w-3 h-3" /> Draft
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-success/10 text-success border border-success/20">
+      <CheckCircle2 className="w-3 h-3" /> Complete
+    </span>
+  );
+}
+
+function UserIcon(props: any) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
+    </svg>
   );
 }
