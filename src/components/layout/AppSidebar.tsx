@@ -132,29 +132,35 @@ export default function AppSidebar() {
           ))}
 
           {/* Sign out */}
-          {collapsed ? (
-            <Tooltip delayDuration={0}>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={() => router.push("/")}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all"
-                >
-                  <LogOut className="w-[18px] h-[18px] shrink-0" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="right" sideOffset={12} className="font-medium">
-                Sign Out
-              </TooltipContent>
-            </Tooltip>
-          ) : (
-            <button
-              onClick={() => router.push("/")}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all"
-            >
-              <LogOut className="w-[18px] h-[18px] shrink-0" />
-              <span>Sign Out</span>
-            </button>
-          )}
+          <form action="/auth/signout" method="POST" onSubmit={async (e) => {
+            e.preventDefault();
+            const { logout } = await import("@/app/(auth)/actions");
+            await logout();
+          }}>
+            {collapsed ? (
+              <Tooltip delayDuration={0}>
+                <TooltipTrigger asChild>
+                  <button
+                    type="submit"
+                    className="w-full flex items-center justify-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all cursor-pointer"
+                  >
+                    <LogOut className="w-[18px] h-[18px] shrink-0" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="right" sideOffset={12} className="font-medium">
+                  Sign Out
+                </TooltipContent>
+              </Tooltip>
+            ) : (
+              <button
+                type="submit"
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all cursor-pointer"
+              >
+                <LogOut className="w-[18px] h-[18px] shrink-0" />
+                <span>Sign Out</span>
+              </button>
+            )}
+          </form>
         </div>
 
         {/* Floating collapse button - positioned on the edge */}

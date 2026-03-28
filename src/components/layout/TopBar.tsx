@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import {
   Bell,
   Search,
@@ -67,7 +68,21 @@ const breadcrumbMap: Record<string, string> = {
 export default function TopBar() {
   const pathname = usePathname();
   const [notifications, setNotifications] = useState(initialNotifications);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
   const unreadCount = notifications.filter((n) => n.unread).length;
+  const supabase = createClient();
+
+  useEffect(() => {
+    async function getUser() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUserEmail(user.email ?? null);
+        setUserName(user.user_metadata?.full_name ?? "User");
+      }
+    }
+    getUser();
+  }, [supabase.auth]);
 
   const markAllAsRead = () => {
     setNotifications(notifications.map((n) => ({ ...n, unread: false })));
@@ -248,8 +263,8 @@ export default function TopBar() {
             <button className="outline-none" aria-label="User menu">
               <Avatar className="h-8 w-8 cursor-pointer transition-transform hover:scale-105 active:scale-95 border border-border/50">
                 <AvatarImage src="" />
-                <AvatarFallback className="bg-gradient-to-br from-primary/20 to-info/20 text-primary font-semibold text-xs">
-                  SI
+                <AvatarFallback className="bg-gradient-to-br from-primary/20 to-info/20 text-primary font-semibold text-xs uppercase">
+                  {userName ? userName.slice(0, 2) : "US"}
                 </AvatarFallback>
               </Avatar>
             </button>
@@ -262,16 +277,16 @@ export default function TopBar() {
             <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg mb-1">
               <Avatar className="h-10 w-10 border border-border/50">
                 <AvatarImage src="" />
-                <AvatarFallback className="bg-gradient-to-br from-primary/20 to-info/20 text-primary font-bold text-sm">
-                  SI
+                <AvatarFallback className="bg-gradient-to-br from-primary/20 to-info/20 text-primary font-bold text-sm uppercase">
+                  {userName ? userName.slice(0, 2) : "US"}
                 </AvatarFallback>
               </Avatar>
               <div className="min-w-0">
                 <h3 className="text-sm font-semibold text-foreground truncate">
-                  Shahroz Imran
+                  {userName || "Dashboard User"}
                 </h3>
                 <p className="text-xs text-muted-foreground truncate">
-                  shahroz@jobflow.ai
+                  {userEmail || "user@example.com"}
                 </p>
               </div>
             </div>
@@ -287,13 +302,20 @@ export default function TopBar() {
 
             <DropdownMenuSeparator className="my-1" />
 
-            <DropdownMenuItem
-              onClick={() => toast.info("Signing out...")}
-              className="py-2.5 px-3 rounded-lg cursor-pointer gap-3 text-sm text-destructive hover:bg-destructive/10 focus:bg-destructive/10 focus:text-destructive"
-            >
-              <LogOut className="w-4 h-4" />
-              Sign out
-            </DropdownMenuItem>
+            <form action="/auth/signout" method="POST" onSubmit={async (e) => {
+              e.preventDefault();
+              toast.info("Signing out...");
+              const { logout } = await import("@/app/(auth)/actions");
+              await logout();
+            }}>
+              <button 
+                type="submit" 
+                className="w-full relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 py-2.5 px-3 cursor-pointer gap-3 text-destructive hover:bg-destructive/10 focus:bg-destructive/10 focus:text-destructive"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Sign out
+              </button>
+            </form>
 
             <div className="p-2 border-t border-border/30 mt-1 flex items-center justify-center gap-3 text-[10px] text-muted-foreground/60">
               <Link href="/privacy" className="hover:text-foreground">
