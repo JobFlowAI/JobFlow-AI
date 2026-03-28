@@ -42,14 +42,19 @@ export default function AboutPage() {
       <LandingNav />
 
       {/* Hero */}
-      <section className="relative py-20 lg:py-28 overflow-hidden">
-        <div className="absolute inset-0 gradient-hero" />
+      <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-28 overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-muted/50 via-background to-background" />
         <div className="relative max-w-4xl mx-auto px-6 text-center">
           <ScrollReveal animationType="fade-up">
-            <h1 className="text-4xl lg:text-6xl font-extrabold text-foreground leading-tight mb-6">
-              We're on a Mission to <span className="text-foreground">Fix Hiring</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary/50 border border-border/50 text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-8">
+              <span className="w-2 h-2 rounded-full bg-foreground" />
+              Our Vision
+            </div>
+            <h1 className="text-5xl lg:text-7xl font-extrabold text-foreground tracking-tight leading-[1.1] mb-6">
+              We're on a Mission to<br />
+              <span className="text-muted-foreground">Fix Hiring</span>
             </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               The hiring process is broken. ATS systems reject 75% of qualified candidates before a human ever sees their resume.
               We built JobFlow AI to give every job seeker a fair shot.
             </p>
@@ -176,19 +181,22 @@ export default function AboutPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-20 bg-card">
-        <div className="max-w-3xl mx-auto px-6 text-center">
+      <section className="py-24 relative overflow-hidden">
+        <div className="absolute inset-0 bg-secondary/30" />
+        <div className="relative max-w-4xl mx-auto px-6">
           <ScrollReveal animationType="fade-up">
-            <h2 className="text-3xl font-bold text-foreground mb-4">Join the Movement</h2>
-            <p className="text-muted-foreground text-lg mb-8">
-              Be part of a community that's changing how people find jobs. Start optimizing today — it's free.
-            </p>
-            <Link
-              href="/dashboard"
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-foreground text-background font-semibold text-lg hover:opacity-90 hover:scale-105 active:scale-95 transition-all"
-            >
-              Get Started Free <ArrowRight className="w-5 h-5" />
-            </Link>
+            <div className="bg-background border border-border/50 rounded-[2.5rem] p-12 md:p-16 text-center shadow-sm">
+              <h2 className="text-3xl md:text-5xl font-bold text-foreground tracking-tight mb-6">Join the Movement</h2>
+              <p className="text-muted-foreground text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-10">
+                Be part of a community that's changing how people find jobs. Start optimizing today — entirely for free.
+              </p>
+              <Link
+                href="/dashboard"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-foreground text-background font-semibold text-lg hover:opacity-90 hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
+              >
+                Get Started Free <ArrowRight className="w-5 h-5 ml-1" />
+              </Link>
+            </div>
           </ScrollReveal>
         </div>
       </section>
