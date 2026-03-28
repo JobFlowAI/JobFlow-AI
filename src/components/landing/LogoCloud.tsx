@@ -2,14 +2,24 @@
 
 import { motion } from "framer-motion";
 
-const logos = [
-  { name: "Stripe", style: "font-black tracking-tighter uppercase" },
-  { name: "▲ Vercel", style: "font-bold tracking-tight" },
-  { name: "Linear", style: "font-bold tracking-tight" },
-  { name: "Notion", style: "font-serif italic font-bold tracking-tight" },
-  { name: "Figma", style: "font-bold tracking-tight" },
-  { name: "OpenAI", style: "font-bold tracking-tighter" },
+const partners = ["STRIPE", "▲ Vercel", "● SQUARE", "Notion", "OpenAI"];
+const techStack = [
+  "Next.js", 
+  "Tailwind CSS", 
+  "Framer Motion", 
+  "React 18", 
+  "TypeScript", 
+  "Radix UI", 
+  "Lucide React", 
+  "TanStack Query", 
+  "Zod"
 ];
+
+export default function LogoCloud() {
+  const allItems = [...partners, ...techStack];
+  
+  // Duplicate items for seamless loop
+  const duplicatedItems = [...allItems, ...allItems, ...allItems];
 
 function LogoRow() {
   return (
@@ -49,3 +59,4 @@ export default function LogoCloud() {
     </section>
   );
 }
+
