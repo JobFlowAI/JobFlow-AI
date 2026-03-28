@@ -15,21 +15,16 @@ const techStack = [
   "Zod"
 ];
 
-export default function LogoCloud() {
-  const allItems = [...partners, ...techStack];
-  
-  // Duplicate items for seamless loop
-  const duplicatedItems = [...allItems, ...allItems, ...allItems];
-
 function LogoRow() {
+  const allItems = [...partners, ...techStack];
   return (
     <>
-      {logos.map((logo) => (
+      {allItems.map((name, idx) => (
         <div
-          key={logo.name}
-          className={`text-xl md:text-2xl text-foreground/40 select-none whitespace-nowrap ${logo.style}`}
+          key={`${name}-${idx}`}
+          className="text-xl md:text-2xl font-bold text-foreground/40 tracking-tight select-none whitespace-nowrap"
         >
-          {logo.name}
+          {name}
         </div>
       ))}
     </>
@@ -45,8 +40,8 @@ export default function LogoCloud() {
         </p>
         <div className="relative overflow-hidden">
           {/* Fade edges */}
-          <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-muted/20 to-transparent z-10 pointer-events-none" />
-          <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-muted/20 to-transparent z-10 pointer-events-none" />
+          <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
 
           <div className="flex gap-12 marquee" aria-hidden="true">
             <LogoRow />
