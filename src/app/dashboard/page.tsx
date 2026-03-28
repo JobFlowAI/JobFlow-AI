@@ -1,192 +1,428 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { 
-  Search, Filter, ArrowUpDown, MoreHorizontal, 
-  FileText, CheckCircle2, Clock, Zap, Download
+import Link from "next/link";
+import {
+  FileText,
+  Target,
+  TrendingUp,
+  User,
+  Plus,
+  ArrowUpRight,
+  MoreHorizontal,
+  Zap,
+  Clock,
 } from "lucide-react";
-import { ResumeCreationModal } from "@/components/ResumeCreationModal";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { getProfile, getProfileCompleteness } from "@/lib/profile-store";
+import { getResumes, getResumeStats } from "@/lib/resume-store";
+import type { GeneratedResume } from "@/lib/resume-store";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+} from "recharts";
 
-// Dummy data matching Image 2 table layout intent
-const tableData = [
-  { id: 1, target: "Senior Frontend Engineer", company: "Stripe", status: "Active", optimization: "ATS", score: "88%", start: "28 Mar 2026", end: "Forever" },
-  { id: 2, target: "Full Stack Developer", company: "Vercel", status: "Active", optimization: "ATS", score: "92%", start: "28 Mar 2026", end: "10 Jun 2026" },
-  { id: 3, target: "React Developer", company: "Linear", status: "Draft", optimization: "Non-ATS", score: "—", start: "25 Mar 2026", end: "10 Jun 2026" },
-  { id: 4, target: "Software Engineer II", company: "Notion", status: "Complete", optimization: "ATS", score: "95%", start: "20 Mar 2026", end: "10 Jun 2026" },
-  { id: 5, target: "Frontend Architect", company: "Airbnb", status: "Active", optimization: "ATS", score: "81%", start: "18 Mar 2026", end: "Forever" },
-  { id: 6, target: "UI Engineer", company: "Figma", status: "Active", optimization: "Non-ATS", score: "—", start: "15 Mar 2026", end: "10 Jun 2026" },
-  { id: 7, target: "Creative Developer", company: "Apple", status: "Draft", optimization: "Non-ATS", score: "—", start: "10 Mar 2026", end: "Forever" },
-  { id: 8, target: "Web Developer", company: "Shopify", status: "Complete", optimization: "ATS", score: "89%", start: "05 Mar 2026", end: "10 Jun 2026" },
+// Sample chart data
+const weeklyData = [
+  { day: "Mon", resumes: 2 },
+  { day: "Tue", resumes: 1 },
+  { day: "Wed", resumes: 3 },
+  { day: "Thu", resumes: 0 },
+  { day: "Fri", resumes: 4 },
+  { day: "Sat", resumes: 2 },
+  { day: "Sun", resumes: 1 },
+];
+
+const scoreDistribution = [
+  { range: "60-69", count: 1 },
+  { range: "70-79", count: 3 },
+  { range: "80-89", count: 5 },
+  { range: "90-100", count: 4 },
 ];
 
 export default function Dashboard() {
-  const [activeTab, setActiveTab] = useState("All");
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [profile, setProfile] = useState({ firstName: "", lastName: "" });
+  const [completeness, setCompleteness] = useState(0);
+  const [resumes, setResumes] = useState<GeneratedResume[]>([]);
+  const [stats, setStats] = useState({
+    totalResumes: 0,
+    avgAtsScore: 0,
+    atsResumes: 0,
+    creativeResumes: 0,
+    activeResumes: 0,
+    completedResumes: 0,
+  });
 
-  const filteredData = activeTab === "All" 
-    ? tableData 
-    : tableData.filter(item => item.status === activeTab);
+  useEffect(() => {
+    const p = getProfile();
+    setProfile({ firstName: p.firstName, lastName: p.lastName });
+    setCompleteness(getProfileCompleteness());
+    setResumes(getResumes());
+    setStats(getResumeStats());
+  }, []);
+
+  const statCards = [
+    {
+      label: "Total Resumes",
+      value: stats.totalResumes.toString(),
+      icon: FileText,
+      color: "text-primary",
+      bg: "bg-primary/10",
+    },
+    {
+      label: "Avg ATS Score",
+      value: stats.avgAtsScore > 0 ? `${stats.avgAtsScore}%` : "—",
+      icon: Target,
+      color: "text-success",
+      bg: "bg-success/10",
+    },
+    {
+      label: "Active Resumes",
+      value: stats.activeResumes.toString(),
+      icon: TrendingUp,
+      color: "text-info",
+      bg: "bg-info/10",
+    },
+    {
+      label: "Profile Complete",
+      value: `${completeness}%`,
+      icon: User,
+      color: "text-gold",
+      bg: "bg-gold/10",
+    },
+  ];
+
+  const recentResumes = resumes.slice(0, 5);
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] p-6 md:p-10 bg-background text-foreground animate-in fade-in duration-500">
-      
-      {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+    <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
+      {/* Welcome Section */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Resumes</h1>
-          <p className="text-sm text-muted-foreground mt-1">Application Status and Target Matches</p>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+            {profile.firstName
+              ? `Welcome back, ${profile.firstName}`
+              : "Welcome to JobFlow AI"}
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Here&apos;s an overview of your resume activity.
+          </p>
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="outline" className="gap-2 bg-background border-border shadow-sm">
-            <Download className="w-4 h-4" /> Export
-          </Button>
-          <Button onClick={() => setIsModalOpen(true)} className="bg-primary text-primary-foreground shadow-sm px-6">
-            Create resume
-          </Button>
-        </div>
-      </div>
-
-      {/* Controls Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-        {/* Tabs */}
-        <div className="flex p-1 bg-secondary/30 border border-border/50 rounded-xl overflow-hidden self-start">
-          {["All", "Active", "Complete", "Draft"].map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-6 py-2 text-sm font-semibold rounded-lg transition-all ${
-                activeTab === tab 
-                  ? "bg-background text-foreground shadow-sm" 
-                  : "text-muted-foreground hover:text-foreground hover:bg-secondary/40"
-              }`}
+          <Link href="/dashboard/profile">
+            <Button
+              variant="outline"
+              className="gap-2 rounded-xl border-border/50"
             >
-              {tab}
-            </button>
-          ))}
-        </div>
-
-        {/* Filters & Search */}
-        <div className="flex items-center gap-3">
-          <Button variant="outline" className="gap-2 bg-background border-border/60 text-muted-foreground hover:text-foreground">
-            <Filter className="w-4 h-4" /> Filters
-          </Button>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <input 
-              type="text" 
-              placeholder="Search..." 
-              className="w-64 pl-9 pr-4 py-2 text-sm rounded-lg border border-border/60 bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium placeholder:font-normal"
-            />
-          </div>
-          <Button variant="outline" className="gap-2 bg-background border-border/60 text-muted-foreground hover:text-foreground">
-            <ArrowUpDown className="w-4 h-4" /> Sort order
-          </Button>
+              <User className="w-4 h-4" /> Update Profile
+            </Button>
+          </Link>
+          <Link href="/dashboard/resume-workspace">
+            <Button className="gap-2 rounded-xl shadow-sm">
+              <Plus className="w-4 h-4" /> Create Resume
+            </Button>
+          </Link>
         </div>
       </div>
 
-      {/* Main Table */}
-      <div className="bg-background border border-border/60 rounded-2xl overflow-hidden shadow-sm">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left whitespace-nowrap">
-            <thead className="text-xs text-muted-foreground uppercase tracking-widest bg-secondary/20 border-b border-border/60 font-bold">
-              <tr>
-                <th className="px-6 py-4 font-semibold w-12">
-                  <input type="checkbox" className="rounded border-border/50 bg-background text-primary focus:ring-primary" />
-                </th>
-                <th className="px-6 py-4 font-semibold">Target Role</th>
-                <th className="px-6 py-4 font-semibold">Status</th>
-                <th className="px-6 py-4 font-semibold">Optimization</th>
-                <th className="px-6 py-4 font-semibold">Fit Score</th>
-                <th className="px-6 py-4 font-semibold">Created Date</th>
-                <th className="px-6 py-4 font-semibold">Expiry</th>
-                <th className="px-6 py-4 font-semibold w-12"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border/40">
-              {filteredData.map((row, idx) => (
-                <motion.tr 
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.05 }}
-                  key={row.id} 
-                  className="hover:bg-secondary/20 transition-colors group cursor-pointer"
-                >
-                  <td className="px-6 py-4">
-                    <input type="checkbox" className="rounded border-border/50 bg-background text-primary focus:ring-primary cursor-pointer" />
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center font-bold text-foreground text-xs font-serif uppercase tracking-widest">
-                        {row.company.charAt(0)}
-                      </div>
+      {/* Profile completeness banner */}
+      {completeness < 100 && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="rounded-xl border border-primary/20 bg-primary/5 p-4 flex items-center justify-between gap-4"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+              <User className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-foreground">
+                Complete your profile to generate better resumes
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Your profile is {completeness}% complete
+              </p>
+            </div>
+          </div>
+          <Link href="/dashboard/profile">
+            <Button size="sm" variant="outline" className="rounded-lg gap-1.5 text-xs">
+              Complete Profile <ArrowUpRight className="w-3 h-3" />
+            </Button>
+          </Link>
+        </motion.div>
+      )}
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {statCards.map((stat, i) => (
+          <motion.div
+            key={stat.label}
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.05 }}
+            className="rounded-xl border border-border/40 bg-card p-5 hover:border-border/60 hover:shadow-sm transition-all"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs font-medium text-muted-foreground">
+                {stat.label}
+              </span>
+              <div
+                className={`w-8 h-8 rounded-lg ${stat.bg} flex items-center justify-center`}
+              >
+                <stat.icon className={`w-4 h-4 ${stat.color}`} />
+              </div>
+            </div>
+            <div className="text-2xl font-bold tracking-tight text-foreground">
+              {stat.value}
+            </div>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Charts Row */}
+      <div className="grid md:grid-cols-2 gap-4">
+        {/* Activity Chart */}
+        <div className="rounded-xl border border-border/40 bg-card p-5">
+          <div className="flex items-center justify-between mb-5">
+            <div>
+              <h3 className="text-sm font-semibold text-foreground">
+                Resume Activity
+              </h3>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                This week
+              </p>
+            </div>
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <TrendingUp className="w-3 h-3 text-success" />
+              <span className="text-success font-medium">+12%</span>
+            </div>
+          </div>
+          <div className="h-[200px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={weeklyData}>
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  vertical={false}
+                  stroke="hsl(var(--border))"
+                />
+                <XAxis
+                  dataKey="day"
+                  tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis
+                  tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "hsl(var(--card))",
+                    border: "1px solid hsl(var(--border))",
+                    borderRadius: "8px",
+                    fontSize: "12px",
+                  }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="resumes"
+                  stroke="hsl(var(--primary))"
+                  strokeWidth={2}
+                  dot={{ fill: "hsl(var(--primary))", r: 3 }}
+                  activeDot={{ r: 5 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* ATS Score Distribution */}
+        <div className="rounded-xl border border-border/40 bg-card p-5">
+          <div className="flex items-center justify-between mb-5">
+            <div>
+              <h3 className="text-sm font-semibold text-foreground">
+                ATS Score Distribution
+              </h3>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Across all resumes
+              </p>
+            </div>
+          </div>
+          <div className="h-[200px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={scoreDistribution}>
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  vertical={false}
+                  stroke="hsl(var(--border))"
+                />
+                <XAxis
+                  dataKey="range"
+                  tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis
+                  tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "hsl(var(--card))",
+                    border: "1px solid hsl(var(--border))",
+                    borderRadius: "8px",
+                    fontSize: "12px",
+                  }}
+                />
+                <Bar
+                  dataKey="count"
+                  fill="hsl(var(--primary))"
+                  radius={[6, 6, 0, 0]}
+                  barSize={40}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
+      {/* Recent Resumes Table */}
+      <div className="rounded-xl border border-border/40 bg-card overflow-hidden">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-border/30">
+          <h3 className="text-sm font-semibold text-foreground">
+            Recent Resumes
+          </h3>
+          <Link
+            href="/dashboard/resume-workspace"
+            className="text-xs font-medium text-primary hover:underline"
+          >
+            View all
+          </Link>
+        </div>
+
+        {recentResumes.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="text-xs text-muted-foreground bg-muted/20 border-b border-border/30">
+                <tr>
+                  <th className="px-5 py-3 text-left font-medium">
+                    Target Role
+                  </th>
+                  <th className="px-5 py-3 text-left font-medium">Type</th>
+                  <th className="px-5 py-3 text-left font-medium">Status</th>
+                  <th className="px-5 py-3 text-left font-medium">
+                    ATS Score
+                  </th>
+                  <th className="px-5 py-3 text-left font-medium">Created</th>
+                  <th className="px-5 py-3 w-10"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border/20">
+                {recentResumes.map((resume) => (
+                  <tr
+                    key={resume.id}
+                    className="hover:bg-muted/20 transition-colors"
+                  >
+                    <td className="px-5 py-3">
                       <div>
-                        <p className="font-bold text-foreground">{row.target}</p>
-                        <p className="text-xs text-muted-foreground">{row.company}</p>
+                        <p className="font-medium text-foreground">
+                          {resume.targetRole}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {resume.company}
+                        </p>
                       </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
-                      row.status === 'Active' ? 'bg-primary/10 text-primary border border-primary/20' :
-                      row.status === 'Complete' ? 'bg-success/10 text-success border border-success/20' :
-                      'bg-muted/40 text-muted-foreground border border-border'
-                    }`}>
-                      <div className={`w-1.5 h-1.5 rounded-full ${
-                        row.status === 'Active' ? 'bg-primary animate-pulse' :
-                        row.status === 'Complete' ? 'bg-success' :
-                        'bg-muted-foreground border border-background'
-                      }`} />
-                      {row.status}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-foreground font-medium">
-                    {row.optimization === 'ATS' ? (
-                      <span className="flex items-center gap-1">
-                        <FileText className="w-3.5 h-3.5 text-muted-foreground" /> ATS Parser
+                    </td>
+                    <td className="px-5 py-3">
+                      <span
+                        className={`inline-flex items-center gap-1 text-xs font-medium ${
+                          resume.optimizationType === "ats"
+                            ? "text-success"
+                            : "text-primary"
+                        }`}
+                      >
+                        {resume.optimizationType === "ats" ? (
+                          <>
+                            <FileText className="w-3 h-3" /> ATS
+                          </>
+                        ) : (
+                          <>
+                            <Zap className="w-3 h-3" /> Visual
+                          </>
+                        )}
                       </span>
-                    ) : (
-                      <span className="flex items-center gap-1">
-                        <Zap className="w-3.5 h-3.5 text-gold" /> Visual Design
+                    </td>
+                    <td className="px-5 py-3">
+                      <span
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium ${
+                          resume.status === "active"
+                            ? "bg-primary/10 text-primary"
+                            : resume.status === "complete"
+                            ? "bg-success/10 text-success"
+                            : "bg-muted text-muted-foreground"
+                        }`}
+                      >
+                        <div
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            resume.status === "active"
+                              ? "bg-primary"
+                              : resume.status === "complete"
+                              ? "bg-success"
+                              : "bg-muted-foreground"
+                          }`}
+                        />
+                        {resume.status.charAt(0).toUpperCase() +
+                          resume.status.slice(1)}
                       </span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 text-foreground font-semibold font-mono tracking-tight">
-                    {row.score}
-                  </td>
-                  <td className="px-6 py-4 text-muted-foreground text-sm">
-                    {row.start}
-                  </td>
-                  <td className="px-6 py-4 text-muted-foreground text-sm">
-                    {row.end}
-                  </td>
-                  <td className="px-6 py-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button className="p-1.5 hover:bg-secondary rounded-md text-muted-foreground transition-colors">
-                      <MoreHorizontal className="w-5 h-5" />
-                    </button>
-                  </td>
-                </motion.tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        
-        {/* Pagination/Footer */}
-        <div className="px-6 py-4 border-t border-border/40 flex items-center justify-between text-sm text-muted-foreground font-medium bg-secondary/10">
-          <div>
-            1-10 of 240 • Results per page <select className="bg-background border border-border rounded px-2 py-1 ml-1 outline-none font-bold text-foreground shadow-sm"><option>10</option></select>
+                    </td>
+                    <td className="px-5 py-3 font-mono text-sm font-medium text-foreground">
+                      {resume.atsScore ? `${resume.atsScore}%` : "—"}
+                    </td>
+                    <td className="px-5 py-3 text-muted-foreground text-xs flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      {new Date(resume.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="px-5 py-3">
+                      <button className="p-1.5 hover:bg-muted rounded-lg text-muted-foreground transition-colors">
+                        <MoreHorizontal className="w-4 h-4" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-          <div className="flex gap-2">
-            <button className="px-3 py-1.5 rounded border border-border bg-background hover:bg-secondary transition-colors">&lt;</button>
-            <span className="px-4 py-1.5 rounded text-foreground font-bold shadow-sm border border-border">1 / 9</span>
-            <button className="px-3 py-1.5 rounded border border-border bg-background hover:bg-secondary transition-colors">&gt;</button>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="w-14 h-14 rounded-2xl bg-muted/50 flex items-center justify-center mb-4">
+              <FileText className="w-7 h-7 text-muted-foreground/40" />
+            </div>
+            <h3 className="font-semibold text-foreground mb-1">
+              No resumes yet
+            </h3>
+            <p className="text-sm text-muted-foreground mb-5 max-w-sm">
+              Create your first AI-optimized resume by pasting a job description
+              and letting our engine do the work.
+            </p>
+            <Link href="/dashboard/resume-workspace">
+              <Button className="gap-2 rounded-xl shadow-sm">
+                <Plus className="w-4 h-4" /> Create Your First Resume
+              </Button>
+            </Link>
           </div>
-        </div>
+        )}
       </div>
-
-      <ResumeCreationModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>
   );
 }

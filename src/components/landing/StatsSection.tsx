@@ -1,6 +1,59 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useInView } from "framer-motion";
+import { useRef, useEffect, useState } from "react";
+
+function AnimatedCounter({ target, suffix = "" }: { target: string; suffix?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-50px" });
+  const [display, setDisplay] = useState("0");
+
+  useEffect(() => {
+    if (!isInView) return;
+
+    const numericPart = target.replace(/[^0-9.]/g, "");
+    const num = parseFloat(numericPart);
+    const prefix = target.match(/^[^0-9]*/)?.[0] || "";
+    const suffixPart = target.match(/[^0-9.]*$/)?.[0] || "";
+
+    if (isNaN(num)) {
+      setDisplay(target);
+      return;
+    }
+
+    const duration = 1500;
+    const startTime = Date.now();
+    const isFloat = target.includes(".");
+
+    const animate = () => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      // Ease out cubic
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const current = eased * num;
+
+      if (isFloat) {
+        setDisplay(`${prefix}${current.toFixed(1)}${suffixPart}`);
+      } else {
+        setDisplay(`${prefix}${Math.round(current)}${suffixPart}`);
+      }
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      } else {
+        setDisplay(target);
+      }
+    };
+
+    requestAnimationFrame(animate);
+  }, [isInView, target]);
+
+  return (
+    <div ref={ref} className="text-4xl md:text-6xl font-extrabold tracking-tighter">
+      {display}{suffix}
+    </div>
+  );
+}
 
 export default function StatsSection() {
   const stats = [
@@ -11,24 +64,26 @@ export default function StatsSection() {
   ];
 
   return (
-    <section className="py-24 bg-foreground relative z-10 text-background overflow-hidden">
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-[500px] bg-background/5 blur-[100px] rounded-full pointer-events-none" />
-      
+    <section className="py-20 md:py-24 relative z-10 overflow-hidden bg-foreground text-background">
+      {/* Subtle gradient mesh */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 blur-[120px] rounded-full" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-info/10 blur-[120px] rounded-full" />
+      </div>
+
       <div className="max-w-6xl mx-auto px-6 relative z-10">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-12">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
           {stats.map((s, i) => (
             <motion.div
               key={s.label}
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.1, duration: 0.5 }}
+              transition={{ delay: i * 0.1 }}
               className="text-center"
             >
-              <div className="text-4xl md:text-6xl font-extrabold tracking-tighter mb-4 text-background">
-                {s.value}
-              </div>
-              <div className="text-sm md:text-base font-medium text-background/60 uppercase tracking-widest">
+              <AnimatedCounter target={s.value} />
+              <div className="text-xs md:text-sm font-medium text-background/50 uppercase tracking-widest mt-3">
                 {s.label}
               </div>
             </motion.div>

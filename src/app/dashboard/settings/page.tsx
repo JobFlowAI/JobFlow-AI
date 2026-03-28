@@ -44,14 +44,14 @@ export default function SettingsPage() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="card-elevated p-6"
+        className="border border-border bg-card shadow-sm rounded-xl p-6"
       >
-        <div className="flex items-center gap-2 mb-6">
+        <div className="flex items-center gap-2 mb-6 border-b border-border/50 pb-4">
           <User className="w-5 h-5 text-foreground" />
           <h2 className="text-lg font-semibold text-foreground">Profile Settings</h2>
         </div>
         
-        <div className="grid gap-6">
+        <div className="grid gap-6 max-w-2xl">
           <div className="grid gap-2">
             <Label htmlFor="name" className="text-sm font-medium">Full Name</Label>
             <div className="relative">
@@ -81,7 +81,7 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          <div className="flex justify-end pt-2">
+          <div className="flex justify-start pt-4 border-t border-border/50 mt-2">
             <Button
               onClick={handleSaveProfile}
               disabled={isSaving}
@@ -103,16 +103,16 @@ export default function SettingsPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="card-elevated p-6"
+        className="border border-border bg-card shadow-sm rounded-xl p-6"
       >
-        <div className="flex items-start justify-between">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <Crown className="w-5 h-5 text-gold" />
               <h2 className="text-lg font-semibold text-foreground">Pro Plan</h2>
             </div>
             <p className="text-sm text-muted-foreground mb-4">200 credits/month • $10/month</p>
-            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-muted-foreground">
               <span className="flex items-center gap-1">
                 <Calendar className="w-4 h-4" /> Next billing: Apr 15, 2026
               </span>
@@ -121,12 +121,13 @@ export default function SettingsPage() {
               </span>
             </div>
           </div>
-          <button
+          <Button
             onClick={() => toast.info("Upgrade flow coming soon! You'll be able to manage your subscription here.")}
-            className="flex items-center gap-1 px-5 py-2.5 rounded-xl bg-gold text-gold-foreground text-sm font-semibold hover:opacity-90 transition-opacity"
+            variant="default"
+            className="flex items-center gap-2"
           >
             Upgrade <ArrowUpRight className="w-4 h-4" />
-          </button>
+          </Button>
         </div>
       </motion.div>
 
@@ -135,26 +136,26 @@ export default function SettingsPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="card-elevated p-6"
+        className="border border-border bg-card shadow-sm rounded-xl p-6"
       >
-        <h2 className="text-lg font-semibold text-foreground mb-4">Usage History</h2>
-        <div className="overflow-hidden rounded-xl border border-border">
+        <h2 className="text-lg font-semibold text-foreground mb-4 border-b border-border/50 pb-4">Usage History</h2>
+        <div className="overflow-hidden rounded-xl border border-border mt-2">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-secondary">
+              <tr className="bg-muted/50">
                 <th className="text-left px-4 py-3 font-medium text-muted-foreground">Action</th>
-                <th className="text-left px-4 py-3 font-medium text-muted-foreground">Date</th>
-                <th className="text-left px-4 py-3 font-medium text-muted-foreground">Time</th>
+                <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden sm:table-cell">Date</th>
+                <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden sm:table-cell">Time</th>
                 <th className="text-right px-4 py-3 font-medium text-muted-foreground">Credits</th>
               </tr>
             </thead>
             <tbody>
               {usageHistory.map((entry, i) => (
-                <tr key={i} className="border-t border-border hover:bg-secondary/50 transition-colors">
+                <tr key={i} className="border-t border-border hover:bg-muted/30 transition-colors">
                   <td className="px-4 py-3 text-foreground">{entry.action}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{entry.date}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{entry.time}</td>
-                  <td className="px-4 py-3 text-right font-semibold text-destructive">{entry.credits}</td>
+                  <td className="px-4 py-3 text-muted-foreground hidden sm:table-cell">{entry.date}</td>
+                  <td className="px-4 py-3 text-muted-foreground hidden sm:table-cell">{entry.time}</td>
+                  <td className="px-4 py-3 text-right font-semibold text-foreground">{entry.credits}</td>
                 </tr>
               ))}
             </tbody>

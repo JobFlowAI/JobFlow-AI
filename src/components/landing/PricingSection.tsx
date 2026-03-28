@@ -1,27 +1,31 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Check } from "lucide-react";
 
 export default function PricingSection() {
+  const [yearly, setYearly] = useState(false);
+
   const plans = [
     {
       name: "Starter",
       desc: "Essentials for early-stage job hunters.",
-      price: "$0",
+      priceMonthly: 0,
+      priceYearly: 0,
       featured: false,
       features: [
         "1 AI Resume Optimization",
         "Basic ATS Formatting Check",
         "PDF Export",
       ],
-      cta: "Get Started Free"
+      cta: "Get Started Free",
     },
     {
       name: "Plus",
       desc: "Perfect for active job seekers.",
-      price: "$10",
-      period: "/mo",
+      priceMonthly: 10,
+      priceYearly: 8,
       featured: false,
       features: [
         "10 Auto-Optimizations",
@@ -29,13 +33,13 @@ export default function PricingSection() {
         "Standard Outreach Templates",
         "Basic Cover Letter Generation",
       ],
-      cta: "Start Plus Plan"
+      cta: "Start Free Trial",
     },
     {
       name: "Pro",
       desc: "For serious professionals seeking edge.",
-      price: "$29",
-      period: "/mo",
+      priceMonthly: 29,
+      priceYearly: 24,
       featured: true,
       features: [
         "Unlimited Auto-Optimizations",
@@ -44,81 +48,131 @@ export default function PricingSection() {
         "Advanced Cover Letter Generation",
         "Priority Support",
       ],
-      cta: "Start Pro Trial"
-    }
+      cta: "Subscribe to Pro",
+    },
   ];
 
   return (
-    <section id="pricing" className="py-32 relative z-10 bg-background">
+    <section id="pricing" className="py-24 md:py-32 relative z-10 bg-background">
       <div className="max-w-6xl mx-auto px-6">
-        <div className="text-center max-w-2xl mx-auto mb-20">
-          <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight text-foreground mb-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center max-w-2xl mx-auto mb-12"
+        >
+          <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight text-foreground mb-5">
             Transparent pricing.
           </h2>
-          <p className="text-lg text-muted-foreground">
-            Invest in your career with a plan that fits your current trajectory. 
-            No hidden fees, cancel anytime.
+          <p className="text-base md:text-lg text-muted-foreground mb-8">
+            Invest in your career with a plan that fits. No hidden fees, cancel
+            anytime.
           </p>
-        </div>
 
-        <div className="grid md:grid-cols-3 gap-8 items-center max-w-5xl mx-auto">
-          {plans.map((plan, i) => (
-            <motion.div
-              key={plan.name}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-              className={`relative glass-card p-10 flex flex-col h-full ${
-                plan.featured 
-                  ? "border-foreground/30 shadow-2xl md:scale-105 z-10 bg-secondary/20" 
-                  : "bg-background/50 hover:border-foreground/20"
+          {/* Toggle */}
+          <div className="inline-flex items-center gap-3 bg-muted rounded-full p-1">
+            <button
+              onClick={() => setYearly(false)}
+              className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${
+                !yearly
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              {plan.featured && (
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                  <span className="px-3 py-1 rounded-full bg-foreground text-background text-xs font-bold tracking-widest uppercase shadow-md">
-                    Recommended
-                  </span>
-                </div>
-              )}
-              
-              <div className="mb-8">
-                <h3 className="text-2xl font-bold text-foreground mb-2">{plan.name}</h3>
-                <p className="text-sm text-muted-foreground h-10">{plan.desc}</p>
-              </div>
-              
-              <div className="mb-8">
-                <div className="flex items-baseline gap-1">
-                  <span className="text-4xl font-extrabold tracking-tighter text-foreground">
-                    {plan.price}
-                  </span>
-                  {plan.period && (
-                    <span className="text-muted-foreground font-medium">{plan.period}</span>
-                  )}
-                </div>
-              </div>
+              Monthly
+            </button>
+            <button
+              onClick={() => setYearly(true)}
+              className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${
+                yearly
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Yearly
+              <span className="ml-1.5 text-xs text-primary font-bold">
+                -20%
+              </span>
+            </button>
+          </div>
+        </motion.div>
 
-              <div className="space-y-4 flex-1 mb-8">
-                {plan.features.map((feature) => (
-                  <div key={feature} className="flex gap-3">
-                    <Check className="w-5 h-5 text-foreground shrink-0" />
-                    <span className="text-muted-foreground text-sm font-medium">{feature}</span>
-                  </div>
-                ))}
-              </div>
-
-              <button
-                className={`w-full py-4 rounded-xl font-bold transition-all ${
+        <div className="grid md:grid-cols-3 gap-5 items-start max-w-5xl mx-auto">
+          {plans.map((plan, i) => {
+            const price = yearly ? plan.priceYearly : plan.priceMonthly;
+            return (
+              <motion.div
+                key={plan.name}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className={`relative rounded-2xl p-8 flex flex-col h-full transition-all duration-300 ${
                   plan.featured
-                    ? "bg-foreground text-background hover:bg-foreground/90 shadow-lg"
-                    : "bg-secondary text-foreground hover:bg-secondary/80 border border-border/50"
+                    ? "border-2 border-foreground bg-card shadow-md mt-0 md:-mt-4 mb-0 md:-mb-4"
+                    : "border border-border/50 bg-card hover:border-border hover:shadow-sm"
                 }`}
               >
-                {plan.cta}
-              </button>
-            </motion.div>
-          ))}
+                {plan.featured && (
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                    <span className="px-4 py-1 rounded-full bg-foreground text-background text-xs font-bold tracking-wide shadow-sm">
+                      Most Popular
+                    </span>
+                  </div>
+                )}
+
+                <div className="mb-6">
+                  <h3 className="text-xl font-bold text-foreground mb-1.5">
+                    {plan.name}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    {plan.desc}
+                  </p>
+                </div>
+
+                <div className="mb-6">
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-4xl font-extrabold tracking-tight text-foreground">
+                      ${price}
+                    </span>
+                    {price > 0 && (
+                      <span className="text-muted-foreground font-medium text-sm">
+                        /mo
+                      </span>
+                    )}
+                  </div>
+                  {yearly && price > 0 && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Billed annually
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-3 flex-1 mb-8">
+                  {plan.features.map((feature) => (
+                    <div key={feature} className="flex gap-3 items-start">
+                      <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                        <Check className="w-3 h-3 text-primary" />
+                      </div>
+                      <span className="text-sm text-foreground">
+                        {feature}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                <button
+                  className={`w-full py-3 rounded-xl font-semibold text-sm transition-all active:scale-[0.98] ${
+                    plan.featured
+                      ? "bg-foreground text-background hover:bg-foreground/90 shadow-sm"
+                      : "bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border/50"
+                  }`}
+                >
+                  {plan.cta}
+                </button>
+              </motion.div>
+            );
+          })}
         </div>
       </div>
     </section>

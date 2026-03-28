@@ -1,304 +1,533 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { User, Briefcase, GraduationCap, Zap, ChevronRight, ChevronLeft, CheckCircle2 } from "lucide-react";
+import {
+  ArrowRight,
+  ArrowLeft,
+  User,
+  Briefcase,
+  GraduationCap,
+  Code,
+  Sparkles,
+  CheckCircle2,
+  Zap,
+  SkipForward,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import {
+  getProfile,
+  saveProfile,
+  generateId,
+  type UserProfile,
+} from "@/lib/profile-store";
 
 const steps = [
+  { id: "welcome", label: "Welcome", icon: Sparkles },
   { id: "personal", label: "Personal Info", icon: User },
   { id: "experience", label: "Experience", icon: Briefcase },
   { id: "education", label: "Education", icon: GraduationCap },
-  { id: "skills", label: "Skills", icon: Zap },
+  { id: "skills", label: "Skills", icon: Code },
+  { id: "complete", label: "Complete", icon: CheckCircle2 },
 ];
 
-export default function Onboarding() {
+export default function OnboardingPage() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
-  const [mounted, setMounted] = useState(false);
+  const [profile, setProfile] = useState<UserProfile>(getProfile());
+  const [skillInput, setSkillInput] = useState("");
 
-  // Resume Data State
-  const [resumeData, setResumeData] = useState({
-    personal: { firstName: "", lastName: "", email: "", phone: "", location: "", summary: "" },
-    experience: [{ id: "1", company: "", role: "", duration: "", description: "" }],
-    education: [{ id: "1", school: "", degree: "", duration: "", grade: "" }],
-    skills: [] as string[],
-  });
-  const [newSkill, setNewSkill] = useState("");
+  const updateField = (field: keyof UserProfile, value: unknown) => {
+    setProfile((prev) => ({ ...prev, [field]: value }));
+  };
 
-  useEffect(() => {
-    setMounted(true);
-    // In a real app, check if user is already onboarded via an API here.
-    const hasOnboarded = localStorage.getItem("onboarded");
-    if (hasOnboarded) {
-      router.replace("/dashboard");
+  const canProceed = () => {
+    switch (steps[currentStep].id) {
+      case "personal":
+        return profile.firstName.trim() !== "" && profile.lastName.trim() !== "";
+      default:
+        return true;
     }
-  }, [router]);
-
-  if (!mounted) return null;
-
-  const handleUpdatePersonal = (field: string, value: string) => {
-    setResumeData(prev => ({ ...prev, personal: { ...prev.personal, [field]: value } }));
   };
 
-  const handleAddExperience = () => {
-    setResumeData(prev => ({
-      ...prev,
-      experience: [...prev.experience, { id: Math.random().toString(), company: "", role: "", duration: "", description: "" }]
-    }));
-  };
-
-  const handleUpdateExperience = (id: string, field: string, value: string) => {
-    setResumeData(prev => ({
-      ...prev,
-      experience: prev.experience.map(exp => exp.id === id ? { ...exp, [field]: value } : exp)
-    }));
-  };
-
-  const handleAddEducation = () => {
-    setResumeData(prev => ({
-      ...prev,
-      education: [...prev.education, { id: Math.random().toString(), school: "", degree: "", duration: "", grade: "" }]
-    }));
-  };
-
-  const handleUpdateEducation = (id: string, field: string, value: string) => {
-    setResumeData(prev => ({
-      ...prev,
-      education: prev.education.map(edu => edu.id === id ? { ...edu, [field]: value } : edu)
-    }));
-  };
-
-  const handleAddSkill = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && newSkill.trim()) {
-      e.preventDefault();
-      if (!resumeData.skills.includes(newSkill.trim())) {
-        setResumeData(prev => ({ ...prev, skills: [...prev.skills, newSkill.trim()] }));
-      }
-      setNewSkill("");
+  const handleNext = () => {
+    if (currentStep < steps.length - 1) {
+      // Save on each step
+      saveProfile(profile);
+      setCurrentStep(currentStep + 1);
     }
+  };
+
+  const handleBack = () => {
+    if (currentStep > 0) setCurrentStep(currentStep - 1);
   };
 
   const handleComplete = () => {
-    localStorage.setItem("onboarded", "true");
-    localStorage.setItem("masterProfile", JSON.stringify(resumeData));
-    toast.success("Master Profile setup complete! Welcome to JobFlow AI.");
-    router.push("/dashboard");
+    saveProfile({ ...profile, completedOnboarding: true });
+    toast.success("Profile setup complete!");
+    router.replace("/dashboard");
   };
 
-  const currentStepData = steps[currentStep];
-  const StepIcon = currentStepData.icon;
+  const handleSkip = () => {
+    saveProfile({ ...profile, completedOnboarding: true });
+    router.replace("/dashboard");
+  };
+
+  const addSkill = () => {
+    if (skillInput.trim() && !profile.skills.includes(skillInput.trim())) {
+      updateField("skills", [...profile.skills, skillInput.trim()]);
+      setSkillInput("");
+    }
+  };
+
+  const progress = ((currentStep) / (steps.length - 1)) * 100;
 
   return (
-    <div className="min-h-[calc(100vh-6rem)] flex items-center justify-center p-4">
-      <div className="max-w-3xl w-full bg-background/60 backdrop-blur-xl border border-border/50 rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row min-h-[600px]">
-        {/* Sidebar Progress */}
-        <div className="md:w-64 bg-secondary/30 p-8 border-r border-border/50 flex flex-col justify-between">
-          <div>
-            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center mb-8 shadow-lg shadow-primary/20">
-              <Zap className="w-5 h-5 text-primary-foreground" />
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 relative">
+      {/* Background mesh */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 blur-[120px] rounded-full" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-info/5 blur-[120px] rounded-full" />
+      </div>
+
+      <div className="relative z-10 w-full max-w-2xl mx-auto">
+        {/* Progress bar */}
+        <div className="mb-10">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Zap className="w-5 h-5 text-primary" />
+              <span className="text-sm font-bold text-foreground">
+                JobFlow AI
+              </span>
             </div>
-            <h2 className="text-xl font-bold tracking-tight mb-2 text-foreground">Master Profile</h2>
-            <p className="text-sm text-muted-foreground mb-8">Let's set up your core professional identity.</p>
-            
-            <div className="space-y-6 relative">
-              <div className="absolute left-3.5 top-4 bottom-4 w-px bg-border/50 -z-10" />
-              {steps.map((step, index) => {
-                const isActive = index === currentStep;
-                const isPassed = index < currentStep;
-                const Icon = step.icon;
-                
-                return (
-                  <div key={step.id} className="flex items-center gap-4 group">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${
-                      isActive ? "bg-primary text-primary-foreground shadow-md shadow-primary/20 scale-110" :
-                      isPassed ? "bg-primary/20 text-primary border border-primary/30" :
-                      "bg-secondary/80 text-muted-foreground"
-                    }`}>
-                      {isPassed ? <CheckCircle2 className="w-4 h-4" /> : <Icon className="w-4 h-4" />}
-                    </div>
-                    <span className={`text-sm font-medium transition-colors ${
-                      isActive ? "text-foreground font-bold" :
-                      isPassed ? "text-foreground/80" : "text-muted-foreground"
-                    }`}>
-                      {step.label}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
+            {currentStep > 0 && currentStep < steps.length - 1 && (
+              <button
+                onClick={handleSkip}
+                className="text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
+              >
+                <SkipForward className="w-3 h-3" /> Skip for now
+              </button>
+            )}
+          </div>
+          <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
+            <motion.div
+              className="h-full bg-primary rounded-full"
+              animate={{ width: `${progress}%` }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+            />
+          </div>
+          <div className="flex justify-between mt-2">
+            {steps.map((step, i) => (
+              <div
+                key={step.id}
+                className={`text-[10px] font-medium transition-colors ${
+                  i <= currentStep
+                    ? "text-primary"
+                    : "text-muted-foreground/50"
+                }`}
+              >
+                {step.label}
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Content Area */}
-        <div className="flex-1 flex flex-col p-8 md:p-12 relative overflow-hidden bg-background">
-          <div className="flex-1">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentStep}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3 }}
-                className="space-y-6"
-              >
-                <div className="flex items-center gap-3 mb-8 pb-4 border-b border-border/50">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                    <StepIcon className="w-5 h-5" />
+        {/* Step content */}
+        <div className="rounded-2xl border border-border/40 bg-card p-8 md:p-10 min-h-[400px] flex flex-col shadow-sm">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentStep}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.2 }}
+              className="flex-1 flex flex-col"
+            >
+              {/* Welcome */}
+              {steps[currentStep].id === "welcome" && (
+                <div className="flex-1 flex flex-col items-center justify-center text-center">
+                  <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
+                    <Sparkles className="w-8 h-8 text-primary" />
                   </div>
-                  <div>
-                    <h3 className="text-2xl font-bold tracking-tight text-foreground">{currentStepData.label}</h3>
-                    <p className="text-sm text-muted-foreground">Fill in the details to generate tailored resumes later.</p>
-                  </div>
+                  <h2 className="text-2xl font-bold tracking-tight text-foreground mb-3">
+                    Let&apos;s set up your profile
+                  </h2>
+                  <p className="text-muted-foreground max-w-md leading-relaxed mb-2">
+                    We&apos;ll use this information to generate tailored,
+                    ATS-optimized resumes for every job you apply to. This takes
+                    about 3 minutes.
+                  </p>
                 </div>
+              )}
 
-                {/* Step 1: Personal */}
-                {currentStep === 0 && (
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                         <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground opacity-70">First Name</label>
-                         <Input placeholder="John" value={resumeData.personal.firstName} onChange={(e) => handleUpdatePersonal("firstName", e.target.value)} className="bg-secondary/20 h-12" />
-                      </div>
-                      <div className="space-y-2">
-                         <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground opacity-70">Last Name</label>
-                         <Input placeholder="Doe" value={resumeData.personal.lastName} onChange={(e) => handleUpdatePersonal("lastName", e.target.value)} className="bg-secondary/20 h-12" />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                         <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground opacity-70">Email Address</label>
-                         <Input placeholder="john@example.com" value={resumeData.personal.email} onChange={(e) => handleUpdatePersonal("email", e.target.value)} className="bg-secondary/20 h-12" />
-                      </div>
-                      <div className="space-y-2">
-                         <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground opacity-70">Phone Number</label>
-                         <Input placeholder="+1 234 567 890" value={resumeData.personal.phone} onChange={(e) => handleUpdatePersonal("phone", e.target.value)} className="bg-secondary/20 h-12" />
-                      </div>
-                    </div>
-                     <div className="space-y-2">
-                         <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground opacity-70">Location</label>
-                         <Input placeholder="San Francisco, CA" value={resumeData.personal.location} onChange={(e) => handleUpdatePersonal("location", e.target.value)} className="bg-secondary/20 h-12" />
-                      </div>
-                    <div className="space-y-2">
-                         <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground opacity-70">Executive Summary</label>
-                         <Textarea placeholder="Result-oriented professional with 5+ years of experience..." className="min-h-[120px] bg-secondary/20 resize-none" value={resumeData.personal.summary} onChange={(e) => handleUpdatePersonal("summary", e.target.value)} />
-                      </div>
-                  </div>
-                )}
-
-                {/* Step 2: Experience */}
-                {currentStep === 1 && (
-                  <div className="space-y-6 max-h-[400px] overflow-y-auto pr-2 pb-10">
-                    {resumeData.experience.map((exp, index) => (
-                      <div key={exp.id} className="p-5 rounded-2xl border border-border/60 bg-secondary/10 space-y-4">
-                        <div className="flex justify-between items-center mb-2">
-                          <h4 className="text-sm font-semibold text-foreground">Role {index + 1}</h4>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <Input placeholder="Company Name" value={exp.company} onChange={(e) => handleUpdateExperience(exp.id, "company", e.target.value)} className="bg-background h-11" />
-                          <Input placeholder="Job Title" value={exp.role} onChange={(e) => handleUpdateExperience(exp.id, "role", e.target.value)} className="bg-background h-11" />
-                        </div>
-                        <Input placeholder="Duration (e.g. Jan 2020 - Present)" value={exp.duration} onChange={(e) => handleUpdateExperience(exp.id, "duration", e.target.value)} className="bg-background h-11" />
-                        <Textarea placeholder="Key responsibilities and achievements..." className="bg-background min-h-[100px]" value={exp.description} onChange={(e) => handleUpdateExperience(exp.id, "description", e.target.value)} />
-                      </div>
-                    ))}
-                    <Button variant="outline" onClick={handleAddExperience} className="w-full border-dashed h-12 rounded-xl text-primary hover:text-primary hover:bg-primary/5 transition-colors">
-                      + Add Another Role
-                    </Button>
-                  </div>
-                )}
-
-                {/* Step 3: Education */}
-                {currentStep === 2 && (
-                  <div className="space-y-6 max-h-[400px] overflow-y-auto pr-2 pb-10">
-                    {resumeData.education.map((edu, index) => (
-                      <div key={edu.id} className="p-5 rounded-2xl border border-border/60 bg-secondary/10 space-y-4">
-                         <div className="flex justify-between items-center mb-2">
-                          <h4 className="text-sm font-semibold text-foreground">Institution {index + 1}</h4>
-                        </div>
-                        <Input placeholder="School / University" value={edu.school} onChange={(e) => handleUpdateEducation(edu.id, "school", e.target.value)} className="bg-background h-11" />
-                        <div className="grid grid-cols-2 gap-4">
-                          <Input placeholder="Degree (e.g. B.S. CS)" value={edu.degree} onChange={(e) => handleUpdateEducation(edu.id, "degree", e.target.value)} className="bg-background h-11" />
-                          <Input placeholder="Grade / GPA" value={edu.grade} onChange={(e) => handleUpdateEducation(edu.id, "grade", e.target.value)} className="bg-background h-11" />
-                        </div>
-                        <Input placeholder="Duration (e.g. 2016 - 2020)" value={edu.duration} onChange={(e) => handleUpdateEducation(edu.id, "duration", e.target.value)} className="bg-background h-11" />
-                      </div>
-                    ))}
-                    <Button variant="outline" onClick={handleAddEducation} className="w-full border-dashed h-12 rounded-xl text-primary hover:text-primary hover:bg-primary/5 transition-colors">
-                      + Add Education
-                    </Button>
-                  </div>
-                )}
-
-                {/* Step 4: Skills */}
-                {currentStep === 3 && (
-                  <div className="space-y-6">
-                    <div className="p-6 rounded-2xl bg-secondary/10 border border-border/50 text-center space-y-3">
-                      <Zap className="w-8 h-8 text-primary mx-auto mb-2 opacity-50" />
-                      <h4 className="font-semibold text-foreground">Add Your Skills</h4>
-                      <p className="text-sm text-muted-foreground max-w-[250px] mx-auto">Type a skill and press Enter to add it to your master profile.</p>
-                      <Input 
-                        placeholder="e.g. React, Python, Project Management..." 
-                        className="h-12 text-center text-lg mt-4 max-w-sm mx-auto bg-background" 
-                        value={newSkill} 
-                        onChange={e => setNewSkill(e.target.value)} 
-                        onKeyDown={handleAddSkill} 
+              {/* Personal Info */}
+              {steps[currentStep].id === "personal" && (
+                <div>
+                  <h2 className="text-xl font-bold text-foreground mb-1">
+                    Personal Information
+                  </h2>
+                  <p className="text-sm text-muted-foreground mb-6">
+                    The basics for your resume header.
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+                        First Name *
+                      </label>
+                      <Input
+                        value={profile.firstName}
+                        onChange={(e) =>
+                          updateField("firstName", e.target.value)
+                        }
+                        placeholder="John"
+                        className="rounded-lg"
+                        autoFocus
                       />
                     </div>
-                    
-                    <div className="flex flex-wrap gap-2 justify-center pt-4">
-                      {resumeData.skills.length === 0 ? (
-                        <p className="text-sm text-muted-foreground italic">No skills added yet.</p>
-                      ) : (
-                        resumeData.skills.map((skill) => (
-                          <Badge key={skill} variant="secondary" className="px-4 py-2 text-sm bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-colors cursor-default gap-2 rounded-full">
-                            {skill}
-                            <button onClick={() => setResumeData(p => ({ ...p, skills: p.skills.filter(s => s !== skill) }))} className="hover:text-destructive opacity-70 hover:opacity-100 transition-opacity">&times;</button>
-                          </Badge>
-                        ))
-                      )}
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+                        Last Name *
+                      </label>
+                      <Input
+                        value={profile.lastName}
+                        onChange={(e) =>
+                          updateField("lastName", e.target.value)
+                        }
+                        placeholder="Doe"
+                        className="rounded-lg"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+                        Email
+                      </label>
+                      <Input
+                        type="email"
+                        value={profile.email}
+                        onChange={(e) => updateField("email", e.target.value)}
+                        placeholder="john@example.com"
+                        className="rounded-lg"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+                        Phone
+                      </label>
+                      <Input
+                        value={profile.phone}
+                        onChange={(e) => updateField("phone", e.target.value)}
+                        placeholder="+1 (555) 123-4567"
+                        className="rounded-lg"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+                        Location
+                      </label>
+                      <Input
+                        value={profile.location}
+                        onChange={(e) =>
+                          updateField("location", e.target.value)
+                        }
+                        placeholder="San Francisco, CA"
+                        className="rounded-lg"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+                        LinkedIn URL
+                      </label>
+                      <Input
+                        value={profile.linkedinUrl}
+                        onChange={(e) =>
+                          updateField("linkedinUrl", e.target.value)
+                        }
+                        placeholder="linkedin.com/in/johndoe"
+                        className="rounded-lg"
+                      />
                     </div>
                   </div>
-                )}
-              </motion.div>
-            </AnimatePresence>
-          </div>
+                </div>
+              )}
 
-          {/* Footer Controls */}
-          <div className="pt-6 border-t border-border/50 flex items-center justify-between mt-8">
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={() => setCurrentStep(prev => Math.max(0, prev - 1))}
-              disabled={currentStep === 0}
-              className="gap-2 rounded-full px-6"
-            >
-              <ChevronLeft className="w-4 h-4" /> Back
-            </Button>
+              {/* Experience */}
+              {steps[currentStep].id === "experience" && (
+                <div>
+                  <h2 className="text-xl font-bold text-foreground mb-1">
+                    Work Experience
+                  </h2>
+                  <p className="text-sm text-muted-foreground mb-6">
+                    Add your most recent positions. You can add more later.
+                  </p>
+                  <div className="space-y-4">
+                    {profile.experience.map((exp) => (
+                      <div
+                        key={exp.id}
+                        className="rounded-lg border border-border/30 bg-muted/10 p-4 space-y-3"
+                      >
+                        <div className="grid grid-cols-2 gap-3">
+                          <Input
+                            value={exp.title}
+                            onChange={(e) =>
+                              updateField(
+                                "experience",
+                                profile.experience.map((ex) =>
+                                  ex.id === exp.id
+                                    ? { ...ex, title: e.target.value }
+                                    : ex
+                                )
+                              )
+                            }
+                            placeholder="Job Title"
+                            className="rounded-lg text-sm"
+                          />
+                          <Input
+                            value={exp.company}
+                            onChange={(e) =>
+                              updateField(
+                                "experience",
+                                profile.experience.map((ex) =>
+                                  ex.id === exp.id
+                                    ? { ...ex, company: e.target.value }
+                                    : ex
+                                )
+                              )
+                            }
+                            placeholder="Company"
+                            className="rounded-lg text-sm"
+                          />
+                        </div>
+                        <Textarea
+                          value={exp.bullets.join("\n")}
+                          onChange={(e) =>
+                            updateField(
+                              "experience",
+                              profile.experience.map((ex) =>
+                                ex.id === exp.id
+                                  ? {
+                                      ...ex,
+                                      bullets: e.target.value.split("\n"),
+                                    }
+                                  : ex
+                              )
+                            )
+                          }
+                          placeholder="Key achievements (one per line)"
+                          className="min-h-[60px] rounded-lg text-sm resize-none"
+                        />
+                      </div>
+                    ))}
+                    <Button
+                      variant="outline"
+                      onClick={() =>
+                        updateField("experience", [
+                          ...profile.experience,
+                          {
+                            id: generateId(),
+                            title: "",
+                            company: "",
+                            location: "",
+                            startDate: "",
+                            endDate: "",
+                            current: false,
+                            bullets: [""],
+                          },
+                        ])
+                      }
+                      className="gap-2 rounded-lg text-xs w-full border-dashed"
+                    >
+                      <Briefcase className="w-3 h-3" /> Add Position
+                    </Button>
+                  </div>
+                </div>
+              )}
 
-            {currentStep < steps.length - 1 ? (
+              {/* Education */}
+              {steps[currentStep].id === "education" && (
+                <div>
+                  <h2 className="text-xl font-bold text-foreground mb-1">
+                    Education
+                  </h2>
+                  <p className="text-sm text-muted-foreground mb-6">
+                    Add your educational background.
+                  </p>
+                  <div className="space-y-4">
+                    {profile.education.map((edu) => (
+                      <div
+                        key={edu.id}
+                        className="rounded-lg border border-border/30 bg-muted/10 p-4"
+                      >
+                        <div className="grid grid-cols-2 gap-3">
+                          <Input
+                            value={edu.degree}
+                            onChange={(e) =>
+                              updateField(
+                                "education",
+                                profile.education.map((ed) =>
+                                  ed.id === edu.id
+                                    ? { ...ed, degree: e.target.value }
+                                    : ed
+                                )
+                              )
+                            }
+                            placeholder="Degree"
+                            className="rounded-lg text-sm"
+                          />
+                          <Input
+                            value={edu.institution}
+                            onChange={(e) =>
+                              updateField(
+                                "education",
+                                profile.education.map((ed) =>
+                                  ed.id === edu.id
+                                    ? { ...ed, institution: e.target.value }
+                                    : ed
+                                )
+                              )
+                            }
+                            placeholder="Institution"
+                            className="rounded-lg text-sm"
+                          />
+                        </div>
+                      </div>
+                    ))}
+                    <Button
+                      variant="outline"
+                      onClick={() =>
+                        updateField("education", [
+                          ...profile.education,
+                          {
+                            id: generateId(),
+                            degree: "",
+                            institution: "",
+                            location: "",
+                            startDate: "",
+                            endDate: "",
+                          },
+                        ])
+                      }
+                      className="gap-2 rounded-lg text-xs w-full border-dashed"
+                    >
+                      <GraduationCap className="w-3 h-3" /> Add Education
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Skills */}
+              {steps[currentStep].id === "skills" && (
+                <div>
+                  <h2 className="text-xl font-bold text-foreground mb-1">
+                    Skills
+                  </h2>
+                  <p className="text-sm text-muted-foreground mb-6">
+                    Add your technical and soft skills.
+                  </p>
+                  <div className="flex gap-2 mb-4">
+                    <Input
+                      value={skillInput}
+                      onChange={(e) => setSkillInput(e.target.value)}
+                      onKeyDown={(e) =>
+                        e.key === "Enter" && (e.preventDefault(), addSkill())
+                      }
+                      placeholder="Type a skill and press Enter"
+                      className="rounded-lg"
+                      autoFocus
+                    />
+                    <Button
+                      variant="outline"
+                      onClick={addSkill}
+                      className="rounded-lg shrink-0"
+                    >
+                      Add
+                    </Button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {profile.skills.map((skill) => (
+                      <Badge
+                        key={skill}
+                        variant="secondary"
+                        className="gap-1.5 py-1.5 px-3 rounded-lg cursor-pointer hover:bg-destructive/10 hover:text-destructive transition-colors"
+                        onClick={() =>
+                          updateField(
+                            "skills",
+                            profile.skills.filter((s) => s !== skill)
+                          )
+                        }
+                      >
+                        {skill} <span className="opacity-50">×</span>
+                      </Badge>
+                    ))}
+                  </div>
+                  {profile.skills.length === 0 && (
+                    <p className="text-xs text-muted-foreground mt-3">
+                      Try: React, TypeScript, Node.js, Python, AWS, Leadership
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* Complete */}
+              {steps[currentStep].id === "complete" && (
+                <div className="flex-1 flex flex-col items-center justify-center text-center">
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{
+                      type: "spring",
+                      stiffness: 260,
+                      damping: 20,
+                    }}
+                    className="w-20 h-20 rounded-full bg-success/10 flex items-center justify-center mb-6"
+                  >
+                    <CheckCircle2 className="w-10 h-10 text-success" />
+                  </motion.div>
+                  <h2 className="text-2xl font-bold tracking-tight text-foreground mb-2">
+                    You&apos;re all set!
+                  </h2>
+                  <p className="text-muted-foreground max-w-md mb-8">
+                    Your profile is ready. You can always update it later from
+                    the Profile page. Now let&apos;s create your first AI-optimized
+                    resume.
+                  </p>
+                  <Button
+                    onClick={handleComplete}
+                    className="gap-2 rounded-xl shadow-md px-8 py-3"
+                    size="lg"
+                  >
+                    Go to Dashboard <ArrowRight className="w-4 h-4" />
+                  </Button>
+                </div>
+              )}
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Navigation buttons */}
+          {steps[currentStep].id !== "complete" && (
+            <div className="flex items-center justify-between pt-6 mt-auto border-t border-border/30">
               <Button
-                size="lg"
-                onClick={() => setCurrentStep(prev => Math.min(steps.length - 1, prev + 1))}
-                className="gap-2 rounded-full px-8 shadow-md shadow-primary/20"
+                variant="ghost"
+                onClick={handleBack}
+                disabled={currentStep === 0}
+                className="gap-2 rounded-lg"
               >
-                Continue <ChevronRight className="w-4 h-4" />
+                <ArrowLeft className="w-4 h-4" /> Back
               </Button>
-            ) : (
               <Button
-                size="lg"
-                onClick={handleComplete}
-                className="gap-2 rounded-full px-8 bg-success hover:bg-success/90 text-success-foreground shadow-md shadow-success/20"
+                onClick={handleNext}
+                disabled={!canProceed()}
+                className="gap-2 rounded-xl shadow-sm"
               >
-                Complete Setup <CheckCircle2 className="w-4 h-4" />
+                {currentStep === steps.length - 2 ? "Finish" : "Continue"}
+                <ArrowRight className="w-4 h-4" />
               </Button>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

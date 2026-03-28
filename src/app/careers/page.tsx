@@ -50,7 +50,7 @@ export default function Careers() {
                   key={perk.title}
                   animationType="fade-up"
                   transition={{ delay: i * 0.1 }}
-                  className="card-elevated p-6 text-center"
+                  className="bg-card border border-border shadow-sm rounded-xl p-6 text-center"
                 >
                   <perk.icon className="w-10 h-10 text-foreground mx-auto mb-4" />
                   <h3 className="font-semibold text-foreground mb-2">{perk.title}</h3>
@@ -64,7 +64,7 @@ export default function Careers() {
         {/* Open Positions */}
         <section className="py-20">
           <div className="max-w-4xl mx-auto px-6">
-            <h2 className="text-3xl font-bold text-foreground mb-10">Open Positions</h2>
+            <h2 className="text-3xl font-bold text-foreground mb-10 text-center">Open Positions</h2>
             <div className="space-y-4">
               {positions.length > 0 ? (
                 positions.map((pos, i) => (
@@ -72,7 +72,7 @@ export default function Careers() {
                     key={pos.title}
                     animationType="slide-right"
                     transition={{ delay: i * 0.1 }}
-                    className="flex flex-col md:flex-row md:items-center justify-between p-6 rounded-xl border border-border bg-card hover:border-primary/50 transition-colors group cursor-pointer"
+                    className="flex flex-col md:flex-row md:items-center justify-between p-6 rounded-xl border border-border bg-card hover:border-foreground/50 transition-colors group cursor-pointer shadow-sm"
                   >
                     <div>
                       <h3 className="font-bold text-foreground text-lg mb-1 group-hover:text-foreground transition-colors">{pos.title}</h3>
@@ -90,18 +90,18 @@ export default function Careers() {
               ) : (
                 <ScrollReveal
                   animationType="fade-up"
-                  className="flex flex-col items-center justify-center py-16 px-6 rounded-3xl border border-dashed border-border bg-card/30 backdrop-blur-sm text-center"
+                  className="flex flex-col items-center justify-center py-16 px-6 rounded-2xl border border-border bg-card shadow-sm text-center"
                 >
-                  <div className="w-20 h-20 rounded-full bg-foreground/5 flex items-center justify-center mb-6">
-                    <Briefcase className="w-10 h-10 text-foreground/40" />
+                  <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-6">
+                    <Briefcase className="w-8 h-8 text-muted-foreground" />
                   </div>
-                  <h3 className="text-2xl font-bold text-foreground mb-3">No Open Positions</h3>
-                  <p className="text-muted-foreground max-w-sm mb-8 leading-relaxed">
+                  <h3 className="text-xl font-bold text-foreground mb-2">No Open Positions</h3>
+                  <p className="text-muted-foreground text-sm max-w-sm mb-8 leading-relaxed">
                     We're currently operating at full capacity, but we're always looking for exceptional talent to join our future growth.
                   </p>
                   <a 
                     href="mailto:aifunk63@gmail.com"
-                    className="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-foreground text-background font-semibold hover:opacity-90 transition-all shadow-lg shadow-primary/20"
+                    className="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-foreground text-background font-semibold hover:bg-foreground/90 transition-all shadow-sm"
                   >
                     Apply Spontaneously <ArrowRight className="w-4 h-4" />
                   </a>

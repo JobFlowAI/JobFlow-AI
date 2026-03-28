@@ -21,35 +21,40 @@ export default function LogoCloud() {
   // Duplicate items for seamless loop
   const duplicatedItems = [...allItems, ...allItems, ...allItems];
 
+function LogoRow() {
   return (
-    <section className="py-12 border-y border-border/40 bg-card/10 backdrop-blur-sm relative overflow-hidden">
-      <div className="max-w-6xl mx-auto px-6 text-center mb-8">
-        <p className="text-[10px] font-bold text-muted-foreground/60 tracking-[0.2em] uppercase">
-          Powered by industry leaders & cutting-edge stack
-        </p>
-      </div>
-
-      <div className="relative flex overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_20%,black_80%,transparent)]">
-        <motion.div
-          animate={{
-            x: ["0%", "-33.33%"],
-          }}
-          transition={{
-            duration: 30,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-          className="flex whitespace-nowrap gap-12 md:gap-24 items-center py-4"
+    <>
+      {logos.map((logo) => (
+        <div
+          key={logo.name}
+          className={`text-xl md:text-2xl text-foreground/40 select-none whitespace-nowrap ${logo.style}`}
         >
-          {duplicatedItems.map((item, index) => (
-            <span
-              key={index}
-              className="text-xl md:text-2xl font-bold text-muted-foreground/30 hover:text-foreground/80 transition-colors cursor-default whitespace-nowrap tracking-tight"
-            >
-              {item}
-            </span>
-          ))}
-        </motion.div>
+          {logo.name}
+        </div>
+      ))}
+    </>
+  );
+}
+
+export default function LogoCloud() {
+  return (
+    <section className="py-12 border-y border-border/30 bg-muted/20 relative z-10 overflow-hidden">
+      <div className="max-w-6xl mx-auto px-6 text-center">
+        <p className="text-xs font-semibold text-muted-foreground mb-8 tracking-widest uppercase">
+          Trusted by professionals from
+        </p>
+        <div className="relative overflow-hidden">
+          {/* Fade edges */}
+          <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-muted/20 to-transparent z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-muted/20 to-transparent z-10 pointer-events-none" />
+
+          <div className="flex gap-12 marquee" aria-hidden="true">
+            <LogoRow />
+            <LogoRow />
+            <LogoRow />
+            <LogoRow />
+          </div>
+        </div>
       </div>
     </section>
   );

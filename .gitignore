@@ -27,3 +27,6 @@ dist-ssr
 .next
 out
 build
+
+*.txt
+build_output.txt

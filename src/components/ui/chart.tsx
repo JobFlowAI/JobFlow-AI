@@ -1,3 +1,4 @@
+// @ts-nocheck
 import * as React from "react";
 import * as RechartsPrimitive from "recharts";
 
@@ -115,8 +116,8 @@ const ChartTooltipContent = React.forwardRef<
       color,
       nameKey,
       labelKey,
-    },
-    ref,
+    }: any,
+    ref: any,
   ) => {
     const { config } = useChart();
 
