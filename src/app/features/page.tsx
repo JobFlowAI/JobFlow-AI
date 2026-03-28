@@ -142,23 +142,6 @@ export default function FeaturesPage() {
             viewport={{ once: true }}
           >
             <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
-              Ready to Transform Your Job Search?
-            </h2>
-            <p className="text-muted-foreground text-lg mb-8">
-              Join thousands of professionals who've already doubled their interview rate with JobFlow AI.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <motion.button
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => router.push("/dashboard")}
-                className="px-8 py-4 rounded-xl bg-foreground text-foreground-foreground font-semibold text-lg hover:opacity-90 transition-opacity"
-              >
-                Start Free — 20 Credits
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.98 }}
                 onClick={() => router.push("/#pricing")}
                 className="px-8 py-4 rounded-xl bg-secondary text-secondary-foreground font-semibold text-lg hover:bg-secondary/80 transition-colors"
               >

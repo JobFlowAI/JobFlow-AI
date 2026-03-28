@@ -23,9 +23,9 @@ export default function HowItWorks() {
   ];
 
   return (
-    <section className="py-32 bg-secondary/20 relative z-10 border-y border-border/40">
+    <section className="py-20 bg-secondary/20 relative z-10 border-y border-border/40">
       <div className="max-w-6xl mx-auto px-6">
-        <div className="text-center max-w-2xl mx-auto mb-20">
+        <div className="text-center max-w-2xl mx-auto mb-16">
           <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight text-foreground mb-6">
             Simplicity at scale.
           </h2>

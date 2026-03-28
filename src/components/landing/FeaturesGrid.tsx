@@ -84,16 +84,21 @@ export default function FeaturesGrid() {
               </div>
             </div>
             {/* Visual element */}
-            <div className="flex-1 w-full bg-secondary/50 rounded-2xl border border-border/50 flex flex-col p-6 shadow-inner gap-4 min-h-[250px]">
-              <div className="flex gap-2 items-center mb-2">
-                <div className="w-8 h-8 rounded-full bg-foreground/10" />
-                <div className="h-4 bg-muted w-32 rounded-full" />
+            <div className="flex-1 w-full bg-card rounded-2xl border border-border/50 flex flex-col p-6 shadow-lg gap-4 min-h-[250px] relative overflow-hidden">
+              <div className="flex gap-4 items-center mb-2 pb-4 border-b border-border/40">
+                <div className="w-10 h-10 rounded-full bg-foreground text-background flex items-center justify-center font-bold">JD</div>
+                <div>
+                  <div className="font-semibold text-foreground text-sm">To: recruitment@techcorp.com</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">Subject: Senior Frontend Engineer - John Doe</div>
+                </div>
               </div>
-              <div className="h-3 bg-muted w-full rounded-full opacity-60" />
-              <div className="h-3 bg-muted w-5/6 rounded-full opacity-60" />
-              <div className="h-3 bg-muted w-4/6 rounded-full opacity-60" />
+              <div className="space-y-3 text-sm text-muted-foreground pt-2">
+                <p>Hi team,</p>
+                <p>I noticed your opening for the Senior Frontend Engineer role. My background in building responsive web applications using React and Next.js perfectly aligns with the requirements you've listed.</p>
+                <p>I recently led a migration that improved performance by 40%. I'd love to chat about how I can bring similar impact to TechCorp.</p>
+              </div>
               
-              <div className="mt-auto self-end px-4 py-2 rounded-xl bg-foreground text-background text-sm font-semibold">
+              <div className="mt-auto self-end px-6 py-2.5 rounded-xl bg-foreground text-background text-sm font-semibold shadow-md hover:scale-105 transition-transform cursor-pointer">
                 Send Email
               </div>
             </div>

@@ -1,16 +1,11 @@
 {
-  "/blog/[slug]/page": "app/blog/[slug]/page.js",
-  "/_not-found/page": "app/_not-found/page.js",
-  "/blog/page": "app/blog/page.js",
-  "/about/page": "app/about/page.js",
-  "/careers/page": "app/careers/page.js",
-  "/cookies/page": "app/cookies/page.js",
-  "/features/page": "app/features/page.js",
   "/page": "app/page.js",
-  "/terms/page": "app/terms/page.js",
+  "/features/page": "app/features/page.js",
+  "/blog/page": "app/blog/page.js",
   "/privacy/page": "app/privacy/page.js",
-  "/dashboard/outreach/page": "app/dashboard/outreach/page.js",
-  "/dashboard/resume-workspace/page": "app/dashboard/resume-workspace/page.js",
-  "/dashboard/settings/page": "app/dashboard/settings/page.js",
+  "/terms/page": "app/terms/page.js",
+  "/cookies/page": "app/cookies/page.js",
+  "/careers/page": "app/careers/page.js",
+  "/about/page": "app/about/page.js",
   "/dashboard/page": "app/dashboard/page.js"
 }

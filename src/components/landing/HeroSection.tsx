@@ -67,21 +67,52 @@ export default function HeroSection() {
               <div className="w-3 h-3 rounded-full bg-success/60" />
             </div>
             {/* Mockup content */}
-            <div className="pt-16 p-8 h-full flex gap-6 bg-background dark:bg-card">
-              <div className="w-1/3 flex flex-col gap-4">
-                <div className="h-8 rounded-md bg-secondary/80 w-3/4" />
-                <div className="h-4 rounded-md bg-secondary/60 w-1/2" />
-                <div className="flex-1 rounded-xl bg-secondary/30 border border-border/50" />
-              </div>
-              <div className="flex-1 flex flex-col gap-4">
-                <div className="h-48 rounded-xl bg-foreground/5 border border-border/50 flex items-center justify-center">
-                  <div className="w-16 h-16 rounded-full bg-success/10 flex items-center justify-center">
-                    <span className="text-success font-bold text-xl">96%</span>
-                  </div>
+            <div className="pt-16 p-8 h-full flex flex-col md:flex-row gap-6 bg-background dark:bg-card">
+              {/* Sidebar Mockup */}
+              <div className="w-full md:w-1/3 flex flex-col gap-6">
+                <div>
+                  <div className="text-sm font-bold text-foreground mb-1">Senior Frontend Developer</div>
+                  <div className="text-xs text-muted-foreground">TechCorp Inc. • Remote</div>
                 </div>
+                
+                <div className="space-y-4 flex-1">
+                   <div className="p-4 rounded-xl bg-secondary/30 border border-border/50">
+                     <div className="text-xs font-semibold text-foreground mb-2">Required Skills</div>
+                     <div className="flex flex-wrap gap-2">
+                       <span className="px-2 py-1 rounded bg-foreground/10 text-xs font-medium text-foreground">React</span>
+                       <span className="px-2 py-1 rounded bg-foreground/10 text-xs font-medium text-foreground">Next.js</span>
+                       <span className="px-2 py-1 rounded bg-foreground/10 text-xs font-medium text-foreground">TypeScript</span>
+                     </div>
+                   </div>
+                   <div className="p-4 rounded-xl bg-success/10 border border-success/20">
+                     <div className="flex items-center gap-2 mb-1">
+                       <span className="w-2 h-2 rounded-full bg-success"></span>
+                       <div className="text-xs font-bold text-success">ATS Optimized</div>
+                     </div>
+                     <div className="text-xs text-success/80">Formatting passed all checks.</div>
+                   </div>
+                </div>
+              </div>
+              
+              {/* Main Content Mockup */}
+              <div className="flex-1 flex flex-col gap-6">
+                <div className="flex-1 rounded-xl bg-foreground/5 border border-border/50 p-6 flex flex-col items-center justify-center relative overflow-hidden">
+                  <div className="absolute top-0 w-full h-1 bg-gradient-to-r from-success/40 via-success to-success/40" />
+                  <div className="w-24 h-24 rounded-full bg-background shadow-lg border-4 border-success/20 flex items-center justify-center mb-4 z-10">
+                    <span className="text-success font-black text-3xl">96%</span>
+                  </div>
+                  <div className="text-lg font-bold text-foreground transition-all">Match Score</div>
+                  <div className="text-sm text-muted-foreground mt-1">Highly likely to interview</div>
+                </div>
+                
                 <div className="flex gap-4">
-                  <div className="flex-1 focus h-32 rounded-xl bg-secondary/30 border border-border/50" />
-                  <div className="flex-1 focus h-32 rounded-xl bg-secondary/30 border border-border/50" />
+                  <div className="flex-1 p-4 rounded-xl bg-secondary/30 border border-border/50 shadow-inner flex flex-col justify-between">
+                     <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Missing Keywords</span>
+                     <span className="text-xl font-bold text-foreground">0</span>
+                  </div>
+                  <div className="flex-1 p-4 rounded-xl bg-foreground text-background shadow-lg shadow-foreground/10 flex flex-col items-center justify-center cursor-pointer hover:scale-105 transition-transform">
+                     <span className="font-bold">Generate Outreach</span>
+                  </div>
                 </div>
               </div>
             </div>
