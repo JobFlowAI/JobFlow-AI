@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Zap, Github, Twitter, Linkedin } from "lucide-react";
+import { Zap, Github } from "lucide-react";
 
 export default function LandingFooter() {
   const currentYear = new Date().getFullYear();
@@ -19,14 +19,8 @@ export default function LandingFooter() {
               The intelligent career operating system. Optimize your resume, automate your job search, and get personalized outreach strategies.
             </p>
             <div className="flex items-center gap-4">
-              <Link href="#" className="w-10 h-10 rounded-full border border-border/50 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-all">
-                <Twitter className="w-4 h-4" />
-              </Link>
-              <Link href="#" className="w-10 h-10 rounded-full border border-border/50 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-all">
+              <Link href="https://github.com/shahrozimran/JobFlow-AI" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full border border-border/50 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-all">
                 <Github className="w-4 h-4" />
-              </Link>
-              <Link href="#" className="w-10 h-10 rounded-full border border-border/50 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-all">
-                <Linkedin className="w-4 h-4" />
               </Link>
             </div>
           </div>

@@ -1,0 +1,2 @@
+﻿1965b29 feat: implement notification dropdown, detailed activity feed, and credit tracking integration
+04140a5 feat: About Us | team linkedin links and footer github link

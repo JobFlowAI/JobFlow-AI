@@ -13,7 +13,15 @@ const team = [
     name: "Shahroz Imran", 
     role: "Founder & Lead Developer", 
     bio: "A BSAI student with a passion for leveraging Artificial Intelligence to solve real-world problems. Shahroz founded JobFlow AI to bridge the gap between talented job seekers and the rigid algorithms of modern hiring systems.", 
-    avatar: "SI" 
+    avatar: "SI",
+    linkedin: "https://www.linkedin.com/in/shahroz-imran-7403202a2?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"
+  },
+  { 
+    name: "Zamad Shakeel", 
+    role: "Lead Developer", 
+    bio: "A dedicated software engineer focused on building scalable, high-performance systems. Zamad plays a key role in architecting the core AI engine and ensuring seamless integration across the JobFlow platform.", 
+    avatar: "ZS",
+    linkedin: "https://www.linkedin.com/in/zamad-gopang?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"
   },
 ];
 
@@ -159,39 +167,41 @@ export default function AboutPage() {
             viewport={{ once: true }}
             className="text-center mb-12"
           >
-            <h2 className="text-3xl font-bold text-foreground mb-4">Meet the Founder</h2>
+            <h2 className="text-3xl font-bold text-foreground mb-4">Meet the Team</h2>
             <p className="text-muted-foreground text-lg max-w-xl mx-auto">
               Driven by a vision to make hiring fairer and more human-centric through AI.
             </p>
           </motion.div>
-          <div className="flex justify-center">
-            <div className="max-w-md w-full">
-              {team.map((person, i) => (
-                <motion.div
-                  key={person.name}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
-                  className="card-elevated card-hover p-6 text-center"
-                >
-                  <div className="w-16 h-16 rounded-full bg-foreground mx-auto mb-4 flex items-center justify-center text-background text-lg font-bold">
-                    {person.avatar}
-                  </div>
-                  <h3 className="font-semibold text-foreground">{person.name}</h3>
-                  <p className="text-xs text-foreground font-medium mb-3">{person.role}</p>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{person.bio}</p>
-                  <div className="flex justify-center gap-3 mt-4">
-                    <button className="p-1.5 rounded-lg hover:bg-secondary transition-colors">
-                      <Linkedin className="w-4 h-4 text-muted-foreground" />
-                    </button>
-                    <button className="p-1.5 rounded-lg hover:bg-secondary transition-colors">
-                      <Twitter className="w-4 h-4 text-muted-foreground" />
-                    </button>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {team.map((person, i) => (
+              <motion.div
+                key={person.name}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="card-elevated card-hover p-8 text-center"
+              >
+                <div className="w-20 h-20 rounded-full bg-foreground mx-auto mb-6 flex items-center justify-center text-background text-2xl font-bold shadow-lg shadow-foreground/20">
+                  {person.avatar}
+                </div>
+                <h3 className="text-xl font-bold text-foreground mb-1">{person.name}</h3>
+                <p className="text-sm text-foreground/80 font-semibold uppercase tracking-wider mb-4">{person.role}</p>
+                <p className="text-muted-foreground leading-relaxed text-sm h-24 overflow-y-auto custom-scrollbar">
+                  {person.bio}
+                </p>
+                <div className="flex justify-center gap-4 mt-6">
+                  <a 
+                    href={person.linkedin} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="p-2 rounded-xl bg-secondary/50 hover:bg-secondary hover:scale-110 transition-all duration-300"
+                  >
+                    <Linkedin className="w-5 h-5 text-foreground/70" />
+                  </a>
+                </div>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>

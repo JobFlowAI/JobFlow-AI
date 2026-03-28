@@ -1,0 +1,6 @@
+﻿src/app/about/page.tsx
+src/app/dashboard/page.tsx
+src/app/dashboard/settings/page.tsx
+src/components/landing/LandingFooter.tsx
+src/components/layout/AppSidebar.tsx
+src/components/layout/TopBar.tsx
