@@ -5,17 +5,17 @@ import Link from "next/link";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
 const team = [
-  { 
-    name: "Shahroz Imran", 
-    role: "Founder & Lead Developer", 
-    bio: "A BSAI student with a passion for leveraging Artificial Intelligence to solve real-world problems. Shahroz founded JobFlow AI to bridge the gap between talented job seekers and the rigid algorithms of modern hiring systems.", 
+  {
+    name: "Shahroz Imran",
+    role: "Founder & Lead Developer",
+    bio: "A BSAI student with a passion for leveraging Artificial Intelligence to solve real-world problems. Shahroz founded JobFlow AI to bridge the gap between talented job seekers and the rigid algorithms of modern hiring systems.",
     avatar: "SI",
     linkedin: "https://www.linkedin.com/in/shahroz-imran-7403202a2?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"
   },
-  { 
-    name: "Zamad Shakeel", 
-    role: "Lead Developer", 
-    bio: "A dedicated software engineer focused on building scalable, high-performance systems. Zamad plays a key role in architecting the core AI engine and ensuring seamless integration across the JobFlow platform.", 
+  {
+    name: "Zamad Shakeel",
+    role: "Co-Founder & Lead Developer",
+    bio: "A dedicated software engineer focused on building scalable, high-performance systems. Zamad plays a key role in architecting the core AI engine and ensuring seamless integration across the JobFlow platform.",
     avatar: "ZS",
     linkedin: "https://www.linkedin.com/in/zamad-gopang?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"
   },
@@ -64,19 +64,19 @@ export default function AboutPage() {
             <h2 className="text-3xl font-bold text-foreground mb-6">Our Story</h2>
             <div className="space-y-4 text-muted-foreground leading-relaxed">
               <p>
-                JobFlow AI started as a passion project by Shahroz Imran, a BSAI student who witnessed the frustration of 
-                talented peers being overlooked by automated hiring systems. He realized that the problem wasn't a lack of 
+                JobFlow AI started as a passion project by Shahroz Imran, a BSAI student who witnessed the frustration of
+                talented peers being overlooked by automated hiring systems. He realized that the problem wasn't a lack of
                 skill, but a disconnect between how humans present their value and how machines read it.
               </p>
               <p>
-                Combining his deep interest in Artificial Intelligence with a drive to make an impact, Shahroz built 
-                the first version of JobFlow AI. His goal was simple: to create a tool that speaks the language of 
+                Combining his deep interest in Artificial Intelligence with a drive to make an impact, Shahroz built
+                the first version of JobFlow AI. His goal was simple: to create a tool that speaks the language of
                 ATS systems while preserving the human element of every professional's story.
               </p>
               <p>
-                Today, JobFlow AI is a testament to the power of student-led innovation. It has helped countless 
-                professionals optimize their resumes, match with relevant roles, and craft personalized outreach 
-                that actually gets responses. Our mission remains the same: to ensure that your potential is 
+                Today, JobFlow AI is a testament to the power of student-led innovation. It has helped countless
+                professionals optimize their resumes, match with relevant roles, and craft personalized outreach
+                that actually gets responses. Our mission remains the same: to ensure that your potential is
                 never silenced by a machine.
               </p>
             </div>
@@ -160,9 +160,9 @@ export default function AboutPage() {
                   {person.bio}
                 </p>
                 <div className="flex justify-center gap-4 mt-6">
-                  <a 
-                    href={person.linkedin} 
-                    target="_blank" 
+                  <a
+                    href={person.linkedin}
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="p-2 rounded-xl bg-secondary/50 hover:bg-secondary hover:scale-110 transition-all duration-300"
                   >

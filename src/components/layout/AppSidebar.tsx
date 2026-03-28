@@ -52,15 +52,15 @@ export default function AppSidebar() {
     const button = (
       <button
         onClick={() => router.push(item.path)}
-        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-200 group relative ${
+        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] transition-all duration-200 group relative outline-none ${
           active
-            ? "bg-primary/10 text-primary"
-            : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+            ? "bg-muted text-foreground font-semibold shadow-sm border border-border/50"
+            : "text-muted-foreground hover:bg-muted/50 hover:text-foreground font-medium border border-transparent"
         }`}
       >
         <item.icon
           className={`w-[18px] h-[18px] shrink-0 ${
-            active ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
+            active ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"
           }`}
         />
         <AnimatePresence>
@@ -75,13 +75,6 @@ export default function AppSidebar() {
             </motion.span>
           )}
         </AnimatePresence>
-        {active && (
-          <motion.div
-            layoutId="sidebar-active"
-            className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-full bg-primary"
-            transition={{ type: "spring", stiffness: 350, damping: 30 }}
-          />
-        )}
       </button>
     );
 

@@ -121,9 +121,9 @@ export default function TopBar() {
           <input
             type="text"
             placeholder="Search..."
-            className="w-56 pl-9 pr-10 py-2 rounded-xl bg-muted/50 text-sm font-medium text-foreground placeholder:text-muted-foreground border border-transparent focus:bg-background focus:border-border/50 outline-none focus:ring-2 focus:ring-primary/10 transition-all"
+            className="w-56 pl-9 pr-10 py-2 rounded-xl bg-muted/30 text-sm font-medium text-foreground placeholder:text-muted-foreground/70 border border-input hover:border-border focus:bg-background focus:border-primary outline-none focus:ring-2 focus:ring-primary/20 transition-all"
           />
-          <kbd className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-medium text-muted-foreground/60 bg-background border border-border/50 px-1.5 py-0.5 rounded">
+          <kbd className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-medium text-muted-foreground/80 bg-background border border-border rounded px-1.5 py-0.5 shadow-sm">
             ⌘K
           </kbd>
         </div>

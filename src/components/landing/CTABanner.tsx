@@ -12,28 +12,25 @@ export default function CTABanner() {
           initial={{ opacity: 0, scale: 0.97 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
-          className="relative rounded-3xl overflow-hidden"
+          className="relative rounded-3xl overflow-hidden border bg-background px-10 py-16 text-center shadow-lg sm:p-20"
         >
-          {/* Gradient background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-info" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.12),transparent_60%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(255,255,255,0.08),transparent_50%)]" />
-
-          <div className="relative z-10 p-10 md:p-16 lg:p-20 text-center">
-            <h2 className="text-3xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-white mb-6">
-              Ready to land your
-              <br className="hidden sm:block" /> dream role?
+          <div className="relative z-10">
+            <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight text-foreground mb-6">
+              Ready to Transform Your
+              <br className="hidden sm:block" /> Job Search?
             </h2>
-            <p className="text-lg md:text-xl text-white/80 mb-10 max-w-xl mx-auto">
+            <p className="text-lg text-muted-foreground mb-10 max-w-xl mx-auto">
               Join thousands of professionals optimizing their careers with
               JobFlow AI.
             </p>
-            <Link
-              href="/dashboard"
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-white text-primary font-bold text-base hover:bg-white/90 transition-all shadow-lg active:scale-[0.98]"
-            >
-              Get Started Now <ArrowRight className="w-5 h-5" />
-            </Link>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link
+                href="/dashboard"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-primary text-primary-foreground font-bold text-base hover:bg-primary/90 transition-all active:scale-[0.98]"
+              >
+                Get Started Now <ArrowRight className="w-5 h-5" />
+              </Link>
+            </div>
           </div>
         </motion.div>
       </div>

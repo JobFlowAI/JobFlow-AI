@@ -33,7 +33,7 @@ export default function PricingSection() {
         "Standard Outreach Templates",
         "Basic Cover Letter Generation",
       ],
-      cta: "Start Plus Plan",
+      cta: "Start Free Trial",
     },
     {
       name: "Pro",
@@ -48,7 +48,7 @@ export default function PricingSection() {
         "Advanced Cover Letter Generation",
         "Priority Support",
       ],
-      cta: "Start Pro Trial",
+      cta: "Subscribe to Pro",
     },
   ];
 
@@ -109,13 +109,13 @@ export default function PricingSection() {
                 transition={{ delay: i * 0.1 }}
                 className={`relative rounded-2xl p-8 flex flex-col h-full transition-all duration-300 ${
                   plan.featured
-                    ? "border-2 border-primary/30 bg-card shadow-xl ring-1 ring-primary/10"
-                    : "border border-border/50 bg-card hover:border-border hover:shadow-lg"
+                    ? "border-2 border-foreground bg-card shadow-md mt-0 md:-mt-4 mb-0 md:-mb-4"
+                    : "border border-border/50 bg-card hover:border-border hover:shadow-sm"
                 }`}
               >
                 {plan.featured && (
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                    <span className="px-4 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold tracking-wide shadow-md">
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                    <span className="px-4 py-1 rounded-full bg-foreground text-background text-xs font-bold tracking-wide shadow-sm">
                       Most Popular
                     </span>
                   </div>
@@ -154,7 +154,7 @@ export default function PricingSection() {
                       <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
                         <Check className="w-3 h-3 text-primary" />
                       </div>
-                      <span className="text-sm text-muted-foreground">
+                      <span className="text-sm text-foreground">
                         {feature}
                       </span>
                     </div>
@@ -164,7 +164,7 @@ export default function PricingSection() {
                 <button
                   className={`w-full py-3 rounded-xl font-semibold text-sm transition-all active:scale-[0.98] ${
                     plan.featured
-                      ? "bg-primary text-primary-foreground hover:opacity-90 shadow-md"
+                      ? "bg-foreground text-background hover:bg-foreground/90 shadow-sm"
                       : "bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border/50"
                   }`}
                 >
