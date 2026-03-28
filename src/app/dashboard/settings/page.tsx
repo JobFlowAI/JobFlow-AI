@@ -1,8 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { CreditCard, Crown, Calendar, ArrowUpRight } from "lucide-react";
+import { CreditCard, Crown, Calendar, ArrowUpRight, User, Mail, Save } from "lucide-react";
 import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 
 const usageHistory = [
   { action: "Resume Parse", credits: -2, date: "Mar 24, 2026", time: "2:30 PM" },
@@ -16,17 +20,89 @@ const usageHistory = [
 ];
 
 export default function SettingsPage() {
+  const [name, setName] = useState("Shahroz Imran");
+  const [email, setEmail] = useState("shahroz@jobflow.ai");
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSaveProfile = () => {
+    setIsSaving(true);
+    // Simulate API call
+    setTimeout(() => {
+      setIsSaving(false);
+      toast.success("Profile updated successfully!");
+    }, 1000);
+  };
+
   return (
     <div className="space-y-6 max-w-3xl">
       <div>
         <h1 className="text-2xl font-bold text-foreground">Settings & Billing</h1>
-        <p className="text-muted-foreground">Manage your subscription and view usage history.</p>
+        <p className="text-muted-foreground">Manage your account details and subscription preferences.</p>
       </div>
+
+      {/* Profile Settings */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="card-elevated p-6"
+      >
+        <div className="flex items-center gap-2 mb-6">
+          <User className="w-5 h-5 text-foreground" />
+          <h2 className="text-lg font-semibold text-foreground">Profile Settings</h2>
+        </div>
+        
+        <div className="grid gap-6">
+          <div className="grid gap-2">
+            <Label htmlFor="name" className="text-sm font-medium">Full Name</Label>
+            <div className="relative">
+              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="pl-10"
+                placeholder="Enter your full name"
+              />
+            </div>
+          </div>
+          
+          <div className="grid gap-2">
+            <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="pl-10"
+                placeholder="Enter your email"
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end pt-2">
+            <Button
+              onClick={handleSaveProfile}
+              disabled={isSaving}
+              className="gap-2 px-6"
+            >
+              {isSaving ? (
+                <span className="w-4 h-4 border-2 border-background/30 border-t-background rounded-full animate-spin" />
+              ) : (
+                <Save className="w-4 h-4" />
+              )}
+              {isSaving ? "Saving..." : "Save Changes"}
+            </Button>
+          </div>
+        </div>
+      </motion.div>
 
       {/* Current Plan */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
         className="card-elevated p-6"
       >
         <div className="flex items-start justify-between">
@@ -58,7 +134,7 @@ export default function SettingsPage() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
+        transition={{ delay: 0.2 }}
         className="card-elevated p-6"
       >
         <h2 className="text-lg font-semibold text-foreground mb-4">Usage History</h2>

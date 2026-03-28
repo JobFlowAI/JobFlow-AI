@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, FileText, Briefcase, Mail, Settings, CreditCard, Zap, ChevronLeft, ChevronRight } from "lucide-react";
+import { LayoutDashboard, FileText, Briefcase, Mail, Settings, CreditCard, Zap, ChevronLeft, ChevronRight, History } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -10,6 +10,7 @@ const navItems = [
   { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { path: "/dashboard/resume-workspace", label: "Resume AI", icon: FileText },
   { path: "/dashboard/outreach", label: "Outreach Hub", icon: Mail },
+  { path: "/dashboard/activity", label: "Activity", icon: History },
   { path: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
 

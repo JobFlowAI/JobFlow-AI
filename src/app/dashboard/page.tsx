@@ -1,8 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { FileText, Briefcase, TrendingUp, Zap, ArrowRight, ChevronRight } from "lucide-react";
+import { FileText, Briefcase, TrendingUp, Zap, ArrowRight, ChevronRight, History } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const recentMatches = [
   { title: "Senior Frontend Engineer", company: "Stripe", score: 92, status: "matched" },
@@ -44,7 +45,10 @@ export default function Dashboard() {
         >
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-semibold tracking-tight text-foreground">Credit Overview</h2>
-            <button className="text-sm font-medium text-primary hover:underline underline-offset-4">View History</button>
+            <Link href="/dashboard/activity" className="text-sm font-medium text-primary hover:underline underline-offset-4 flex items-center gap-1.5">
+              <History className="w-3.5 h-3.5" />
+              View History
+            </Link>
           </div>
           
           <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
