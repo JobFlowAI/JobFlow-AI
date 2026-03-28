@@ -1,6 +1,7 @@
 import { Briefcase, Rocket, Heart, Brain, ArrowRight } from "lucide-react";
 import LandingNav from "@/components/landing/LandingNav";
 import LandingFooter from "@/components/landing/LandingFooter";
+import LogoCloud from "@/components/landing/LogoCloud";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
 const perks = [
@@ -33,6 +34,8 @@ export default function Careers() {
             </ScrollReveal>
           </div>
         </section>
+        
+        <LogoCloud />
 
         {/* Perks */}
         <section className="py-20 bg-card">

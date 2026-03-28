@@ -1,24 +1,57 @@
+"use client";
+
 import { motion } from "framer-motion";
 
+const partners = ["STRIPE", "▲ Vercel", "● SQUARE", "Notion", "OpenAI"];
+const techStack = [
+  "Next.js", 
+  "Tailwind CSS", 
+  "Framer Motion", 
+  "React 18", 
+  "TypeScript", 
+  "Radix UI", 
+  "Lucide React", 
+  "TanStack Query", 
+  "Zod"
+];
+
 export default function LogoCloud() {
-  const logos = ["Stripe", "Vercel", "Linear", "Notion", "Figma", "OpenAI"];
+  const allItems = [...partners, ...techStack];
+  
+  // Duplicate items for seamless loop
+  const duplicatedItems = [...allItems, ...allItems, ...allItems];
 
   return (
-    <section className="py-16 border-y border-border/40 bg-card/30 backdrop-blur-sm relative z-10">
-      <div className="max-w-6xl mx-auto px-6 text-center">
-        <p className="text-sm font-semibold text-muted-foreground mb-8 tracking-widest uppercase">
-          Trusted by professionals from
+    <section className="py-12 border-y border-border/40 bg-card/10 backdrop-blur-sm relative overflow-hidden">
+      <div className="max-w-6xl mx-auto px-6 text-center mb-8">
+        <p className="text-[10px] font-bold text-muted-foreground/60 tracking-[0.2em] uppercase">
+          Powered by industry leaders & cutting-edge stack
         </p>
-        <div className="flex flex-wrap justify-center items-center gap-10 md:gap-20 opacity-50 grayscale hover:grayscale-0 transition-all duration-700 p-4">
-          <div className="text-2xl font-black tracking-tighter uppercase">Stripe</div>
-          <div className="text-2xl font-bold tracking-tight">▲ Vercel</div>
-          <div className="text-2xl font-bold tracking-tight flex items-center gap-1">
-             <div className="w-4 h-4 bg-foreground rounded-sm" /> Square
-          </div>
-          <div className="text-2xl font-serif italic font-bold tracking-tight">Notion</div>
-          <div className="text-2xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-foreground to-muted-foreground">OpenAI</div>
-        </div>
+      </div>
+
+      <div className="relative flex overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_20%,black_80%,transparent)]">
+        <motion.div
+          animate={{
+            x: ["0%", "-33.33%"],
+          }}
+          transition={{
+            duration: 30,
+            repeat: Infinity,
+            ease: "linear",
+          }}
+          className="flex whitespace-nowrap gap-12 md:gap-24 items-center py-4"
+        >
+          {duplicatedItems.map((item, index) => (
+            <span
+              key={index}
+              className="text-xl md:text-2xl font-bold text-muted-foreground/30 hover:text-foreground/80 transition-colors cursor-default whitespace-nowrap tracking-tight"
+            >
+              {item}
+            </span>
+          ))}
+        </motion.div>
       </div>
     </section>
   );
 }
+
