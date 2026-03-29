@@ -6,6 +6,8 @@ import { analyzeKeywords } from "@/lib/ai/services/keyword-optimizer";
 import { rewriteResume } from "@/lib/ai/services/resume-rewriter";
 import { calculateAtsScore } from "@/lib/ai/services/scoring-engine";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: NextRequest) {
   try {
     const { jd, targetRole, company, optimizationType } = await req.json();
