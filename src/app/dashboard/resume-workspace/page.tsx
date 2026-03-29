@@ -27,7 +27,8 @@ import { cn } from "@/lib/utils";
 import { pdf } from "@react-pdf/renderer";
 import { AtsTemplate } from "@/components/resume-templates/AtsTemplate";
 import { AtsPdfTemplate } from "@/components/resume-templates/AtsPdfTemplate";
-
+import { ModernSplitTemplate } from "@/components/resume-templates/ModernSplitTemplate";
+import { ModernSplitPdfTemplate } from "@/components/resume-templates/ModernSplitPdfTemplate";
 type OptType = "ats" | "creative" | null;
 type Step = 1 | 2 | 3 | 4;
 
@@ -179,8 +180,18 @@ export default function ResumeWorkspacePage() {
         throw new Error("Cannot export raw text to PDF. Missing structured data.");
       }
 
+      // Dynamic Engine: Select correct PDF component
+      let pdfComponent = <AtsPdfTemplate data={data} />;
+      
+      if (optimizationType === "creative") {
+        if (selectedTemplate === "modern-split") {
+          pdfComponent = <ModernSplitPdfTemplate data={data} />;
+        }
+        // Additional templates can be mapped here in the future
+      }
+
       // Generate actual vector PDF natively
-      const blob = await pdf(<AtsPdfTemplate data={data} />).toBlob();
+      const blob = await pdf(pdfComponent).toBlob();
       const url = URL.createObjectURL(blob);
       
       const link = document.createElement("a");
@@ -674,11 +685,18 @@ export default function ResumeWorkspacePage() {
             {/* Resume Document */}
             <div 
               ref={resumeRef}
-              className="rounded-xl border border-border/40 bg-card shadow-sm overflow-hidden"
+              className="rounded-xl border border-border/40 bg-muted/20 shadow-sm overflow-hidden flex justify-center p-4 sm:p-8"
             >
-              <div className="p-8 md:p-12">
-                 <AtsTemplate content={generatedContent} />
-              </div>
+              {optimizationType === "ats" ? (
+                 <AtsTemplate content={generatedContent} className="shadow-lg border border-border/50" />
+              ) : optimizationType === "creative" && selectedTemplate === "modern-split" ? (
+                 <ModernSplitTemplate content={generatedContent} className="shadow-lg border border-border/50" />
+              ) : (
+                 <div className="p-12 text-center text-muted-foreground w-full flex flex-col items-center justify-center min-h-[500px] bg-card rounded-lg border border-dashed border-border/60">
+                   <p className="mb-2 font-medium text-foreground">Template engine mapping pending</p>
+                   <p className="text-sm">The selected template ({selectedTemplate}) is not yet wired to a React component.</p>
+                 </div>
+              )}
             </div>
           </motion.div>
         )}

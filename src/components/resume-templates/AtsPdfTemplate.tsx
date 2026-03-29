@@ -8,15 +8,12 @@ import {
 } from "@react-pdf/renderer";
 import { ResumeData } from "./AtsTemplate";
 
-// Register fonts for standard true-to-life ATS aesthetics
-// Note: In browser, it uses default fonts if not explicitly registered, but Times-Roman is built-in.
-Font.register({
-  family: "Times-Roman",
-});
+// Note: Standard PDF fonts (Times-Roman, Times-Bold, Times-Italic) are built-in.
+// No extra registration is needed.
 
 const styles = StyleSheet.create({
   page: {
-    padding: 30, // Normal professional padding
+    padding: 40, // Deeper padding for standard ATS parsing
     fontFamily: "Times-Roman",
     fontSize: 11,
     lineHeight: 1.4,
@@ -28,10 +25,9 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 22,
-    fontWeight: "heavy", // Times-Roman bold variant is triggered internally
+    fontFamily: "Times-Bold", // Use standard PDF bold
     textTransform: "uppercase",
     marginBottom: 4,
-    fontFamily: "Times-Roman",
   },
   contactRow: {
     flexDirection: "row",
@@ -41,14 +37,14 @@ const styles = StyleSheet.create({
     color: "#333",
   },
   contactItem: {
-    marginHorizontal: 3,
+    marginHorizontal: 4,
   },
   section: {
-    marginBottom: 12,
+    marginBottom: 14,
   },
   sectionTitle: {
-    fontSize: 11,
-    fontWeight: "heavy",
+    fontSize: 12,
+    fontFamily: "Times-Bold",
     textTransform: "uppercase",
     borderBottomWidth: 1,
     borderBottomColor: "#000000",
@@ -68,7 +64,7 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   itemTitle: {
-    fontWeight: "heavy",
+    fontFamily: "Times-Bold",
     fontSize: 11,
   },
   itemDates: {
@@ -79,7 +75,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 4,
     fontSize: 10,
-    fontStyle: "italic",
+    fontFamily: "Times-Italic",
   },
   bulletList: {
     marginLeft: 10,
