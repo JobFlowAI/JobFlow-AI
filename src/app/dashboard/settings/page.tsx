@@ -34,7 +34,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div className="p-6 md:p-8 max-w-5xl mx-auto space-y-6 animate-in fade-in duration-500">
       <div>
         <h1 className="text-2xl font-bold text-foreground">Settings & Billing</h1>
         <p className="text-muted-foreground">Manage your account details and subscription preferences.</p>

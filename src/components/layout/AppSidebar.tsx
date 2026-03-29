@@ -1,6 +1,7 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 import {
   LayoutDashboard,
   FileText,
@@ -35,7 +36,6 @@ const bottomNav = [
 
 export default function AppSidebar() {
   const pathname = usePathname();
-  const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
 
   const isActive = (path: string) =>
@@ -50,9 +50,10 @@ export default function AppSidebar() {
   }) => {
     const active = isActive(item.path);
     const button = (
-      <button
-        onClick={() => router.push(item.path)}
-        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] transition-all duration-200 group relative outline-none ${
+      <Link
+        href={item.path}
+        prefetch={true}
+        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] transition-all duration-200 group relative outline-none no-underline ${
           active
             ? "bg-muted text-foreground font-semibold shadow-sm border border-border/50"
             : "text-muted-foreground hover:bg-muted/50 hover:text-foreground font-medium border border-transparent"
@@ -75,7 +76,7 @@ export default function AppSidebar() {
             </motion.span>
           )}
         </AnimatePresence>
-      </button>
+      </Link>
     );
 
     if (collapsed) {

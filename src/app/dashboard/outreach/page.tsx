@@ -17,7 +17,7 @@ export default function Outreach() {
   const [emailModal, setEmailModal] = useState<typeof jobMatches[0] | null>(null);
 
   return (
-    <div className="space-y-6">
+    <div className="p-6 md:p-8 max-w-5xl mx-auto space-y-6 animate-in fade-in duration-500">
       <div>
         <h1 className="text-2xl font-bold text-foreground">Outreach Hub</h1>
         <p className="text-muted-foreground">Your matched jobs and one-click personalized outreach.</p>
