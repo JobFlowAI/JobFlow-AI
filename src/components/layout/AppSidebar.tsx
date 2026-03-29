@@ -13,7 +13,6 @@ import {
   User,
   LogOut,
 } from "lucide-react";
-import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Tooltip,
@@ -34,9 +33,13 @@ const bottomNav = [
   { path: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
 
-export default function AppSidebar() {
+interface AppSidebarProps {
+  collapsed: boolean;
+  setCollapsed: (collapsed: boolean) => void;
+}
+
+export default function AppSidebar({ collapsed, setCollapsed }: AppSidebarProps) {
   const pathname = usePathname();
-  const [collapsed, setCollapsed] = useState(false);
 
   const isActive = (path: string) =>
     path === "/dashboard"
