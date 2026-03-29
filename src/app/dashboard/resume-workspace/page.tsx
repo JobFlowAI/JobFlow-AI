@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FileText,
@@ -10,10 +10,12 @@ import {
   Sparkles,
   Download,
   ArrowRight,
+  ArrowLeft,
   CheckCircle2,
   Copy,
   RotateCcw,
   Briefcase,
+  Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -21,27 +23,46 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { getProfile } from "@/lib/profile-store";
 import { saveResume, generateResumeId } from "@/lib/resume-store";
+import { cn } from "@/lib/utils";
 
 type OptType = "ats" | "creative" | null;
-type Phase = "input" | "generating" | "preview";
-
-const atsTemplates = [
-  { id: "clean", name: "Clean Standard", desc: "Single column, no graphics" },
-];
+type Step = 1 | 2 | 3 | 4;
 
 const creativeTemplates = [
-  { id: "modern-split", name: "Modern Split", desc: "Two-column with accent bar" },
-  { id: "minimal-pro", name: "Minimal Pro", desc: "Clean with subtle color header" },
-  { id: "bold-header", name: "Bold Header", desc: "Large header with skills grid" },
+  {
+    id: "modern-split",
+    name: "Modern Split",
+    desc: "Two-column layout with a clean accent sidebar for skills and contact info.",
+    preview: "split",
+  },
+  {
+    id: "minimal-pro",
+    name: "Minimal Pro",
+    desc: "Single-column with a subtle color header and elegant typography.",
+    preview: "minimal",
+  },
+  {
+    id: "bold-header",
+    name: "Bold Header",
+    desc: "Impactful header with a visual skills grid and structured sections.",
+    preview: "bold",
+  },
+];
+
+const steps = [
+  { num: 1, label: "Job Details" },
+  { num: 2, label: "Strategy" },
+  { num: 3, label: "Generate" },
+  { num: 4, label: "Preview" },
 ];
 
 export default function ResumeWorkspacePage() {
+  const [step, setStep] = useState<Step>(1);
   const [jobDescription, setJobDescription] = useState("");
   const [targetRole, setTargetRole] = useState("");
   const [company, setCompany] = useState("");
   const [optimizationType, setOptimizationType] = useState<OptType>(null);
   const [selectedTemplate, setSelectedTemplate] = useState("");
-  const [phase, setPhase] = useState<Phase>("input");
   const [generatedContent, setGeneratedContent] = useState("");
   const [atsScore, setAtsScore] = useState<number | null>(null);
   const [generatingStep, setGeneratingStep] = useState(0);
@@ -49,31 +70,27 @@ export default function ResumeWorkspacePage() {
   const profile = getProfile();
 
   const generatingSteps = [
-    "Analyzing job description...",
-    "Extracting key requirements...",
-    "Mapping your experience...",
-    "Optimizing content...",
-    "Generating resume...",
+    "Analyzing job description…",
+    "Extracting key requirements…",
+    "Mapping your experience…",
+    "Optimizing content…",
+    "Generating resume…",
   ];
 
-  const canGenerate =
-    jobDescription.trim().length > 20 &&
-    optimizationType !== null &&
-    targetRole.trim() !== "";
+  const canProceedStep1 =
+    targetRole.trim().length > 0 && jobDescription.trim().length > 20;
+
+  const canProceedStep2 = optimizationType !== null;
 
   const handleGenerate = async () => {
-    if (!canGenerate) return;
-
-    setPhase("generating");
+    setStep(3);
     setGeneratingStep(0);
 
-    // Simulate step-by-step generation
     for (let i = 0; i < generatingSteps.length; i++) {
       setGeneratingStep(i);
       await new Promise((r) => setTimeout(r, 800));
     }
 
-    // Generate mock resume content based on profile and JD
     const mockContent = generateMockResume(
       profile,
       targetRole,
@@ -86,7 +103,6 @@ export default function ResumeWorkspacePage() {
     setGeneratedContent(mockContent);
     setAtsScore(mockScore);
 
-    // Save to resume store
     saveResume({
       id: generateResumeId(),
       targetRole,
@@ -101,11 +117,11 @@ export default function ResumeWorkspacePage() {
       updatedAt: new Date().toISOString(),
     });
 
-    setPhase("preview");
+    setStep(4);
   };
 
   const handleReset = () => {
-    setPhase("input");
+    setStep(1);
     setGeneratedContent("");
     setAtsScore(null);
     setJobDescription("");
@@ -113,6 +129,7 @@ export default function ResumeWorkspacePage() {
     setCompany("");
     setOptimizationType(null);
     setSelectedTemplate("");
+    setGeneratingStep(0);
   };
 
   const handleCopy = () => {
@@ -121,18 +138,18 @@ export default function ResumeWorkspacePage() {
   };
 
   return (
-    <div className="h-[calc(100vh-3.5rem)] flex flex-col animate-in fade-in duration-500">
-      {/* Header */}
-      <div className="px-6 pt-6 pb-4 border-b border-border/30 flex items-center justify-between shrink-0">
+    <div className="p-6 md:p-8 max-w-4xl mx-auto space-y-8 animate-in fade-in duration-500 pb-16">
+      {/* Page Header */}
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-foreground">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
             Resume Workspace
           </h1>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Create AI-optimized resumes tailored to any job description
+          <p className="text-sm text-muted-foreground mt-1">
+            Create AI-optimized resumes tailored to any job description.
           </p>
         </div>
-        {phase === "preview" && (
+        {step === 4 && (
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
@@ -141,13 +158,6 @@ export default function ResumeWorkspacePage() {
             >
               <RotateCcw className="w-3.5 h-3.5" /> New Resume
             </Button>
-            <Button
-              variant="outline"
-              onClick={handleCopy}
-              className="gap-2 rounded-xl text-sm"
-            >
-              <Copy className="w-3.5 h-3.5" /> Copy
-            </Button>
             <Button className="gap-2 rounded-xl text-sm shadow-sm">
               <Download className="w-3.5 h-3.5" /> Export PDF
             </Button>
@@ -155,373 +165,532 @@ export default function ResumeWorkspacePage() {
         )}
       </div>
 
-      {/* Main content area */}
-      <div className="flex-1 overflow-hidden">
-        <AnimatePresence mode="wait">
-          {/* INPUT PHASE */}
-          {phase === "input" && (
-            <motion.div
-              key="input"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="h-full flex"
-            >
-              {/* Left Panel — Job Description Input */}
-              <div className="flex-1 p-6 overflow-y-auto border-r border-border/30">
-                <div className="max-w-xl mx-auto space-y-6">
-                  <div>
-                    <h2 className="text-base font-semibold text-foreground mb-1 flex items-center gap-2">
-                      <Briefcase className="w-4 h-4 text-primary" />
-                      Target Position
-                    </h2>
-                    <div className="grid grid-cols-2 gap-3 mt-3">
-                      <div>
-                        <label className="text-xs text-muted-foreground mb-1 block font-medium">
-                          Job Title *
-                        </label>
-                        <Input
-                          value={targetRole}
-                          onChange={(e) => setTargetRole(e.target.value)}
-                          placeholder="Senior Frontend Engineer"
-                          className="rounded-lg"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-xs text-muted-foreground mb-1 block font-medium">
-                          Company
-                        </label>
-                        <Input
-                          value={company}
-                          onChange={(e) => setCompany(e.target.value)}
-                          placeholder="Stripe"
-                          className="rounded-lg"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground mb-1.5 flex items-center gap-1.5">
-                      <FileText className="w-3.5 h-3.5" />
-                      Job Description *
-                    </label>
-                    <Textarea
-                      placeholder="Paste the full job description here. Our AI will extract key requirements, skills, and qualifications to optimize your resume..."
-                      className="min-h-[200px] rounded-xl bg-muted/20 border-border/40 resize-none text-sm leading-relaxed focus-visible:ring-primary/20"
-                      value={jobDescription}
-                      onChange={(e) => setJobDescription(e.target.value)}
-                    />
-                    <div className="flex justify-between mt-2 text-xs">
-                      <span className="text-muted-foreground">
-                        Minimum 20 characters
-                      </span>
-                      <span
-                        className={
-                          jobDescription.length > 20
-                            ? "text-success font-medium"
-                            : "text-muted-foreground"
-                        }
-                      >
-                        {jobDescription.length} chars
-                      </span>
-                    </div>
-                  </div>
+      {/* Step Progress Bar */}
+      {step < 4 && (
+        <div className="flex items-center gap-2">
+          {steps.slice(0, 3).map((s, i) => (
+            <div key={s.num} className="flex items-center gap-2 flex-1">
+              <div className="flex items-center gap-3 flex-1">
+                <div
+                  className={cn(
+                    "w-8 h-8 rounded-lg flex items-center justify-center text-xs font-semibold shrink-0 transition-all",
+                    step > s.num
+                      ? "bg-foreground text-background"
+                      : step === s.num
+                      ? "bg-foreground text-background"
+                      : "bg-muted text-muted-foreground"
+                  )}
+                >
+                  {step > s.num ? (
+                    <Check className="w-4 h-4" />
+                  ) : (
+                    s.num
+                  )}
                 </div>
+                <span
+                  className={cn(
+                    "text-xs font-medium hidden sm:block",
+                    step >= s.num
+                      ? "text-foreground"
+                      : "text-muted-foreground"
+                  )}
+                >
+                  {s.label}
+                </span>
+                {i < 2 && (
+                  <div
+                    className={cn(
+                      "flex-1 h-px ml-2",
+                      step > s.num ? "bg-foreground" : "bg-border"
+                    )}
+                  />
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Step Content */}
+      <AnimatePresence mode="wait">
+        {/* ────────── STEP 1: Job Description ────────── */}
+        {step === 1 && (
+          <motion.div
+            key="step1"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.25 }}
+            className="space-y-6"
+          >
+            <div className="rounded-xl border border-border/40 bg-card p-6 space-y-6">
+              <div>
+                <h2 className="text-base font-semibold text-foreground flex items-center gap-2 mb-1">
+                  <Briefcase className="w-4 h-4 text-primary" />
+                  Target Position
+                </h2>
+                <p className="text-xs text-muted-foreground">
+                  Tell us about the role you&apos;re applying for.
+                </p>
               </div>
 
-              {/* Right Panel — Optimization Type Selection */}
-              <div className="w-[400px] p-6 overflow-y-auto bg-muted/10">
-                <div className="space-y-6">
-                  <div>
-                    <h2 className="text-base font-semibold text-foreground mb-1">
-                      Optimization Strategy
-                    </h2>
-                    <p className="text-xs text-muted-foreground">
-                      Select based on how you&apos;re applying.
-                    </p>
-                  </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+                    Job Title <span className="text-destructive">*</span>
+                  </label>
+                  <Input
+                    value={targetRole}
+                    onChange={(e) => setTargetRole(e.target.value)}
+                    placeholder="Senior Frontend Engineer"
+                    className="rounded-lg bg-muted/30"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+                    Company <span className="text-muted-foreground/50">(optional)</span>
+                  </label>
+                  <Input
+                    value={company}
+                    onChange={(e) => setCompany(e.target.value)}
+                    placeholder="Stripe"
+                    className="rounded-lg bg-muted/30"
+                  />
+                </div>
+              </div>
+            </div>
 
-                  <div className="space-y-3">
-                    {/* ATS Mode */}
-                    <button
-                      onClick={() => {
-                        setOptimizationType("ats");
-                        setSelectedTemplate("clean");
-                      }}
-                      className={`w-full text-left p-5 rounded-xl border-2 transition-all duration-200 ${
+            <div className="rounded-xl border border-border/40 bg-card p-6 space-y-4">
+              <div>
+                <h2 className="text-base font-semibold text-foreground flex items-center gap-2 mb-1">
+                  <FileText className="w-4 h-4 text-primary" />
+                  Job Description <span className="text-destructive text-xs">*</span>
+                </h2>
+                <p className="text-xs text-muted-foreground">
+                  Paste the full job posting. Our AI extracts key requirements to tailor your resume.
+                </p>
+              </div>
+
+              <Textarea
+                placeholder="Paste the full job description here. Include responsibilities, requirements, qualifications, and any preferred skills…"
+                className="min-h-[220px] rounded-xl bg-muted/30 border-border/40 resize-none text-sm leading-relaxed focus-visible:ring-primary/20"
+                value={jobDescription}
+                onChange={(e) => setJobDescription(e.target.value)}
+              />
+              <div className="flex justify-between text-xs">
+                <span className="text-muted-foreground">
+                  Minimum 20 characters for analysis
+                </span>
+                <span
+                  className={
+                    jobDescription.length > 20
+                      ? "text-success font-medium"
+                      : "text-muted-foreground"
+                  }
+                >
+                  {jobDescription.length} chars
+                </span>
+              </div>
+            </div>
+
+            {/* Step 1 Actions */}
+            <div className="flex justify-end">
+              <Button
+                onClick={() => setStep(2)}
+                disabled={!canProceedStep1}
+                className="gap-2 rounded-xl shadow-sm px-8"
+              >
+                Continue
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+            </div>
+          </motion.div>
+        )}
+
+        {/* ────────── STEP 2: Optimization Strategy ────────── */}
+        {step === 2 && (
+          <motion.div
+            key="step2"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.25 }}
+            className="space-y-6"
+          >
+            <div className="rounded-xl border border-border/40 bg-card p-6 space-y-5">
+              <div>
+                <h2 className="text-base font-semibold text-foreground mb-1">
+                  Choose Optimization Strategy
+                </h2>
+                <p className="text-xs text-muted-foreground">
+                  Select how your resume will be formatted based on your application method.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* ATS Option */}
+                <button
+                  onClick={() => {
+                    setOptimizationType("ats");
+                    setSelectedTemplate("clean");
+                  }}
+                  className={cn(
+                    "text-left p-5 rounded-xl border-2 transition-all duration-200 group",
+                    optimizationType === "ats"
+                      ? "border-foreground bg-foreground/5 shadow-sm"
+                      : "border-border/40 hover:border-foreground/20 bg-card"
+                  )}
+                >
+                  <div className="flex items-start gap-4">
+                    <div
+                      className={cn(
+                        "w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition-colors",
                         optimizationType === "ats"
-                          ? "border-success bg-success/5 shadow-sm"
-                          : "border-border/40 hover:border-success/30 bg-card"
-                      }`}
+                          ? "bg-foreground text-background"
+                          : "bg-muted text-muted-foreground group-hover:bg-muted/80"
+                      )}
                     >
-                      <div className="flex items-start gap-3">
-                        <div
-                          className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-                            optimizationType === "ats"
-                              ? "bg-success/20 text-success"
-                              : "bg-muted text-muted-foreground"
-                          }`}
-                        >
-                          <FileCheck className="w-5 h-5" />
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <h3 className="font-semibold text-foreground text-sm">
-                              ATS Optimized
-                            </h3>
-                            {optimizationType === "ats" && (
-                              <CheckCircle2 className="w-4 h-4 text-success" />
-                            )}
-                          </div>
-                          <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                            Simple single-column format. No tables, no graphics.
-                            Maximum keyword density and ATS parsability.
-                          </p>
-                        </div>
+                      <FileCheck className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-semibold text-foreground text-sm">
+                          ATS Optimized
+                        </h3>
+                        {optimizationType === "ats" && (
+                          <CheckCircle2 className="w-4 h-4 text-foreground" />
+                        )}
                       </div>
-                    </button>
-
-                    {/* Creative Mode */}
-                    <button
-                      onClick={() => {
-                        setOptimizationType("creative");
-                        setSelectedTemplate("modern-split");
-                      }}
-                      className={`w-full text-left p-5 rounded-xl border-2 transition-all duration-200 ${
-                        optimizationType === "creative"
-                          ? "border-primary bg-primary/5 shadow-sm"
-                          : "border-border/40 hover:border-primary/30 bg-card"
-                      }`}
-                    >
-                      <div className="flex items-start gap-3">
-                        <div
-                          className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-                            optimizationType === "creative"
-                              ? "bg-primary/20 text-primary"
-                              : "bg-muted text-muted-foreground"
-                          }`}
-                        >
-                          <Layers className="w-5 h-5" />
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <h3 className="font-semibold text-foreground text-sm">
-                              Non-ATS (Visual)
-                            </h3>
-                            {optimizationType === "creative" && (
-                              <CheckCircle2 className="w-4 h-4 text-primary" />
-                            )}
-                          </div>
-                          <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                            Graphically beautiful templates with columns, color
-                            accents. Perfect for networking and creative roles.
-                          </p>
-                        </div>
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        Simple single-column format. No tables, no graphics.
+                        Maximum keyword density and ATS parsability.
+                      </p>
+                      <div className="mt-3 flex items-center gap-2">
+                        <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground/60 bg-muted/50 px-2 py-0.5 rounded">
+                          Recommended for ATS
+                        </span>
                       </div>
-                    </button>
+                    </div>
                   </div>
+                </button>
 
-                  {/* Template Selection for Creative */}
-                  {optimizationType === "creative" && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: "auto" }}
-                      className="space-y-2"
+                {/* Creative/Visual Option */}
+                <button
+                  onClick={() => {
+                    setOptimizationType("creative");
+                    setSelectedTemplate("modern-split");
+                  }}
+                  className={cn(
+                    "text-left p-5 rounded-xl border-2 transition-all duration-200 group",
+                    optimizationType === "creative"
+                      ? "border-foreground bg-foreground/5 shadow-sm"
+                      : "border-border/40 hover:border-foreground/20 bg-card"
+                  )}
+                >
+                  <div className="flex items-start gap-4">
+                    <div
+                      className={cn(
+                        "w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition-colors",
+                        optimizationType === "creative"
+                          ? "bg-foreground text-background"
+                          : "bg-muted text-muted-foreground group-hover:bg-muted/80"
+                      )}
                     >
-                      <h3 className="text-xs font-medium text-muted-foreground">
-                        Choose Template
-                      </h3>
+                      <Layers className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-semibold text-foreground text-sm">
+                          Non-ATS (Visual)
+                        </h3>
+                        {optimizationType === "creative" && (
+                          <CheckCircle2 className="w-4 h-4 text-foreground" />
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        Graphically beautiful templates with columns, color
+                        accents. Perfect for networking and creative roles.
+                      </p>
+                      <div className="mt-3 flex items-center gap-2">
+                        <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground/60 bg-muted/50 px-2 py-0.5 rounded">
+                          Best for networking
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            {/* Template Selection — only for creative */}
+            <AnimatePresence>
+              {optimizationType === "creative" && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.25 }}
+                >
+                  <div className="rounded-xl border border-border/40 bg-card p-6 space-y-4">
+                    <div>
+                      <h2 className="text-base font-semibold text-foreground mb-1">
+                        Choose a Template
+                      </h2>
+                      <p className="text-xs text-muted-foreground">
+                        Select a design that matches your personal brand.
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       {creativeTemplates.map((tpl) => (
                         <button
                           key={tpl.id}
                           onClick={() => setSelectedTemplate(tpl.id)}
-                          className={`w-full text-left p-3 rounded-lg border transition-all text-sm ${
+                          className={cn(
+                            "text-left p-4 rounded-xl border-2 transition-all duration-200",
                             selectedTemplate === tpl.id
-                              ? "border-primary/30 bg-primary/5"
-                              : "border-border/30 hover:border-border/50"
-                          }`}
+                              ? "border-foreground bg-foreground/5 shadow-sm"
+                              : "border-border/40 hover:border-foreground/20"
+                          )}
                         >
-                          <span className="font-medium text-foreground">
+                          {/* Template mini preview */}
+                          <div className="w-full aspect-[3/4] rounded-lg bg-muted/50 mb-3 flex items-center justify-center overflow-hidden border border-border/30">
+                            <TemplatePreview type={tpl.preview} />
+                          </div>
+                          <h4 className="text-sm font-semibold text-foreground">
                             {tpl.name}
-                          </span>
-                          <span className="text-xs text-muted-foreground block mt-0.5">
+                          </h4>
+                          <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">
                             {tpl.desc}
-                          </span>
+                          </p>
                         </button>
                       ))}
-                    </motion.div>
-                  )}
-
-                  {/* Generate Button */}
-                  <Button
-                    onClick={handleGenerate}
-                    disabled={!canGenerate}
-                    className="w-full gap-2 rounded-xl shadow-sm py-3"
-                    size="lg"
-                  >
-                    <Sparkles className="w-4 h-4" /> Generate Resume
-                  </Button>
-                </div>
-              </div>
-            </motion.div>
-          )}
-
-          {/* GENERATING PHASE */}
-          {phase === "generating" && (
-            <motion.div
-              key="generating"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="h-full flex flex-col items-center justify-center text-center p-6"
-            >
-              <div className="relative mb-8">
-                <div className="w-20 h-20 border-[3px] border-muted rounded-full border-t-primary animate-spin" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <Zap className="w-7 h-7 text-primary" />
-                </div>
-              </div>
-              <h2 className="text-xl font-bold tracking-tight text-foreground mb-3">
-                AI is generating your resume
-              </h2>
-              <div className="space-y-2 max-w-sm">
-                {generatingSteps.map((step, i) => (
-                  <motion.div
-                    key={step}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{
-                      opacity: i <= generatingStep ? 1 : 0.3,
-                      x: 0,
-                    }}
-                    transition={{ delay: i * 0.1 }}
-                    className="flex items-center gap-2 text-sm"
-                  >
-                    {i < generatingStep ? (
-                      <CheckCircle2 className="w-4 h-4 text-success shrink-0" />
-                    ) : i === generatingStep ? (
-                      <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin shrink-0" />
-                    ) : (
-                      <div className="w-4 h-4 rounded-full border border-border shrink-0" />
-                    )}
-                    <span
-                      className={
-                        i <= generatingStep
-                          ? "text-foreground"
-                          : "text-muted-foreground"
-                      }
-                    >
-                      {step}
-                    </span>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
-          )}
-
-          {/* PREVIEW PHASE */}
-          {phase === "preview" && (
-            <motion.div
-              key="preview"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="h-full flex"
-            >
-              {/* Resume Preview */}
-              <div className="flex-1 p-6 overflow-y-auto flex justify-center">
-                <div className="w-full max-w-[700px]">
-                  {/* ATS Score badge */}
-                  {atsScore !== null && (
-                    <div className="mb-4 flex items-center gap-3">
-                      <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-success/10 border border-success/20">
-                        <CheckCircle2 className="w-4 h-4 text-success" />
-                        <span className="text-sm font-semibold text-success">
-                          ATS Score: {atsScore}%
-                        </span>
-                      </div>
-                      <span className="text-xs text-muted-foreground">
-                        Optimized for {targetRole}
-                        {company ? ` at ${company}` : ""}
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Resume document */}
-                  <div className="bg-white dark:bg-card rounded-xl border border-border/40 shadow-lg p-8 md:p-12 text-foreground">
-                    <div
-                      className="prose prose-sm max-w-none dark:prose-invert whitespace-pre-wrap text-sm leading-relaxed font-[system-ui]"
-                      style={{ fontFamily: "'Inter', system-ui, sans-serif" }}
-                    >
-                      {generatedContent}
                     </div>
                   </div>
-                </div>
-              </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-              {/* Side info panel */}
-              <div className="w-[300px] p-6 border-l border-border/30 bg-muted/10 overflow-y-auto">
-                <h3 className="text-sm font-semibold text-foreground mb-4">
-                  Resume Details
-                </h3>
-                <div className="space-y-4 text-sm">
-                  <div>
-                    <span className="text-xs text-muted-foreground block mb-1">
-                      Target Role
-                    </span>
-                    <span className="font-medium text-foreground">
-                      {targetRole}
+            {/* Step 2 Actions */}
+            <div className="flex items-center justify-between">
+              <Button
+                variant="outline"
+                onClick={() => setStep(1)}
+                className="gap-2 rounded-xl"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Back
+              </Button>
+              <Button
+                onClick={handleGenerate}
+                disabled={!canProceedStep2}
+                className="gap-2 rounded-xl shadow-sm px-8"
+              >
+                <Sparkles className="w-4 h-4" />
+                Generate Resume
+              </Button>
+            </div>
+          </motion.div>
+        )}
+
+        {/* ────────── STEP 3: Generating ────────── */}
+        {step === 3 && (
+          <motion.div
+            key="step3"
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.98 }}
+            transition={{ duration: 0.3 }}
+            className="flex flex-col items-center justify-center text-center py-20"
+          >
+            <div className="relative mb-8">
+              <div className="w-20 h-20 border-[3px] border-muted rounded-full border-t-foreground animate-spin" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Zap className="w-7 h-7 text-foreground" />
+              </div>
+            </div>
+
+            <h2 className="text-xl font-bold tracking-tight text-foreground mb-2">
+              Generating your resume
+            </h2>
+            <p className="text-sm text-muted-foreground mb-8">
+              {targetRole}
+              {company ? ` at ${company}` : ""} •{" "}
+              {optimizationType === "ats" ? "ATS Optimized" : "Visual Design"}
+            </p>
+
+            <div className="space-y-3 max-w-xs text-left">
+              {generatingSteps.map((s, i) => (
+                <motion.div
+                  key={s}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{
+                    opacity: i <= generatingStep ? 1 : 0.3,
+                    x: 0,
+                  }}
+                  transition={{ delay: i * 0.08 }}
+                  className="flex items-center gap-3 text-sm"
+                >
+                  {i < generatingStep ? (
+                    <CheckCircle2 className="w-4 h-4 text-foreground shrink-0" />
+                  ) : i === generatingStep ? (
+                    <div className="w-4 h-4 border-2 border-foreground border-t-transparent rounded-full animate-spin shrink-0" />
+                  ) : (
+                    <div className="w-4 h-4 rounded-full border border-border shrink-0" />
+                  )}
+                  <span
+                    className={
+                      i <= generatingStep
+                        ? "text-foreground font-medium"
+                        : "text-muted-foreground"
+                    }
+                  >
+                    {s}
+                  </span>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
+        {/* ────────── STEP 4: Preview ────────── */}
+        {step === 4 && (
+          <motion.div
+            key="step4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="space-y-6"
+          >
+            {/* Score + Actions Row */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-border/40 bg-card p-4">
+              <div className="flex items-center gap-4">
+                {atsScore !== null && (
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-foreground/5 border border-border/30">
+                    <CheckCircle2 className="w-4 h-4 text-foreground" />
+                    <span className="text-sm font-semibold text-foreground">
+                      ATS Score: {atsScore}%
                     </span>
                   </div>
-                  {company && (
-                    <div>
-                      <span className="text-xs text-muted-foreground block mb-1">
-                        Company
-                      </span>
+                )}
+                <span className="text-xs text-muted-foreground">
+                  Optimized for{" "}
+                  <span className="font-medium text-foreground">
+                    {targetRole}
+                  </span>
+                  {company ? (
+                    <>
+                      {" "}at{" "}
                       <span className="font-medium text-foreground">
                         {company}
                       </span>
-                    </div>
+                    </>
+                  ) : (
+                    ""
                   )}
-                  <div>
-                    <span className="text-xs text-muted-foreground block mb-1">
-                      Optimization
-                    </span>
-                    <span className="font-medium text-foreground">
-                      {optimizationType === "ats"
-                        ? "ATS Optimized"
-                        : "Visual Design"}
-                    </span>
-                  </div>
-                  {atsScore && (
-                    <div>
-                      <span className="text-xs text-muted-foreground block mb-1">
-                        ATS Score
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-success rounded-full transition-all"
-                            style={{ width: `${atsScore}%` }}
-                          />
-                        </div>
-                        <span className="font-bold text-success text-xs">
-                          {atsScore}%
-                        </span>
-                      </div>
-                    </div>
-                  )}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCopy}
+                  className="gap-1.5 rounded-lg text-xs"
+                >
+                  <Copy className="w-3.5 h-3.5" /> Copy Text
+                </Button>
+              </div>
+            </div>
+
+            {/* Resume Document */}
+            <div className="rounded-xl border border-border/40 bg-card shadow-sm overflow-hidden">
+              <div className="p-8 md:p-12">
+                <div
+                  className="whitespace-pre-wrap text-sm leading-relaxed text-foreground font-[system-ui]"
+                  style={{ fontFamily: "'Inter', system-ui, sans-serif" }}
+                >
+                  {generatedContent}
                 </div>
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
 
-// Mock resume content generator
+/* ─── Template Mini-Preview SVGs ─── */
+function TemplatePreview({ type }: { type: string }) {
+  if (type === "split") {
+    return (
+      <svg viewBox="0 0 120 160" className="w-full h-full p-3">
+        <rect x="0" y="0" width="40" height="160" rx="2" fill="currentColor" opacity="0.08" />
+        <rect x="6" y="10" width="28" height="3" rx="1" fill="currentColor" opacity="0.2" />
+        <rect x="6" y="18" width="20" height="2" rx="1" fill="currentColor" opacity="0.1" />
+        <rect x="6" y="30" width="28" height="2" rx="1" fill="currentColor" opacity="0.15" />
+        <rect x="6" y="35" width="24" height="2" rx="1" fill="currentColor" opacity="0.1" />
+        <rect x="6" y="40" width="26" height="2" rx="1" fill="currentColor" opacity="0.1" />
+        <rect x="6" y="55" width="28" height="2" rx="1" fill="currentColor" opacity="0.15" />
+        <rect x="6" y="60" width="22" height="2" rx="1" fill="currentColor" opacity="0.1" />
+        <rect x="6" y="65" width="26" height="2" rx="1" fill="currentColor" opacity="0.1" />
+        <rect x="48" y="10" width="50" height="4" rx="1" fill="currentColor" opacity="0.25" />
+        <rect x="48" y="18" width="66" height="2" rx="1" fill="currentColor" opacity="0.08" />
+        <rect x="48" y="28" width="30" height="2" rx="1" fill="currentColor" opacity="0.15" />
+        <rect x="48" y="34" width="66" height="2" rx="1" fill="currentColor" opacity="0.08" />
+        <rect x="48" y="39" width="60" height="2" rx="1" fill="currentColor" opacity="0.08" />
+        <rect x="48" y="44" width="64" height="2" rx="1" fill="currentColor" opacity="0.08" />
+        <rect x="48" y="56" width="30" height="2" rx="1" fill="currentColor" opacity="0.15" />
+        <rect x="48" y="62" width="66" height="2" rx="1" fill="currentColor" opacity="0.08" />
+        <rect x="48" y="67" width="60" height="2" rx="1" fill="currentColor" opacity="0.08" />
+        <rect x="48" y="72" width="55" height="2" rx="1" fill="currentColor" opacity="0.08" />
+      </svg>
+    );
+  }
+  if (type === "minimal") {
+    return (
+      <svg viewBox="0 0 120 160" className="w-full h-full p-3">
+        <rect x="0" y="0" width="120" height="24" rx="2" fill="currentColor" opacity="0.06" />
+        <rect x="10" y="8" width="60" height="4" rx="1" fill="currentColor" opacity="0.2" />
+        <rect x="10" y="15" width="40" height="2" rx="1" fill="currentColor" opacity="0.1" />
+        <rect x="10" y="32" width="25" height="2" rx="1" fill="currentColor" opacity="0.15" />
+        <rect x="10" y="38" width="100" height="2" rx="1" fill="currentColor" opacity="0.08" />
+        <rect x="10" y="43" width="95" height="2" rx="1" fill="currentColor" opacity="0.08" />
+        <rect x="10" y="55" width="25" height="2" rx="1" fill="currentColor" opacity="0.15" />
+        <rect x="10" y="61" width="100" height="2" rx="1" fill="currentColor" opacity="0.08" />
+        <rect x="10" y="66" width="90" height="2" rx="1" fill="currentColor" opacity="0.08" />
+        <rect x="10" y="71" width="95" height="2" rx="1" fill="currentColor" opacity="0.08" />
+        <rect x="10" y="83" width="25" height="2" rx="1" fill="currentColor" opacity="0.15" />
+        <rect x="10" y="89" width="100" height="2" rx="1" fill="currentColor" opacity="0.08" />
+        <rect x="10" y="94" width="85" height="2" rx="1" fill="currentColor" opacity="0.08" />
+      </svg>
+    );
+  }
+  // bold
+  return (
+    <svg viewBox="0 0 120 160" className="w-full h-full p-3">
+      <rect x="0" y="0" width="120" height="35" rx="2" fill="currentColor" opacity="0.1" />
+      <rect x="10" y="10" width="70" height="5" rx="1" fill="currentColor" opacity="0.25" />
+      <rect x="10" y="19" width="50" height="2" rx="1" fill="currentColor" opacity="0.12" />
+      <rect x="10" y="24" width="40" height="2" rx="1" fill="currentColor" opacity="0.08" />
+      <rect x="10" y="44" width="20" height="2" rx="1" fill="currentColor" opacity="0.15" />
+      <rect x="10" y="50" width="22" height="10" rx="2" fill="currentColor" opacity="0.06" />
+      <rect x="36" y="50" width="22" height="10" rx="2" fill="currentColor" opacity="0.06" />
+      <rect x="62" y="50" width="22" height="10" rx="2" fill="currentColor" opacity="0.06" />
+      <rect x="88" y="50" width="22" height="10" rx="2" fill="currentColor" opacity="0.06" />
+      <rect x="10" y="68" width="25" height="2" rx="1" fill="currentColor" opacity="0.15" />
+      <rect x="10" y="74" width="100" height="2" rx="1" fill="currentColor" opacity="0.08" />
+      <rect x="10" y="79" width="90" height="2" rx="1" fill="currentColor" opacity="0.08" />
+      <rect x="10" y="84" width="95" height="2" rx="1" fill="currentColor" opacity="0.08" />
+      <rect x="10" y="96" width="25" height="2" rx="1" fill="currentColor" opacity="0.15" />
+      <rect x="10" y="102" width="100" height="2" rx="1" fill="currentColor" opacity="0.08" />
+      <rect x="10" y="107" width="85" height="2" rx="1" fill="currentColor" opacity="0.08" />
+    </svg>
+  );
+}
+
+/* ─── Mock Resume Generator ─── */
 function generateMockResume(
   profile: ReturnType<typeof getProfile>,
   targetRole: string,
@@ -593,7 +762,6 @@ EDUCATION
 ${educationBlock}`;
   }
 
-  // Creative format
   return `╔══════════════════════════════════════╗
 ║  ${name.toUpperCase()}
 ║  ${targetRole}${company ? ` | ${company}` : ""}
