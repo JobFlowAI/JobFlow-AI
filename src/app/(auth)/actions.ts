@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getSiteUrl } from "@/lib/utils/get-site-url";
 
 export async function login(formData: FormData) {
   const supabase = await createClient();
@@ -38,6 +39,8 @@ export async function signup(formData: FormData) {
     return { error: "Name, email, and password are required" };
   }
 
+  const siteUrl = await getSiteUrl();
+
   const data = {
     email,
     password,
@@ -45,7 +48,7 @@ export async function signup(formData: FormData) {
       data: {
         full_name: name,
       },
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/auth/callback`,
+      emailRedirectTo: `${siteUrl}/auth/callback`,
     },
   };
 
@@ -68,8 +71,10 @@ export async function forgotPassword(formData: FormData) {
     return { error: "Email is required" };
   }
 
+  const siteUrl = await getSiteUrl();
+
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/auth/callback?next=/reset-password`,
+    redirectTo: `${siteUrl}/auth/callback?next=/reset-password`,
   });
 
   if (error) {
