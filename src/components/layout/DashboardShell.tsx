@@ -45,7 +45,7 @@ export default function DashboardShell({ children }: { children: React.ReactNode
   return (
     <SidebarProvider>
       <AppSidebar />
-      <SidebarInset className="bg-background h-svh overflow-hidden">
+      <SidebarInset className="bg-background overflow-hidden border border-border/40 md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 rounded-xl shadow-sm">
         <TopBar />
         <main className="flex-1 overflow-y-auto">{children}</main>
       </SidebarInset>

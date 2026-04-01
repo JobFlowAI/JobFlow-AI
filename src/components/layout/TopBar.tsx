@@ -121,26 +121,26 @@ export default function TopBar() {
   }
 
   return (
-    <header className="sticky top-0 z-40 h-14 border-b border-border/40 bg-card/80 backdrop-blur-xl flex items-center justify-between px-4">
-      <div className="flex items-center gap-4">
-        <SidebarTrigger className="-ml-1" />
-        <Separator orientation="vertical" className="mr-2 h-4 hidden md:block" />
+    <header className="sticky top-0 z-40 h-16 border-b border-border/10 bg-background/95 backdrop-blur flex items-center justify-between px-4 sm:px-6 shrink-0 transition-all">
+      <div className="flex items-center gap-3">
+        <SidebarTrigger className="-ml-2 hover:bg-muted text-muted-foreground transition-colors" />
+        <Separator orientation="vertical" className="mr-2 h-4 hidden md:block opacity-50" />
         
         {/* Breadcrumbs */}
-        <nav className="flex items-center gap-1.5 text-sm" aria-label="Breadcrumb">
+        <nav className="flex items-center gap-1.5 text-[14px]" aria-label="Breadcrumb">
           {breadcrumbs.map((crumb, i) => (
             <div key={crumb.href} className="flex items-center gap-1.5">
               {i > 0 && (
-                <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/50" />
+                <ChevronRight className="w-4 h-4 text-muted-foreground/40" />
               )}
               {i === breadcrumbs.length - 1 ? (
-                <span className="font-semibold text-foreground">
+                <span className="font-semibold tracking-tight text-foreground">
                   {crumb.label}
                 </span>
               ) : (
                 <Link
                   href={crumb.href}
-                  className="text-muted-foreground hover:text-foreground transition-colors"
+                  className="text-muted-foreground hover:text-foreground font-medium transition-colors"
                 >
                   {crumb.label}
                 </Link>
