@@ -44,13 +44,11 @@ export default function DashboardShell({ children }: { children: React.ReactNode
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen bg-background flex w-full overflow-hidden">
-        <AppSidebar />
-        <SidebarInset className="flex flex-col flex-1 min-h-screen overflow-hidden">
-          <TopBar />
-          <main className="flex-1 overflow-y-auto">{children}</main>
-        </SidebarInset>
-      </div>
+      <AppSidebar />
+      <SidebarInset className="bg-background h-svh overflow-hidden">
+        <TopBar />
+        <main className="flex-1 overflow-y-auto">{children}</main>
+      </SidebarInset>
     </SidebarProvider>
   );
 }
