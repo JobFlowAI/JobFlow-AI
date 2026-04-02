@@ -737,19 +737,21 @@ export default function ResumeEditorPage() {
                 <div className="w-2.5 h-2.5 rounded-full bg-green-400/50" />
               </div>
             </div>
-            <div className="p-4 overflow-auto max-h-[75vh]">
-              {resume.optimizationType === "creative" &&
-              resume.templateId === "modern-split" ? (
-                <ModernSplitTemplate
-                  content={data}
-                  className="shadow-lg border border-border/50 transform scale-[0.65] origin-top-left w-[154%]"
-                />
-              ) : (
-                <AtsTemplate
-                  content={data}
-                  className="shadow-lg border border-border/50 transform scale-[0.65] origin-top-left w-[154%]"
-                />
-              )}
+            <div className="overflow-y-auto overflow-x-hidden max-h-[75vh]">
+              <div style={{ zoom: 0.48 }}>
+                {resume.optimizationType === "creative" &&
+                resume.templateId === "modern-split" ? (
+                  <ModernSplitTemplate
+                    content={data}
+                    className="shadow-lg border border-border/50"
+                  />
+                ) : (
+                  <AtsTemplate
+                    content={data}
+                    className="shadow-lg border border-border/50"
+                  />
+                )}
+              </div>
             </div>
           </div>
         </div>

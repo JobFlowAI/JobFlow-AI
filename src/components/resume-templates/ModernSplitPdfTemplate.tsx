@@ -80,17 +80,18 @@ const styles = StyleSheet.create({
   
   // --- Right Column Styles ---
   name: {
-    fontSize: 26,
+    fontSize: 24,
     fontFamily: "Helvetica-Bold",
     textTransform: "uppercase",
-    color: "#18181b", // zinc-900
-    marginBottom: 4,
+    color: "#18181b",
+    letterSpacing: -0.5,
+    marginBottom: 2,
   },
   titleLine: {
-    fontSize: 14,
+    fontSize: 12,
     fontFamily: "Helvetica",
-    color: "#71717a", // zinc-500
-    marginBottom: 20,
+    color: "#71717a",
+    marginBottom: 16,
   },
   summary: {
     fontSize: 10,
@@ -135,15 +136,16 @@ const styles = StyleSheet.create({
   bulletRow: {
     flexDirection: "row",
     marginBottom: 4,
-    marginLeft: 10,
+    marginLeft: 8,
   },
   bulletPointContainer: {
-    width: 6,
-    marginTop: 1,
+    width: 8,
+    marginTop: 5,
+    marginRight: 4,
   },
   bulletPoint: {
-    fontSize: 14, // Helvetica bullet generic sizing
-    color: "#a1a1aa", // zinc-400
+    fontSize: 6,
+    color: "#d4d4d8",
   },
   bulletContent: {
     flex: 1,
