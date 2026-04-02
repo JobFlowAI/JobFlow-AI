@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, useRef, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FileText,
@@ -63,7 +63,23 @@ const steps = [
 ];
 
 export default function ResumeWorkspacePage() {
+  return (
+    <Suspense fallback={
+      <div className="p-6 md:p-8 max-w-4xl mx-auto flex items-center justify-center min-h-[60vh]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-10 h-10 border-[3px] border-muted rounded-full border-t-foreground animate-spin" />
+          <p className="text-sm text-muted-foreground">Loading workspace...</p>
+        </div>
+      </div>
+    }>
+      <ResumeWorkspaceContent />
+    </Suspense>
+  );
+}
+
+function ResumeWorkspaceContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [step, setStep] = useState<Step>(1);
   const [jobDescription, setJobDescription] = useState("");
   const [targetRole, setTargetRole] = useState("");
@@ -76,12 +92,31 @@ export default function ResumeWorkspacePage() {
   const [profile, setProfile] = useState<UserProfile>(defaultProfile);
   const [isExporting, setIsExporting] = useState(false);
   const [savedResumeId, setSavedResumeId] = useState<string | null>(null);
+  const [preFilledFrom, setPreFilledFrom] = useState<string | null>(null);
   
   const resumeRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     getProfile().then(setProfile);
-  }, []);
+
+    // Check if pre-filled from a job listing
+    if (searchParams.get("fromJob") === "true") {
+      try {
+        const stored = sessionStorage.getItem("jobflow_selected_job");
+        if (stored) {
+          const jobData = JSON.parse(stored);
+          if (jobData.targetRole) setTargetRole(jobData.targetRole);
+          if (jobData.company) setCompany(jobData.company);
+          if (jobData.jobDescription) setJobDescription(jobData.jobDescription);
+          setPreFilledFrom(jobData.company || "job listing");
+          // Clean up sessionStorage
+          sessionStorage.removeItem("jobflow_selected_job");
+        }
+      } catch {
+        // Silently fail if sessionStorage access fails
+      }
+    }
+  }, [searchParams]);
 
   const generatingSteps = [
     "Analyzing job description…",
@@ -321,6 +356,23 @@ export default function ResumeWorkspacePage() {
             transition={{ duration: 0.25 }}
             className="space-y-6"
           >
+            {/* Pre-filled badge */}
+            {preFilledFrom && (
+              <div className="rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                  <Briefcase className="w-4 h-4 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-foreground">
+                    Pre-filled from {preFilledFrom} job listing
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Review the details below and continue to generate your resume.
+                  </p>
+                </div>
+              </div>
+            )}
+
             <div className="rounded-xl border border-border/40 bg-card p-6 space-y-6">
               <div>
                 <h2 className="text-base font-semibold text-foreground flex items-center gap-2 mb-1">

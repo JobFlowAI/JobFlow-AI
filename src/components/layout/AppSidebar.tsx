@@ -13,6 +13,7 @@ import {
   Zap,
   FolderOpen,
   Loader2,
+  Search,
 } from "lucide-react";
 import {
   Sidebar,
@@ -34,6 +35,7 @@ const mainNav = [
   { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { path: "/dashboard/profile", label: "My Profile", icon: User },
   { path: "/dashboard/resumes", label: "My Resumes", icon: FolderOpen },
+  { path: "/dashboard/jobs", label: "Find Jobs", icon: Search },
   { path: "/dashboard/resume-workspace", label: "Resume AI", icon: FileText },
   { path: "/dashboard/outreach", label: "Outreach", icon: Mail },
   { path: "/dashboard/activity", label: "Activity", icon: History },
