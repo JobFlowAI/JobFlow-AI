@@ -62,12 +62,23 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Validate URL format
-    let parsedUrl: URL;
+    // Validate and preprocess URL
+    let targetUrl = url;
     try {
-      parsedUrl = new URL(url);
+      const parsedUrl = new URL(url);
       if (!["http:", "https:"].includes(parsedUrl.protocol)) {
         throw new Error("Invalid protocol");
+      }
+
+      // Handle LinkedIn search URLs specifically
+      if (
+        parsedUrl.hostname.includes("linkedin.com") &&
+        parsedUrl.pathname.includes("/jobs/search")
+      ) {
+        const currentJobId = parsedUrl.searchParams.get("currentJobId");
+        if (currentJobId) {
+          targetUrl = `https://www.linkedin.com/jobs/view/${currentJobId}`;
+        }
       }
     } catch {
       return NextResponse.json(
@@ -77,7 +88,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Fetch the page content server-side
-    const response = await fetch(url, {
+    const response = await fetch(targetUrl, {
       headers: {
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
