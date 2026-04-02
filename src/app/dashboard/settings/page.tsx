@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import {
@@ -42,7 +42,7 @@ const tabs = [
   { id: "security", label: "Security", icon: Shield },
 ];
 
-export default function SettingsPage() {
+function SettingsContent() {
   const searchParams = useSearchParams();
   const initialTab = searchParams.get("tab") === "security" ? "security" : "general";
   const [activeTab, setActiveTab] = useState(initialTab);
@@ -422,5 +422,13 @@ export default function SettingsPage() {
         </motion.div>
       )}
     </div>
+  );
+}
+
+export default function SettingsPage() {
+  return (
+    <Suspense fallback={<div className="p-8 flex justify-center"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>}>
+      <SettingsContent />
+    </Suspense>
   );
 }

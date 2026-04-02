@@ -11,12 +11,7 @@ import { toast } from "sonner";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
-import type { Metadata } from 'next';
 
-export const metadata: Metadata = {
-  title: 'Log In | JobFlow AI',
-  description: 'Log in to your JobFlow AI account to manage your resumes, profile, and job search.',
-};
 
 export default function LoginPage() {
   return (
