@@ -77,7 +77,7 @@ export default function AppSidebar() {
                   className={cn(
                     "flex items-center gap-3 px-3 py-5 rounded-lg transition-all duration-300 group font-medium text-[14px]",
                     active
-                      ? "bg-foreground text-background shadow-md hover:bg-foreground/90 hover:text-background"
+                      ? "bg-foreground text-background shadow-md hover:bg-foreground/90 hover:text-background data-[active=true]:bg-foreground data-[active=true]:text-background"
                       : "text-muted-foreground hover:bg-muted hover:text-foreground"
                   )}
                 >
@@ -111,7 +111,7 @@ export default function AppSidebar() {
                   className={cn(
                     "flex items-center gap-3 px-3 py-5 rounded-lg transition-all duration-300 group font-medium text-[14px]",
                     active
-                      ? "bg-foreground text-background shadow-md"
+                      ? "bg-foreground text-background shadow-md data-[active=true]:bg-foreground data-[active=true]:text-background"
                       : "text-muted-foreground hover:bg-muted hover:text-foreground"
                   )}
                 >
