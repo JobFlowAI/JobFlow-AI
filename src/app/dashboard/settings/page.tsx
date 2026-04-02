@@ -81,13 +81,14 @@ function SettingsContent() {
   const handleSaveProfile = async () => {
     setIsSaving(true);
     const { error } = await supabase.auth.updateUser({
-      data: { full_name: name },
+      email: email.trim(),
+      data: { full_name: name.trim() },
     });
     setIsSaving(false);
     if (error) {
       toast.error(error.message);
     } else {
-      toast.success("Profile updated successfully!");
+      toast.success("Profile saved! (If you changed your email, check your inbox for a confirmation link).", { duration: 6000 });
     }
   };
 
@@ -122,7 +123,19 @@ function SettingsContent() {
       return;
     }
 
-    toast.error("Account deletion requires admin action. Please contact support@jobflow.ai");
+    const deletePromise = async () => {
+      const { error } = await supabase.rpc("delete_user_account");
+      if (error) throw error;
+      await supabase.auth.signOut();
+      window.location.href = "/";
+    };
+
+    toast.promise(deletePromise(), {
+      loading: "Permanently deleting your account and all data...",
+      success: "Your account has been deleted. We're sad to see you go!",
+      error: "Failed to delete account. Please contact support.",
+    });
+
     setShowDeleteConfirm(false);
     setDeleteConfirmText("");
   };
@@ -193,12 +206,12 @@ function SettingsContent() {
                     id="email"
                     type="email"
                     value={email}
-                    disabled
-                    className="pl-10 bg-muted/30 opacity-60"
-                    placeholder="Email"
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="pl-10 bg-muted/30"
+                    placeholder="Email Address"
                   />
                 </div>
-                <p className="text-[11px] text-muted-foreground">Email cannot be changed here. Contact support if needed.</p>
+                <p className="text-[11px] text-muted-foreground">We will send a secure verification link if you change your email.</p>
               </div>
 
               <div className="flex justify-start pt-3 border-t border-border/30 mt-1">

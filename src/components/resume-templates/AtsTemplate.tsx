@@ -56,15 +56,15 @@ export function AtsTemplate({ content, className = "" }: AtsTemplateProps) {
   // Premium ATS Layout Styling
   // Strictly clean, bordered sections, centered header, professional serif typography
   return (
-    <div className={`font-serif text-gray-900 bg-white leading-normal text-[11pt] max-w-[850px] mx-auto p-8 md:p-12 ${className}`} style={{ fontFamily: "Georgia, 'Times New Roman', Times, serif" }}>
+    <div className={`text-black bg-white leading-[1.4] max-w-[850px] mx-auto p-[40px] ${className}`} style={{ fontFamily: "'Times New Roman', Times, serif", fontSize: "11pt" }}>
       
       {/* 1. Header (Centered) */}
-      <header className="text-center mb-6">
-        <h1 className="text-3xl font-bold uppercase tracking-wider mb-2 text-black">
+      <header className="text-center mb-[15px]">
+        <h1 className="text-[22pt] font-bold uppercase mb-1 text-black">
           {data.personalInfo?.name || "YOUR NAME"}
         </h1>
         
-        <div className="flex flex-wrap justify-center items-center gap-2 text-[10pt] text-gray-800">
+        <div className="flex flex-wrap justify-center items-center gap-1.5 text-[10pt] text-gray-800">
           {[
             data.personalInfo?.location,
             data.personalInfo?.email,
@@ -74,7 +74,7 @@ export function AtsTemplate({ content, className = "" }: AtsTemplateProps) {
           ].filter(Boolean).map((item, i, arr) => (
             <span key={i} className="flex items-center">
               <span>{item}</span>
-              {i < arr.length - 1 && <span className="mx-2 text-gray-400">|</span>}
+              {i < arr.length - 1 && <span className="mx-1.5 text-black">|</span>}
             </span>
           ))}
         </div>
@@ -82,8 +82,8 @@ export function AtsTemplate({ content, className = "" }: AtsTemplateProps) {
 
       {/* 2. Professional Summary */}
       {data.summary && (
-        <section className="mb-5">
-          <h2 className="text-sm font-bold uppercase tracking-widest text-black border-b border-black pb-1 mb-2">
+        <section className="mb-[14px]">
+          <h2 className="text-[12pt] font-bold uppercase text-black border-b border-black pb-[2px] mb-[6px]">
             Professional Summary
           </h2>
           <p className="text-justify">{data.summary}</p>
@@ -92,14 +92,14 @@ export function AtsTemplate({ content, className = "" }: AtsTemplateProps) {
 
       {/* 3. Skills */}
       {data.skills && data.skills.length > 0 && (
-        <section className="mb-5">
-          <h2 className="text-sm font-bold uppercase tracking-widest text-black border-b border-black pb-1 mb-3">
+        <section className="mb-[14px]">
+          <h2 className="text-[12pt] font-bold uppercase text-black border-b border-black pb-[2px] mb-[6px]">
             Core Competencies
           </h2>
-          <div className="flex flex-wrap gap-x-6 gap-y-1">
+          <div className="flex flex-wrap">
             {data.skills.map((skill, index) => (
-              <span key={index} className="flex items-center">
-                <span className="mr-1 text-gray-500">•</span> {skill}
+              <span key={index} className="flex items-center mr-2 mb-0.5">
+                <span className="mr-1 text-black text-[10pt] w-[10px]">•</span> {skill}
               </span>
             ))}
           </div>
@@ -108,31 +108,32 @@ export function AtsTemplate({ content, className = "" }: AtsTemplateProps) {
 
       {/* 4. Professional Experience */}
       {data.experience && data.experience.length > 0 && (
-        <section className="mb-5">
-          <h2 className="text-sm font-bold uppercase tracking-widest text-black border-b border-black pb-1 mb-3">
+        <section className="mb-[14px]">
+          <h2 className="text-[12pt] font-bold uppercase text-black border-b border-black pb-[2px] mb-[6px]">
             Professional Experience
           </h2>
-          <div className="space-y-4">
+          <div className="space-y-[8px]">
             {data.experience.map((exp, index) => (
               <div key={index}>
-                <div className="flex justify-between items-baseline font-bold text-black mb-0.5">
+                <div className="flex justify-between items-baseline font-bold text-black mb-[2px]">
                   <h3 className="text-[11pt]">{exp.title}</h3>
                   <span className="text-[10pt] font-normal">{exp.dates}</span>
                 </div>
                 {(exp.company || exp.location) && (
-                  <div className="flex justify-between items-baseline text-black italic text-[10pt] mb-2">
+                  <div className="flex justify-between items-baseline text-black italic text-[10pt] mb-[4px]">
                     <span>{exp.company}</span>
                     <span>{exp.location}</span>
                   </div>
                 )}
                 {exp.bullets && exp.bullets.length > 0 && (
-                  <ul className="list-disc list-outside ml-4 space-y-1 text-justify">
+                  <div className="ml-[10px] space-y-[2px]">
                     {exp.bullets.map((bullet, bIndex) => (
-                      <li key={bIndex} className="pl-1">
-                        {bullet}
-                      </li>
+                      <div key={bIndex} className="flex text-justify text-[11pt]">
+                        <span className="w-[10px] text-[10pt] shrink-0">•</span>
+                        <span className="flex-1">{bullet}</span>
+                      </div>
                     ))}
-                  </ul>
+                  </div>
                 )}
               </div>
             ))}
@@ -142,18 +143,20 @@ export function AtsTemplate({ content, className = "" }: AtsTemplateProps) {
 
       {/* 5. Education */}
       {data.education && data.education.length > 0 && (
-        <section className="mb-5">
-          <h2 className="text-sm font-bold uppercase tracking-widest text-black border-b border-black pb-1 mb-3">
+        <section className="mb-[14px]">
+          <h2 className="text-[12pt] font-bold uppercase text-black border-b border-black pb-[2px] mb-[6px]">
             Education
           </h2>
-          <div className="space-y-2">
+          <div className="space-y-[8px]">
             {data.education.map((edu, index) => (
-              <div key={index} className="flex justify-between items-baseline">
-                <div>
-                  <h3 className="font-bold text-black text-[11pt]">{edu.degree}</h3>
-                  <p className="text-[10pt] italic text-black">{edu.school}{edu.location ? `, ${edu.location}` : ""}</p>
+              <div key={index}>
+                <div className="flex justify-between items-baseline font-bold text-black mb-[2px]">
+                  <h3 className="text-[11pt]">{edu.degree}</h3>
+                  <span className="text-[10pt] font-normal">{edu.dates}</span>
                 </div>
-                <span className="text-[10pt]">{edu.dates}</span>
+                <div className="flex justify-between items-baseline text-black italic text-[10pt] mb-[4px]">
+                  <span>{edu.school}{edu.location ? `, ${edu.location}` : ""}</span>
+                </div>
               </div>
             ))}
           </div>
@@ -162,14 +165,15 @@ export function AtsTemplate({ content, className = "" }: AtsTemplateProps) {
 
       {/* 6. Certifications */}
       {data.certifications && data.certifications.length > 0 && (
-        <section>
-          <h2 className="text-sm font-bold uppercase tracking-widest text-black border-b border-black pb-1 mb-3">
+        <section className="mb-[14px]">
+          <h2 className="text-[12pt] font-bold uppercase text-black border-b border-black pb-[2px] mb-[6px]">
             Certifications
           </h2>
-          <div className="space-y-1">
+          <div className="space-y-[2px]">
             {data.certifications.map((cert, index) => (
-              <div key={index} className="text-[11pt] flex items-center">
-                <span className="mr-2 text-gray-500">•</span> {cert}
+              <div key={index} className="text-[11pt] flex items-start">
+                <span className="w-[10px] text-[10pt] shrink-0">•</span>
+                <span className="flex-1">{cert}</span>
               </div>
             ))}
           </div>
