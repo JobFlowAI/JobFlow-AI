@@ -24,6 +24,9 @@ export async function GET(req: NextRequest) {
     const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
     const source = searchParams.get("source") || "";
     const employmentType = searchParams.get("type") || "";
+    const country = searchParams.get("country") || "";
+    const category = searchParams.get("category") || "";
+    const subcategory = searchParams.get("subcategory") || "";
 
     const offset = (page - 1) * PAGE_SIZE;
 
@@ -36,7 +39,6 @@ export async function GET(req: NextRequest) {
 
     // Full-text search if query provided
     if (query) {
-      // Use Supabase textSearch for PostgreSQL full-text search
       dbQuery = dbQuery.textSearch(
         "title",
         query.split(/\s+/).join(" | "),
@@ -52,6 +54,21 @@ export async function GET(req: NextRequest) {
     // Filter by employment type
     if (employmentType) {
       dbQuery = dbQuery.eq("employment_type", employmentType);
+    }
+
+    // Filter by country
+    if (country) {
+      dbQuery = dbQuery.ilike("country", `%${country}%`);
+    }
+
+    // Filter by category
+    if (category) {
+      dbQuery = dbQuery.eq("category", category);
+    }
+
+    // Filter by subcategory
+    if (subcategory) {
+      dbQuery = dbQuery.eq("subcategory", subcategory);
     }
 
     const { data: jobs, count, error } = await dbQuery;
