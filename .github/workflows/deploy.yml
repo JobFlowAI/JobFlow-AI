@@ -1,0 +1,46 @@
+name: Deploy to Digital Ocean
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    name: Build & Deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.DO_HOST }}
+          username: ${{ secrets.DO_USERNAME }}
+          key: ${{ secrets.DO_SSH_KEY }}
+          script_stop: true
+          script: |
+            set -e
+
+            echo "==> Navigating to project directory..."
+            cd /home/deploy/jobflow-ai
+
+            echo "==> Pulling latest code..."
+            git pull origin main
+
+            echo "==> Installing dependencies..."
+            npm ci --production=false
+
+            echo "==> Building Next.js (standalone mode)..."
+            npm run build
+
+            echo "==> Copying static + public to standalone..."
+            cp -r public .next/standalone/public
+            cp -r .next/static .next/standalone/.next/static
+
+            echo "==> Restarting PM2 process..."
+            pm2 restart jobflow-ai --update-env || pm2 start ecosystem.config.js
+
+            echo "==> Deploy complete!"

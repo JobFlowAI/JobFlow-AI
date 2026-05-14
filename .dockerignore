@@ -1,0 +1,12 @@
+node_modules
+.next
+.git
+.gitignore
+*.md
+.env*
+!.env.example
+build_output.txt
+log*.txt
+bun.lock
+bun.lockb
+.npmrc
