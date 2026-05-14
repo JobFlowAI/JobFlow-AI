@@ -32,6 +32,28 @@ import { AtsTemplate } from "@/components/resume-templates/AtsTemplate";
 import { AtsPdfTemplate } from "@/components/resume-templates/AtsPdfTemplate";
 import { ModernSplitTemplate } from "@/components/resume-templates/ModernSplitTemplate";
 import { ModernSplitPdfTemplate } from "@/components/resume-templates/ModernSplitPdfTemplate";
+import { MinimalProTemplate } from "@/components/resume-templates/MinimalProTemplate";
+import { MinimalProPdfTemplate } from "@/components/resume-templates/MinimalProPdfTemplate";
+import { BoldHeaderTemplate } from "@/components/resume-templates/BoldHeaderTemplate";
+import { BoldHeaderPdfTemplate } from "@/components/resume-templates/BoldHeaderPdfTemplate";
+import { ExecutiveClassicTemplate } from "@/components/resume-templates/ExecutiveClassicTemplate";
+import { ExecutiveClassicPdfTemplate } from "@/components/resume-templates/ExecutiveClassicPdfTemplate";
+import { NavyCorporateTemplate } from "@/components/resume-templates/NavyCorporateTemplate";
+import { NavyCorporatePdfTemplate } from "@/components/resume-templates/NavyCorporatePdfTemplate";
+import { CreativePortfolioTemplate } from "@/components/resume-templates/CreativePortfolioTemplate";
+import { CreativePortfolioPdfTemplate } from "@/components/resume-templates/CreativePortfolioPdfTemplate";
+import { TechMinimalistTemplate } from "@/components/resume-templates/TechMinimalistTemplate";
+import { TechMinimalistPdfTemplate } from "@/components/resume-templates/TechMinimalistPdfTemplate";
+import { ElegantTimelineTemplate } from "@/components/resume-templates/ElegantTimelineTemplate";
+import { ElegantTimelinePdfTemplate } from "@/components/resume-templates/ElegantTimelinePdfTemplate";
+import { GradientProTemplate } from "@/components/resume-templates/GradientProTemplate";
+import { GradientProPdfTemplate } from "@/components/resume-templates/GradientProPdfTemplate";
+import { TwoToneLightTemplate } from "@/components/resume-templates/TwoToneLightTemplate";
+import { TwoToneLightPdfTemplate } from "@/components/resume-templates/TwoToneLightPdfTemplate";
+import { CompactInfographicTemplate } from "@/components/resume-templates/CompactInfographicTemplate";
+import { CompactInfographicPdfTemplate } from "@/components/resume-templates/CompactInfographicPdfTemplate";
+import { ClassicAcademicTemplate } from "@/components/resume-templates/ClassicAcademicTemplate";
+import { ClassicAcademicPdfTemplate } from "@/components/resume-templates/ClassicAcademicPdfTemplate";
 type OptType = "ats" | "creative" | null;
 type Step = 1 | 2 | 3 | 4;
 
@@ -45,14 +67,68 @@ const creativeTemplates = [
   {
     id: "minimal-pro",
     name: "Minimal Pro",
-    desc: "Single-column with a subtle color header and elegant typography.",
+    desc: "Single-column with a subtle indigo header band and elegant typography.",
     preview: "minimal",
   },
   {
     id: "bold-header",
     name: "Bold Header",
-    desc: "Impactful header with a visual skills grid and structured sections.",
+    desc: "Impactful dark header with a visual skills grid and structured sections.",
     preview: "bold",
+  },
+  {
+    id: "executive-classic",
+    name: "Executive Classic",
+    desc: "Traditional serif, centered header, bordered sections. Conservative and authoritative.",
+    preview: "executive",
+  },
+  {
+    id: "navy-corporate",
+    name: "Navy Corporate",
+    desc: "Full-width navy header with gold accent dividers. Professional and polished.",
+    preview: "navy",
+  },
+  {
+    id: "creative-portfolio",
+    name: "Creative Portfolio",
+    desc: "Thin violet left strip, sidebar layout, and a wide canvas for portfolio feel.",
+    preview: "portfolio",
+  },
+  {
+    id: "tech-minimalist",
+    name: "Tech Minimalist",
+    desc: "Monospace font, code-style section dividers, dark terminal aesthetic.",
+    preview: "tech",
+  },
+  {
+    id: "elegant-timeline",
+    name: "Elegant Timeline",
+    desc: "Vertical timeline through experience with dot markers and rose accents.",
+    preview: "timeline",
+  },
+  {
+    id: "gradient-pro",
+    name: "Gradient Pro",
+    desc: "Deep blue gradient header with full-bleed top section and sky blue accents.",
+    preview: "gradient",
+  },
+  {
+    id: "two-tone-light",
+    name: "Two-Tone Light",
+    desc: "Warm gray sidebar with clean white main column and amber highlights.",
+    preview: "twotone",
+  },
+  {
+    id: "compact-infographic",
+    name: "Compact Infographic",
+    desc: "Skill tag chips, two-column experience layout, and a dense teal design.",
+    preview: "infographic",
+  },
+  {
+    id: "classic-academic",
+    name: "Classic Academic",
+    desc: "Centered serif header, thin HR dividers, formal justified text for academia.",
+    preview: "academic",
   },
 ];
 
@@ -229,8 +305,29 @@ function ResumeWorkspaceContent() {
       if (optimizationType === "creative") {
         if (selectedTemplate === "modern-split") {
           pdfComponent = <ModernSplitPdfTemplate data={data} />;
+        } else if (selectedTemplate === "minimal-pro") {
+          pdfComponent = <MinimalProPdfTemplate data={data} />;
+        } else if (selectedTemplate === "bold-header") {
+          pdfComponent = <BoldHeaderPdfTemplate data={data} />;
+        } else if (selectedTemplate === "executive-classic") {
+          pdfComponent = <ExecutiveClassicPdfTemplate data={data} />;
+        } else if (selectedTemplate === "navy-corporate") {
+          pdfComponent = <NavyCorporatePdfTemplate data={data} />;
+        } else if (selectedTemplate === "creative-portfolio") {
+          pdfComponent = <CreativePortfolioPdfTemplate data={data} />;
+        } else if (selectedTemplate === "tech-minimalist") {
+          pdfComponent = <TechMinimalistPdfTemplate data={data} />;
+        } else if (selectedTemplate === "elegant-timeline") {
+          pdfComponent = <ElegantTimelinePdfTemplate data={data} />;
+        } else if (selectedTemplate === "gradient-pro") {
+          pdfComponent = <GradientProPdfTemplate data={data} />;
+        } else if (selectedTemplate === "two-tone-light") {
+          pdfComponent = <TwoToneLightPdfTemplate data={data} />;
+        } else if (selectedTemplate === "compact-infographic") {
+          pdfComponent = <CompactInfographicPdfTemplate data={data} />;
+        } else if (selectedTemplate === "classic-academic") {
+          pdfComponent = <ClassicAcademicPdfTemplate data={data} />;
         }
-        // Additional templates can be mapped here in the future
       }
 
       // Generate actual vector PDF natively
@@ -592,7 +689,7 @@ function ResumeWorkspaceContent() {
                       </p>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                       {creativeTemplates.map((tpl) => (
                         <button
                           key={tpl.id}
@@ -780,11 +877,30 @@ function ResumeWorkspaceContent() {
                  <AtsTemplate content={generatedContent} className="shadow-lg border border-border/50" />
               ) : optimizationType === "creative" && selectedTemplate === "modern-split" ? (
                  <ModernSplitTemplate content={generatedContent} className="shadow-lg border border-border/50" />
+              ) : optimizationType === "creative" && selectedTemplate === "minimal-pro" ? (
+                 <MinimalProTemplate content={generatedContent} className="shadow-lg border border-border/50" />
+              ) : optimizationType === "creative" && selectedTemplate === "bold-header" ? (
+                 <BoldHeaderTemplate content={generatedContent} className="shadow-lg border border-border/50" />
+              ) : optimizationType === "creative" && selectedTemplate === "executive-classic" ? (
+                 <ExecutiveClassicTemplate content={generatedContent} className="shadow-lg border border-border/50" />
+              ) : optimizationType === "creative" && selectedTemplate === "navy-corporate" ? (
+                 <NavyCorporateTemplate content={generatedContent} className="shadow-lg border border-border/50" />
+              ) : optimizationType === "creative" && selectedTemplate === "creative-portfolio" ? (
+                 <CreativePortfolioTemplate content={generatedContent} className="shadow-lg border border-border/50" />
+              ) : optimizationType === "creative" && selectedTemplate === "tech-minimalist" ? (
+                 <TechMinimalistTemplate content={generatedContent} className="shadow-lg border border-border/50" />
+              ) : optimizationType === "creative" && selectedTemplate === "elegant-timeline" ? (
+                 <ElegantTimelineTemplate content={generatedContent} className="shadow-lg border border-border/50" />
+              ) : optimizationType === "creative" && selectedTemplate === "gradient-pro" ? (
+                 <GradientProTemplate content={generatedContent} className="shadow-lg border border-border/50" />
+              ) : optimizationType === "creative" && selectedTemplate === "two-tone-light" ? (
+                 <TwoToneLightTemplate content={generatedContent} className="shadow-lg border border-border/50" />
+              ) : optimizationType === "creative" && selectedTemplate === "compact-infographic" ? (
+                 <CompactInfographicTemplate content={generatedContent} className="shadow-lg border border-border/50" />
+              ) : optimizationType === "creative" && selectedTemplate === "classic-academic" ? (
+                 <ClassicAcademicTemplate content={generatedContent} className="shadow-lg border border-border/50" />
               ) : (
-                 <div className="p-12 text-center text-muted-foreground w-full flex flex-col items-center justify-center min-h-[500px] bg-card rounded-lg border border-dashed border-border/60">
-                   <p className="mb-2 font-medium text-foreground">Template engine mapping pending</p>
-                   <p className="text-sm">The selected template ({selectedTemplate}) is not yet wired to a React component.</p>
-                 </div>
+                 <AtsTemplate content={generatedContent} className="shadow-lg border border-border/50" />
               )}
             </div>
           </motion.div>
@@ -799,66 +915,307 @@ function TemplatePreview({ type }: { type: string }) {
   if (type === "split") {
     return (
       <svg viewBox="0 0 120 160" className="w-full h-full p-3">
-        <rect x="0" y="0" width="40" height="160" rx="2" fill="currentColor" opacity="0.08" />
-        <rect x="6" y="10" width="28" height="3" rx="1" fill="currentColor" opacity="0.2" />
-        <rect x="6" y="18" width="20" height="2" rx="1" fill="currentColor" opacity="0.1" />
-        <rect x="6" y="30" width="28" height="2" rx="1" fill="currentColor" opacity="0.15" />
-        <rect x="6" y="35" width="24" height="2" rx="1" fill="currentColor" opacity="0.1" />
-        <rect x="6" y="40" width="26" height="2" rx="1" fill="currentColor" opacity="0.1" />
-        <rect x="6" y="55" width="28" height="2" rx="1" fill="currentColor" opacity="0.15" />
-        <rect x="6" y="60" width="22" height="2" rx="1" fill="currentColor" opacity="0.1" />
-        <rect x="6" y="65" width="26" height="2" rx="1" fill="currentColor" opacity="0.1" />
-        <rect x="48" y="10" width="50" height="4" rx="1" fill="currentColor" opacity="0.25" />
-        <rect x="48" y="18" width="66" height="2" rx="1" fill="currentColor" opacity="0.08" />
-        <rect x="48" y="28" width="30" height="2" rx="1" fill="currentColor" opacity="0.15" />
-        <rect x="48" y="34" width="66" height="2" rx="1" fill="currentColor" opacity="0.08" />
-        <rect x="48" y="39" width="60" height="2" rx="1" fill="currentColor" opacity="0.08" />
-        <rect x="48" y="44" width="64" height="2" rx="1" fill="currentColor" opacity="0.08" />
-        <rect x="48" y="56" width="30" height="2" rx="1" fill="currentColor" opacity="0.15" />
-        <rect x="48" y="62" width="66" height="2" rx="1" fill="currentColor" opacity="0.08" />
-        <rect x="48" y="67" width="60" height="2" rx="1" fill="currentColor" opacity="0.08" />
-        <rect x="48" y="72" width="55" height="2" rx="1" fill="currentColor" opacity="0.08" />
+        <rect x="0" y="0" width="40" height="160" rx="2" fill="#18181b" opacity="0.85" />
+        <rect x="6" y="10" width="28" height="3" rx="1" fill="#ffffff" opacity="0.5" />
+        <rect x="6" y="18" width="20" height="2" rx="1" fill="#ffffff" opacity="0.3" />
+        <rect x="6" y="30" width="28" height="2" rx="1" fill="#ffffff" opacity="0.35" />
+        <rect x="6" y="35" width="24" height="2" rx="1" fill="#ffffff" opacity="0.25" />
+        <rect x="6" y="40" width="26" height="2" rx="1" fill="#ffffff" opacity="0.25" />
+        <rect x="6" y="55" width="28" height="2" rx="1" fill="#ffffff" opacity="0.35" />
+        <rect x="6" y="60" width="22" height="2" rx="1" fill="#ffffff" opacity="0.25" />
+        <rect x="6" y="65" width="26" height="2" rx="1" fill="#ffffff" opacity="0.25" />
+        <rect x="48" y="10" width="50" height="4" rx="1" fill="#111827" opacity="0.7" />
+        <rect x="48" y="18" width="66" height="2" rx="1" fill="#6b7280" opacity="0.4" />
+        <rect x="48" y="28" width="30" height="2" rx="1" fill="#374151" opacity="0.5" />
+        <rect x="48" y="34" width="66" height="2" rx="1" fill="#6b7280" opacity="0.3" />
+        <rect x="48" y="39" width="60" height="2" rx="1" fill="#6b7280" opacity="0.3" />
+        <rect x="48" y="44" width="64" height="2" rx="1" fill="#6b7280" opacity="0.3" />
+        <rect x="48" y="56" width="30" height="2" rx="1" fill="#374151" opacity="0.5" />
+        <rect x="48" y="62" width="66" height="2" rx="1" fill="#6b7280" opacity="0.3" />
+        <rect x="48" y="67" width="60" height="2" rx="1" fill="#6b7280" opacity="0.3" />
+        <rect x="48" y="72" width="55" height="2" rx="1" fill="#6b7280" opacity="0.3" />
       </svg>
     );
   }
   if (type === "minimal") {
     return (
       <svg viewBox="0 0 120 160" className="w-full h-full p-3">
-        <rect x="0" y="0" width="120" height="24" rx="2" fill="currentColor" opacity="0.06" />
-        <rect x="10" y="8" width="60" height="4" rx="1" fill="currentColor" opacity="0.2" />
-        <rect x="10" y="15" width="40" height="2" rx="1" fill="currentColor" opacity="0.1" />
-        <rect x="10" y="32" width="25" height="2" rx="1" fill="currentColor" opacity="0.15" />
-        <rect x="10" y="38" width="100" height="2" rx="1" fill="currentColor" opacity="0.08" />
-        <rect x="10" y="43" width="95" height="2" rx="1" fill="currentColor" opacity="0.08" />
-        <rect x="10" y="55" width="25" height="2" rx="1" fill="currentColor" opacity="0.15" />
-        <rect x="10" y="61" width="100" height="2" rx="1" fill="currentColor" opacity="0.08" />
-        <rect x="10" y="66" width="90" height="2" rx="1" fill="currentColor" opacity="0.08" />
-        <rect x="10" y="71" width="95" height="2" rx="1" fill="currentColor" opacity="0.08" />
-        <rect x="10" y="83" width="25" height="2" rx="1" fill="currentColor" opacity="0.15" />
-        <rect x="10" y="89" width="100" height="2" rx="1" fill="currentColor" opacity="0.08" />
-        <rect x="10" y="94" width="85" height="2" rx="1" fill="currentColor" opacity="0.08" />
+        <rect x="0" y="0" width="120" height="24" rx="2" fill="#eef2ff" />
+        <rect x="0" y="22" width="120" height="2" fill="#a5b4fc" />
+        <rect x="8" y="7" width="55" height="4" rx="1" fill="#4338ca" opacity="0.7" />
+        <rect x="8" y="15" width="38" height="2" rx="1" fill="#6366f1" opacity="0.5" />
+        <rect x="2" y="32" width="3" height="10" rx="1" fill="#818cf8" />
+        <rect x="8" y="34" width="22" height="2" rx="1" fill="#4b5563" opacity="0.4" />
+        <rect x="8" y="39" width="100" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="8" y="44" width="90" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="2" y="54" width="3" height="10" rx="1" fill="#818cf8" />
+        <rect x="8" y="56" width="22" height="2" rx="1" fill="#4b5563" opacity="0.4" />
+        <rect x="8" y="62" width="100" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="8" y="67" width="85" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="2" y="77" width="3" height="10" rx="1" fill="#818cf8" />
+        <rect x="8" y="79" width="22" height="2" rx="1" fill="#4b5563" opacity="0.4" />
+        <rect x="8" y="85" width="95" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="8" y="90" width="80" height="2" rx="1" fill="#6b7280" opacity="0.2" />
       </svg>
     );
   }
-  // bold
+  if (type === "bold") {
+    return (
+      <svg viewBox="0 0 120 160" className="w-full h-full p-3">
+        <rect x="0" y="0" width="120" height="36" rx="2" fill="#111827" />
+        <rect x="8" y="9" width="65" height="5" rx="1" fill="#ffffff" opacity="0.85" />
+        <rect x="8" y="18" width="45" height="2" rx="1" fill="#9ca3af" opacity="0.7" />
+        <rect x="8" y="23" width="35" height="2" rx="1" fill="#6b7280" opacity="0.5" />
+        <rect x="8" y="44" width="20" height="2" rx="1" fill="#374151" opacity="0.5" />
+        <rect x="8" y="50" width="22" height="10" rx="2" fill="#f3f4f6" />
+        <rect x="34" y="50" width="22" height="10" rx="2" fill="#f3f4f6" />
+        <rect x="60" y="50" width="22" height="10" rx="2" fill="#f3f4f6" />
+        <rect x="86" y="50" width="22" height="10" rx="2" fill="#f3f4f6" />
+        <rect x="8" y="68" width="22" height="2" rx="1" fill="#111827" opacity="0.5" />
+        <rect x="8" y="74" width="100" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="8" y="79" width="90" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="8" y="84" width="95" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="8" y="96" width="22" height="2" rx="1" fill="#111827" opacity="0.5" />
+        <rect x="8" y="102" width="100" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="8" y="107" width="80" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+      </svg>
+    );
+  }
+  if (type === "executive") {
+    return (
+      <svg viewBox="0 0 120 160" className="w-full h-full p-3">
+        <rect x="10" y="8" width="100" height="1" fill="#9ca3af" />
+        <rect x="20" y="12" width="80" height="5" rx="1" fill="#111827" opacity="0.7" />
+        <rect x="30" y="20" width="60" height="2" rx="1" fill="#6b7280" opacity="0.4" />
+        <rect x="10" y="27" width="100" height="1" fill="#9ca3af" />
+        <rect x="10" y="35" width="50" height="2" rx="1" fill="#374151" opacity="0.5" />
+        <rect x="10" y="36" width="100" height="1" fill="#d1d5db" />
+        <rect x="10" y="40" width="100" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="10" y="45" width="90" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="10" y="55" width="50" height="2" rx="1" fill="#374151" opacity="0.5" />
+        <rect x="10" y="56" width="100" height="1" fill="#d1d5db" />
+        <rect x="10" y="60" width="100" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="10" y="65" width="95" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="10" y="70" width="85" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="10" y="80" width="50" height="2" rx="1" fill="#374151" opacity="0.5" />
+        <rect x="10" y="81" width="100" height="1" fill="#d1d5db" />
+        <rect x="10" y="85" width="85" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="10" y="90" width="70" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+      </svg>
+    );
+  }
+  if (type === "navy") {
+    return (
+      <svg viewBox="0 0 120 160" className="w-full h-full p-3">
+        <rect x="0" y="0" width="120" height="30" rx="2" fill="#1a2f4e" />
+        <rect x="8" y="8" width="55" height="4" rx="1" fill="#ffffff" opacity="0.85" />
+        <rect x="8" y="16" width="35" height="2" rx="1" fill="#c9a84c" opacity="0.9" />
+        <rect x="8" y="22" width="80" height="1.5" rx="0.5" fill="#a8c0d6" opacity="0.5" />
+        <rect x="0" y="30" width="120" height="2.5" fill="#c9a84c" />
+        <rect x="8" y="40" width="35" height="2" rx="1" fill="#1a2f4e" opacity="0.6" />
+        <rect x="8" y="41" width="104" height="1.5" fill="#c9a84c" opacity="0.5" />
+        <rect x="8" y="46" width="100" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="8" y="51" width="90" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="8" y="61" width="35" height="2" rx="1" fill="#1a2f4e" opacity="0.6" />
+        <rect x="8" y="62" width="104" height="1.5" fill="#c9a84c" opacity="0.5" />
+        <rect x="8" y="67" width="100" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="8" y="72" width="85" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="8" y="82" width="35" height="2" rx="1" fill="#1a2f4e" opacity="0.6" />
+        <rect x="8" y="83" width="104" height="1.5" fill="#c9a84c" opacity="0.5" />
+        <rect x="8" y="88" width="70" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+      </svg>
+    );
+  }
+  if (type === "portfolio") {
+    return (
+      <svg viewBox="0 0 120 160" className="w-full h-full p-3">
+        <rect x="0" y="0" width="5" height="160" fill="#7c3aed" />
+        <rect x="5" y="0" width="35" height="160" fill="#f8f7ff" />
+        <rect x="10" y="10" width="25" height="4" rx="1" fill="#4c1d95" opacity="0.7" />
+        <rect x="10" y="18" width="18" height="2" rx="1" fill="#7c3aed" opacity="0.5" />
+        <rect x="10" y="28" width="25" height="1.5" rx="0.5" fill="#7c3aed" opacity="0.3" />
+        <rect x="10" y="33" width="22" height="2" rx="1" fill="#6b7280" opacity="0.3" />
+        <rect x="10" y="38" width="20" height="2" rx="1" fill="#6b7280" opacity="0.3" />
+        <rect x="10" y="50" width="25" height="1.5" rx="0.5" fill="#7c3aed" opacity="0.3" />
+        <rect x="10" y="55" width="8" height="5" rx="3" fill="#ede9fe" />
+        <rect x="20" y="55" width="8" height="5" rx="3" fill="#ede9fe" />
+        <rect x="10" y="63" width="8" height="5" rx="3" fill="#ede9fe" />
+        <rect x="48" y="10" width="22" height="2" rx="1" fill="#7c3aed" opacity="0.4" />
+        <rect x="48" y="18" width="60" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="48" y="23" width="55" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="48" y="33" width="22" height="2" rx="1" fill="#7c3aed" opacity="0.4" />
+        <rect x="46" y="38" width="2" height="30" fill="#ddd6fe" />
+        <rect x="50" y="40" width="55" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="50" y="45" width="50" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="50" y="55" width="55" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="50" y="60" width="45" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+      </svg>
+    );
+  }
+  if (type === "tech") {
+    return (
+      <svg viewBox="0 0 120 160" className="w-full h-full p-3">
+        <rect x="0" y="0" width="120" height="160" rx="2" fill="#0f1117" />
+        <rect x="8" y="8" width="35" height="2" rx="1" fill="#38bdf8" opacity="0.6" />
+        <rect x="8" y="14" width="55" height="4" rx="1" fill="#ffffff" opacity="0.8" />
+        <rect x="8" y="22" width="40" height="2" rx="1" fill="#94a3b8" opacity="0.5" />
+        <rect x="8" y="27" width="80" height="1" fill="#1e2d3d" />
+        <rect x="8" y="33" width="40" height="2" rx="1" fill="#38bdf8" opacity="0.5" />
+        <rect x="8" y="39" width="18" height="6" rx="1" fill="#0c1a33" stroke="#1e40af" strokeWidth="0.5" />
+        <rect x="28" y="39" width="18" height="6" rx="1" fill="#0c1a33" stroke="#1e40af" strokeWidth="0.5" />
+        <rect x="48" y="39" width="18" height="6" rx="1" fill="#0c1a33" stroke="#1e40af" strokeWidth="0.5" />
+        <rect x="8" y="52" width="40" height="2" rx="1" fill="#38bdf8" opacity="0.5" />
+        <rect x="8" y="58" width="55" height="2" rx="1" fill="#a3e635" opacity="0.6" />
+        <rect x="8" y="64" width="95" height="2" rx="1" fill="#94a3b8" opacity="0.3" />
+        <rect x="8" y="69" width="85" height="2" rx="1" fill="#94a3b8" opacity="0.3" />
+        <rect x="8" y="79" width="40" height="2" rx="1" fill="#38bdf8" opacity="0.5" />
+        <rect x="8" y="85" width="55" height="2" rx="1" fill="#a3e635" opacity="0.6" />
+        <rect x="8" y="91" width="90" height="2" rx="1" fill="#94a3b8" opacity="0.3" />
+        <rect x="8" y="96" width="75" height="2" rx="1" fill="#94a3b8" opacity="0.3" />
+      </svg>
+    );
+  }
+  if (type === "timeline") {
+    return (
+      <svg viewBox="0 0 120 160" className="w-full h-full p-3">
+        <rect x="0" y="0" width="120" height="3" fill="#f43f5e" />
+        <rect x="8" y="10" width="55" height="4" rx="1" fill="#111827" opacity="0.7" />
+        <rect x="8" y="18" width="35" height="2" rx="1" fill="#f43f5e" opacity="0.7" />
+        <rect x="8" y="24" width="90" height="1.5" rx="0.5" fill="#f3f4f6" />
+        <rect x="8" y="32" width="22" height="2" rx="1" fill="#fb7185" opacity="0.5" />
+        <rect x="18" y="42" width="1.5" height="70" fill="#fecdd3" />
+        <circle cx="19" cy="42" r="4" fill="#f43f5e" />
+        <rect x="26" y="40" width="35" height="2" rx="1" fill="#111827" opacity="0.5" />
+        <rect x="26" y="45" width="25" height="2" rx="1" fill="#f43f5e" opacity="0.4" />
+        <rect x="26" y="51" width="70" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="26" y="56" width="65" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <circle cx="19" cy="68" r="4" fill="#f43f5e" />
+        <rect x="26" y="66" width="35" height="2" rx="1" fill="#111827" opacity="0.5" />
+        <rect x="26" y="71" width="25" height="2" rx="1" fill="#f43f5e" opacity="0.4" />
+        <rect x="26" y="77" width="70" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="26" y="82" width="60" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <circle cx="19" cy="94" r="4" fill="#f43f5e" />
+        <rect x="26" y="92" width="35" height="2" rx="1" fill="#111827" opacity="0.5" />
+        <rect x="26" y="97" width="65" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+      </svg>
+    );
+  }
+  if (type === "gradient") {
+    return (
+      <svg viewBox="0 0 120 160" className="w-full h-full p-3">
+        <defs>
+          <linearGradient id="gPro" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#1e3a5f" />
+            <stop offset="100%" stopColor="#38bdf8" />
+          </linearGradient>
+        </defs>
+        <rect x="0" y="0" width="120" height="38" rx="2" fill="url(#gPro)" />
+        <rect x="8" y="9" width="60" height="5" rx="1" fill="#ffffff" opacity="0.85" />
+        <rect x="8" y="18" width="40" height="2" rx="1" fill="#bae6fd" opacity="0.7" />
+        <rect x="8" y="23" width="75" height="1.5" rx="0.5" fill="#bae6fd" opacity="0.4" />
+        <rect x="8" y="48" width="18" height="2" rx="1" fill="#0284c7" opacity="0.5" />
+        <rect x="8" y="54" width="100" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="8" y="59" width="90" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="8" y="69" width="18" height="2" rx="1" fill="#0284c7" opacity="0.5" />
+        <rect x="8" y="75" width="100" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="8" y="80" width="85" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="8" y="85" width="95" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="8" y="95" width="18" height="2" rx="1" fill="#0284c7" opacity="0.5" />
+        <rect x="8" y="101" width="80" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="8" y="106" width="65" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+      </svg>
+    );
+  }
+  if (type === "twotone") {
+    return (
+      <svg viewBox="0 0 120 160" className="w-full h-full p-3">
+        <rect x="0" y="0" width="42" height="160" rx="2" fill="#f5f0eb" />
+        <rect x="8" y="10" width="28" height="4" rx="1" fill="#78350f" opacity="0.6" />
+        <rect x="8" y="18" width="20" height="2" rx="1" fill="#b45309" opacity="0.5" />
+        <rect x="8" y="27" width="28" height="1" fill="#fde68a" opacity="0.8" />
+        <rect x="8" y="32" width="22" height="2" rx="1" fill="#6b7280" opacity="0.3" />
+        <rect x="8" y="37" width="20" height="2" rx="1" fill="#6b7280" opacity="0.3" />
+        <rect x="8" y="47" width="28" height="1" fill="#fde68a" opacity="0.8" />
+        <rect x="10" y="52" width="4" height="4" rx="2" fill="#f59e0b" />
+        <rect x="16" y="53" width="20" height="2" rx="1" fill="#6b7280" opacity="0.3" />
+        <rect x="10" y="59" width="4" height="4" rx="2" fill="#f59e0b" />
+        <rect x="16" y="60" width="18" height="2" rx="1" fill="#6b7280" opacity="0.3" />
+        <rect x="10" y="66" width="4" height="4" rx="2" fill="#f59e0b" />
+        <rect x="16" y="67" width="22" height="2" rx="1" fill="#6b7280" opacity="0.3" />
+        <rect x="50" y="10" width="22" height="2" rx="1" fill="#b45309" opacity="0.4" />
+        <rect x="50" y="12" width="62" height="1" fill="#f3f4f6" />
+        <rect x="50" y="17" width="62" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="50" y="22" width="55" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="50" y="32" width="22" height="2" rx="1" fill="#b45309" opacity="0.4" />
+        <rect x="50" y="34" width="62" height="1" fill="#f3f4f6" />
+        <rect x="50" y="39" width="62" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="50" y="44" width="55" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="50" y="49" width="48" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+      </svg>
+    );
+  }
+  if (type === "infographic") {
+    return (
+      <svg viewBox="0 0 120 160" className="w-full h-full p-3">
+        <rect x="0" y="0" width="120" height="26" rx="2" fill="#0f766e" />
+        <rect x="6" y="7" width="45" height="4" rx="1" fill="#ffffff" opacity="0.85" />
+        <rect x="6" y="15" width="30" height="2" rx="1" fill="#99f6e4" opacity="0.7" />
+        <rect x="0" y="26" width="120" height="10" fill="#f0fdfa" />
+        <rect x="6" y="29" width="12" height="4" rx="4" fill="#ccfbf1" />
+        <rect x="20" y="29" width="14" height="4" rx="4" fill="#ccfbf1" />
+        <rect x="36" y="29" width="10" height="4" rx="4" fill="#ccfbf1" />
+        <rect x="48" y="29" width="16" height="4" rx="4" fill="#ccfbf1" />
+        <rect x="66" y="29" width="12" height="4" rx="4" fill="#ccfbf1" />
+        <rect x="80" y="29" width="14" height="4" rx="4" fill="#ccfbf1" />
+        <rect x="6" y="43" width="35" height="1.5" fill="#ccfbf1" />
+        <rect x="62" y="43" width="50" height="1.5" fill="#ccfbf1" />
+        <rect x="6" y="48" width="35" height="2" rx="1" fill="#374151" opacity="0.4" />
+        <rect x="6" y="53" width="22" height="2" rx="1" fill="#0f766e" opacity="0.4" />
+        <rect x="6" y="58" width="50" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="6" y="63" width="48" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="62" y="48" width="35" height="2" rx="1" fill="#374151" opacity="0.4" />
+        <rect x="62" y="53" width="22" height="2" rx="1" fill="#0f766e" opacity="0.4" />
+        <rect x="62" y="58" width="50" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="62" y="63" width="45" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="6" y="80" width="35" height="1.5" fill="#ccfbf1" />
+        <rect x="6" y="85" width="35" height="2" rx="1" fill="#374151" opacity="0.4" />
+        <rect x="6" y="91" width="22" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="62" y="80" width="50" height="1.5" fill="#ccfbf1" />
+        <rect x="62" y="85" width="35" height="2" rx="1" fill="#374151" opacity="0.4" />
+        <rect x="62" y="91" width="45" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+      </svg>
+    );
+  }
+  if (type === "academic") {
+    return (
+      <svg viewBox="0 0 120 160" className="w-full h-full p-3">
+        <rect x="10" y="8" width="100" height="5" rx="1" fill="#111827" opacity="0.6" />
+        <rect x="20" y="16" width="80" height="2" rx="1" fill="#4b5563" opacity="0.3" />
+        <rect x="25" y="21" width="70" height="2" rx="1" fill="#6b7280" opacity="0.25" />
+        <rect x="10" y="27" width="100" height="2" fill="#1f2937" opacity="0.7" />
+        <rect x="10" y="33" width="55" height="2" rx="1" fill="#374151" opacity="0.45" />
+        <rect x="10" y="34" width="100" height="1" fill="#9ca3af" opacity="0.5" />
+        <rect x="10" y="38" width="100" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="10" y="43" width="90" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="10" y="53" width="55" height="2" rx="1" fill="#374151" opacity="0.45" />
+        <rect x="10" y="54" width="100" height="1" fill="#9ca3af" opacity="0.5" />
+        <rect x="10" y="58" width="90" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="10" y="63" width="100" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="10" y="68" width="85" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="10" y="78" width="55" height="2" rx="1" fill="#374151" opacity="0.45" />
+        <rect x="10" y="79" width="100" height="1" fill="#9ca3af" opacity="0.5" />
+        <rect x="10" y="83" width="85" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="10" y="88" width="65" height="2" rx="1" fill="#6b7280" opacity="0.2" />
+        <rect x="10" y="103" width="100" height="1" fill="#9ca3af" opacity="0.4" />
+      </svg>
+    );
+  }
+  // default split fallback
   return (
     <svg viewBox="0 0 120 160" className="w-full h-full p-3">
-      <rect x="0" y="0" width="120" height="35" rx="2" fill="currentColor" opacity="0.1" />
-      <rect x="10" y="10" width="70" height="5" rx="1" fill="currentColor" opacity="0.25" />
-      <rect x="10" y="19" width="50" height="2" rx="1" fill="currentColor" opacity="0.12" />
-      <rect x="10" y="24" width="40" height="2" rx="1" fill="currentColor" opacity="0.08" />
-      <rect x="10" y="44" width="20" height="2" rx="1" fill="currentColor" opacity="0.15" />
-      <rect x="10" y="50" width="22" height="10" rx="2" fill="currentColor" opacity="0.06" />
-      <rect x="36" y="50" width="22" height="10" rx="2" fill="currentColor" opacity="0.06" />
-      <rect x="62" y="50" width="22" height="10" rx="2" fill="currentColor" opacity="0.06" />
-      <rect x="88" y="50" width="22" height="10" rx="2" fill="currentColor" opacity="0.06" />
-      <rect x="10" y="68" width="25" height="2" rx="1" fill="currentColor" opacity="0.15" />
-      <rect x="10" y="74" width="100" height="2" rx="1" fill="currentColor" opacity="0.08" />
-      <rect x="10" y="79" width="90" height="2" rx="1" fill="currentColor" opacity="0.08" />
-      <rect x="10" y="84" width="95" height="2" rx="1" fill="currentColor" opacity="0.08" />
-      <rect x="10" y="96" width="25" height="2" rx="1" fill="currentColor" opacity="0.15" />
-      <rect x="10" y="102" width="100" height="2" rx="1" fill="currentColor" opacity="0.08" />
-      <rect x="10" y="107" width="85" height="2" rx="1" fill="currentColor" opacity="0.08" />
+      <rect x="0" y="0" width="40" height="160" rx="2" fill="currentColor" opacity="0.08" />
+      <rect x="48" y="10" width="50" height="4" rx="1" fill="currentColor" opacity="0.25" />
+      <rect x="48" y="28" width="66" height="2" rx="1" fill="currentColor" opacity="0.08" />
     </svg>
   );
 }
