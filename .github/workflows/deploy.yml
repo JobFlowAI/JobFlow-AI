@@ -20,6 +20,7 @@ jobs:
           host: ${{ secrets.DO_HOST }}
           username: ${{ secrets.DO_USERNAME }}
           key: ${{ secrets.DO_SSH_KEY }}
+          command_timeout: 12m
           script_stop: true
           script: |
             set -e
@@ -31,16 +32,18 @@ jobs:
             git pull origin main
 
             echo "==> Installing dependencies..."
-            npm ci --production=false
+            npm install
 
             echo "==> Building Next.js (standalone mode)..."
             npm run build
 
             echo "==> Copying static + public to standalone..."
-            cp -r public .next/standalone/public
-            cp -r .next/static .next/standalone/.next/static
+            mkdir -p .next/standalone/public
+            mkdir -p .next/standalone/.next/static
+            cp -a public/. .next/standalone/public/
+            cp -a .next/static/. .next/standalone/.next/static/
 
             echo "==> Restarting PM2 process..."
-            pm2 restart jobflow-ai --update-env || pm2 start ecosystem.config.js
+            pm2 restart ecosystem.config.cjs --update-env || pm2 start ecosystem.config.cjs
 
             echo "==> Deploy complete!"
