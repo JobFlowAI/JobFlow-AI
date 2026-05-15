@@ -1,8 +1,4 @@
-import { OpenAI } from "openai";
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || "dummy",
-});
+import { getAIClient, hasAIKey } from "@/lib/ai/openrouter";
 
 export interface RewriteData {
   jd: string;
@@ -82,8 +78,8 @@ const prompt = `
   `;
 
   try {
-    if (process.env.OPENAI_API_KEY === "dummy" || !process.env.OPENAI_API_KEY) {
-      console.log("Using dummy OPENAI_API_KEY, returning mock resume JSON.");
+    if (!hasAIKey()) {
+      console.log("No OPENROUTER_API_KEY configured, returning mock resume JSON.");
       // Simulate API delay
       await new Promise((resolve) => setTimeout(resolve, 2000));
       return JSON.stringify({
@@ -121,17 +117,17 @@ const prompt = `
       });
     }
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
+    const response = await getAIClient().chat.completions.create({
+      model: process.env.OPENROUTER_REWRITE_MODEL || process.env.OPENROUTER_MODEL || "openai/gpt-4o",
       response_format: { type: "json_object" },
       messages: [{ role: "user", content: prompt }],
       temperature: 0.5,
     });
 
     const content = response.choices[0].message.content;
-    if (!content) throw new Error("Empty response from OpenAI");
+    if (!content) throw new Error("Empty response from LLM");
 
-    // The content is now guaranteed to be a JSON string by OpenAI
+    // The content is guaranteed to be a JSON string
     return content;
   } catch (error) {
     console.error("Error rewriting resume:", error);

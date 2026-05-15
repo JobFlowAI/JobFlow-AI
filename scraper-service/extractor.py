@@ -10,7 +10,8 @@ from urllib.parse import urlparse
 
 import httpx
 from bs4 import BeautifulSoup
-from openai import OpenAI
+
+from llm_client import get_client, default_model
 
 
 USER_AGENT = (
@@ -22,20 +23,6 @@ EMAIL_RE = re.compile(r"[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}")
 
 NOREPLY_PREFIXES = ("noreply", "no-reply", "donotreply", "sentry", "wordpress")
 ASSET_SUFFIXES = (".png", ".jpg", ".jpeg", ".gif", ".css", ".js", ".svg", ".webp")
-
-
-_client: OpenAI | None = None
-
-
-def _client_lazy() -> OpenAI | None:
-    global _client
-    if _client is not None:
-        return _client
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
-        return None
-    _client = OpenAI(api_key=api_key)
-    return _client
 
 
 def fetch_page(url: str, timeout: float = 12.0) -> Optional[str]:
@@ -100,11 +87,11 @@ def _confidence(job: dict) -> float:
 
 def extract_job(url: str, page_text: str) -> Optional[dict]:
     """Use the LLM to extract structured job fields. Returns dict or None."""
-    client = _client_lazy()
+    client = get_client()
     if client is None or not page_text:
         return None
 
-    model = os.getenv("SCRAPER_OPENAI_MODEL", "gpt-4o-mini")
+    model = os.getenv("SCRAPER_MODEL", default_model())
 
     system = (
         "You extract structured job posting data from raw web page text. "

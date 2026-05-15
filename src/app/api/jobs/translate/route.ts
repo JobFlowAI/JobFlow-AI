@@ -1,11 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { OpenAI } from "openai";
+import { getAIClient, getDefaultModel, hasAIKey } from "@/lib/ai/openrouter";
 
 export const dynamic = "force-dynamic";
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
 
 export async function POST(req: NextRequest) {
   try {
@@ -15,12 +11,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Text is required" }, { status: 400 });
     }
 
-    if (!process.env.OPENAI_API_KEY) {
+    if (!hasAIKey()) {
        return NextResponse.json({ translatedText: text, isMock: true });
     }
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+    const response = await getAIClient().chat.completions.create({
+      model: getDefaultModel(),
       messages: [
         {
           role: "system",

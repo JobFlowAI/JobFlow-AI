@@ -1,8 +1,4 @@
-import { OpenAI } from "openai";
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || "dummy",
-});
+import { getAIClient, getDefaultModel, hasAIKey } from "@/lib/ai/openrouter";
 
 export interface JDParsedData {
   skills: string[];
@@ -41,8 +37,8 @@ export async function parseJobDescription(jdText: string): Promise<JDParsedData>
   `;
 
   try {
-    if (process.env.OPENAI_API_KEY === "dummy" || !process.env.OPENAI_API_KEY) {
-      console.log("Using dummy OPENAI_API_KEY, returning mock JD parsed data.");
+    if (!hasAIKey()) {
+      console.log("No OPENROUTER_API_KEY configured, returning mock JD parsed data.");
       await new Promise((resolve) => setTimeout(resolve, 1000));
       return {
         skills: ["React", "TypeScript", "Node.js", "System Architecture", "Agile"],
@@ -57,15 +53,15 @@ export async function parseJobDescription(jdText: string): Promise<JDParsedData>
       };
     }
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+    const response = await getAIClient().chat.completions.create({
+      model: getDefaultModel(),
       messages: [{ role: "user", content: prompt }],
       response_format: { type: "json_object" },
       temperature: 0.1,
     });
 
     const content = response.choices[0].message.content;
-    if (!content) throw new Error("Empty response from OpenAI");
+    if (!content) throw new Error("Empty response from LLM");
 
     return JSON.parse(content) as JDParsedData;
   } catch (error) {

@@ -1,12 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { OpenAI } from "openai";
+import { getAIClient, getDefaultModel, hasAIKey } from "@/lib/ai/openrouter";
 
 export const dynamic = "force-dynamic";
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || "dummy",
-});
 
 /**
  * Strips HTML tags and extracts readable text content from raw HTML.
@@ -121,8 +117,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Use OpenAI to extract structured job data
-    if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === "dummy") {
+    // Use the LLM to extract structured job data
+    if (!hasAIKey()) {
       // Return mock data for development
       return NextResponse.json({
         title: "Senior Frontend Engineer",
@@ -141,8 +137,8 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    const aiResponse = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+    const aiResponse = await getAIClient().chat.completions.create({
+      model: getDefaultModel(),
       messages: [
         {
           role: "system",

@@ -45,7 +45,7 @@ Job discovery is powered by a separate Python FastAPI worker under `./scraper-se
 
 ```bash
 cp scraper-service/.env.example scraper-service/.env
-# fill in OPENAI_API_KEY, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SCRAPER_INTERNAL_TOKEN
+# fill in OPENROUTER_API_KEY, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SCRAPER_INTERNAL_TOKEN
 docker compose up --build scraper
 ```
 

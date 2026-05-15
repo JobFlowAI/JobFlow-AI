@@ -7,7 +7,7 @@ import json
 from typing import Literal
 from urllib.parse import urlparse
 
-from openai import OpenAI
+from llm_client import get_client, default_model
 
 
 Classification = Literal[
@@ -53,28 +53,14 @@ def heuristic_prefilter(url: str, title: str, description: str) -> bool:
     return True
 
 
-_client: OpenAI | None = None
-
-
-def _client_lazy() -> OpenAI | None:
-    global _client
-    if _client is not None:
-        return _client
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
-        return None
-    _client = OpenAI(api_key=api_key)
-    return _client
-
-
 def classify_result(query: str, url: str, title: str, description: str) -> Classification:
     """Ask the LLM to bucket a search result. Falls back to 'noise' on error."""
-    client = _client_lazy()
+    client = get_client()
     if client is None:
         # No key — be optimistic so the rest of the pipeline can still run.
         return "direct_job_posting"
 
-    model = os.getenv("SCRAPER_OPENAI_MODEL", "gpt-4o-mini")
+    model = os.getenv("SCRAPER_MODEL", default_model())
 
     system = (
         "You classify web search results for a job-discovery engine. "

@@ -1,10 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { OpenAI } from "openai";
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+import { getAIClient, getDefaultModel, hasAIKey } from "@/lib/ai/openrouter";
 
 export const dynamic = "force-dynamic";
 
@@ -38,7 +34,7 @@ interface NormalizedJob {
  * Uses OpenAI to translate and categorize jobs in batches.
  */
 async function enrichJobsWithAI(jobs: NormalizedJob[]): Promise<NormalizedJob[]> {
-  if (!process.env.OPENAI_API_KEY || jobs.length === 0) return jobs;
+  if (!hasAIKey() || jobs.length === 0) return jobs;
   console.log(`Enriching batch of ${jobs.length} jobs...`);
 
   const prompt = `You are a job data expert. For each job listed below, perform the following:
@@ -60,8 +56,8 @@ Description: ${j.description}
 `;
 
   try {
-    const aiResponse = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+    const aiResponse = await getAIClient().chat.completions.create({
+      model: getDefaultModel(),
       messages: [{ role: "user", content: prompt }],
       response_format: { type: "json_object" },
       temperature: 0.1,

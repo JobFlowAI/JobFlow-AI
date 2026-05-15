@@ -13,7 +13,7 @@ This service is **not** exposed to the public internet. Calls must include the `
 
 ```bash
 cp .env.example .env
-# fill in OPENAI_API_KEY, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SCRAPER_INTERNAL_TOKEN
+# fill in OPENROUTER_API_KEY, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SCRAPER_INTERNAL_TOKEN
 pip install -r requirements.txt
 uvicorn app:app --reload --port 8000
 ```
