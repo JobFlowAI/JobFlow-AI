@@ -66,6 +66,12 @@ export default function LandingNav() {
           >
             Log In
           </Link>
+          <button
+            onClick={() => document.getElementById("waitlist")?.scrollIntoView({ behavior: "smooth" })}
+            className="px-5 py-2 rounded-full border border-foreground/20 bg-foreground/5 text-foreground text-sm font-semibold hover:bg-foreground/10 transition-all active:scale-95"
+          >
+            Join Waitlist
+          </button>
           <Link
             href="/signup"
             className="px-5 py-2 rounded-full bg-foreground text-background text-sm font-semibold hover:opacity-90 transition-all shadow-md hover:shadow-lg hover:shadow-foreground/10 active:scale-95"
@@ -115,6 +121,15 @@ export default function LandingNav() {
               >
                 Log In
               </Link>
+              <button
+                onClick={() => {
+                  setIsOpen(false);
+                  setTimeout(() => document.getElementById("waitlist")?.scrollIntoView({ behavior: "smooth" }), 150);
+                }}
+                className="mt-2 text-center py-3 mx-4 rounded-full border border-foreground/20 bg-foreground/5 text-foreground font-semibold hover:bg-foreground/10 transition-all"
+              >
+                Join Waitlist
+              </button>
               <Link
                 href="/signup"
                 onClick={() => setIsOpen(false)}

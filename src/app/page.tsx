@@ -2,11 +2,13 @@ import LandingNav from "@/components/landing/LandingNav";
 import HeroSection from "@/components/landing/HeroSection";
 import LogoCloud from "@/components/landing/LogoCloud";
 import FeaturesGrid from "@/components/landing/FeaturesGrid";
+import WhyChooseUs from "@/components/landing/WhyChooseUs";
 import HowItWorks from "@/components/landing/HowItWorks";
 import TestimonialsSection from "@/components/landing/TestimonialsSection";
 import StatsSection from "@/components/landing/StatsSection";
 import PricingSection from "@/components/landing/PricingSection";
 import FAQSection from "@/components/landing/FAQSection";
+import WaitlistSection from "@/components/landing/WaitlistSection";
 import CTABanner from "@/components/landing/CTABanner";
 import LandingFooter from "@/components/landing/LandingFooter";
 
@@ -19,11 +21,13 @@ export default function LandingPage() {
           <HeroSection />
           <LogoCloud />
           <FeaturesGrid />
+          <WhyChooseUs />
           <HowItWorks />
           <TestimonialsSection />
           <StatsSection />
           <PricingSection />
           <FAQSection />
+          <WaitlistSection />
           <CTABanner />
         </div>
       </main>
