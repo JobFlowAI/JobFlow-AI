@@ -23,6 +23,9 @@ import {
   DollarSign,
   Tag,
   CheckCircle2,
+  Mail,
+  Radar,
+  ShieldCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,6 +37,9 @@ interface JobListing {
   id: string;
   external_id: string;
   source: string;
+  source_type?: string | null;
+  source_domain?: string | null;
+  canonical_url?: string | null;
   title: string;
   company: string;
   company_logo: string | null;
@@ -44,7 +50,12 @@ interface JobListing {
   tags: string[];
   apply_url: string | null;
   posted_at: string | null;
+  closing_at?: string | null;
   fetched_at: string;
+  hiring_email?: string | null;
+  contact_email?: string | null;
+  extraction_confidence?: number | null;
+  posting_classification?: string | null;
 }
 
 interface ExtractedJob {
@@ -63,7 +74,52 @@ const sourceConfig: Record<string, { label: string; color: string }> = {
   remotive: { label: "Remotive", color: "bg-emerald-500/10 text-emerald-600" },
   himalayas: { label: "Himalayas", color: "bg-violet-500/10 text-violet-600" },
   arbeitnow: { label: "Arbeitnow", color: "bg-amber-500/10 text-amber-600" },
+  themuse: { label: "The Muse", color: "bg-pink-500/10 text-pink-600" },
+  adzuna: { label: "Adzuna", color: "bg-cyan-500/10 text-cyan-600" },
+  jsearch: { label: "JSearch", color: "bg-indigo-500/10 text-indigo-600" },
+  scraped: { label: "Scraped", color: "bg-fuchsia-500/10 text-fuchsia-600" },
 };
+
+/* ─── Confidence helpers ─── */
+function confidenceBucket(score: number | null | undefined): { label: string; color: string } | null {
+  if (score == null) return null;
+  if (score >= 0.8) return { label: `${Math.round(score * 100)}% match`, color: "bg-emerald-500/10 text-emerald-600" };
+  if (score >= 0.5) return { label: `${Math.round(score * 100)}% match`, color: "bg-amber-500/10 text-amber-600" };
+  return { label: `${Math.round(score * 100)}% match`, color: "bg-rose-500/10 text-rose-600" };
+}
+
+function sourceTypeBadge(t: string | null | undefined): { label: string; color: string } | null {
+  if (!t || t === "api") return null;
+  if (t === "scraped") return { label: "Scraped", color: "bg-fuchsia-500/10 text-fuchsia-600" };
+  if (t === "imported") return { label: "Imported", color: "bg-sky-500/10 text-sky-600" };
+  return { label: t, color: "bg-muted text-muted-foreground" };
+}
+
+function gmailComposeUrl(email: string, title: string, company: string): string {
+  const subject = `Application: ${title} at ${company}`.slice(0, 180);
+  const body = `Hi,\n\nI'd like to be considered for the ${title} role at ${company}. My resume is attached.\n\nBest regards,`;
+  const params = new URLSearchParams({
+    view: "cm",
+    fs: "1",
+    to: email,
+    su: subject,
+    body,
+  });
+  return `https://mail.google.com/mail/?${params.toString()}`;
+}
+
+interface DiscoveryRun {
+  id: string;
+  query: string;
+  country: string | null;
+  status: "running" | "done" | "failed";
+  total_found: number;
+  total_kept: number;
+  total_inserted: number;
+  started_at: string;
+  finished_at: string | null;
+  error: string | null;
+}
 
 /* ─── Helpers ─── */
 function timeAgo(dateStr: string | null): string {
@@ -93,7 +149,7 @@ function stripHtml(html: string): string {
 
 export default function FindJobsPage() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<"browse" | "import">("browse");
+  const [activeTab, setActiveTab] = useState<"browse" | "discover" | "import">("browse");
 
   /* ─── Browse State ─── */
   const [searchQuery, setSearchQuery] = useState("");
@@ -111,7 +167,16 @@ export default function FindJobsPage() {
   const [isExtracting, setIsExtracting] = useState(false);
   const [extractedJob, setExtractedJob] = useState<ExtractedJob | null>(null);
 
+  /* ─── Discover State ─── */
+  const [discoverQuery, setDiscoverQuery] = useState("");
+  const [discoverCountry, setDiscoverCountry] = useState("");
+  const [discoverMaxResults, setDiscoverMaxResults] = useState(20);
+  const [discoverRun, setDiscoverRun] = useState<DiscoveryRun | null>(null);
+  const [discoverJobs, setDiscoverJobs] = useState<JobListing[]>([]);
+  const [isStartingDiscover, setIsStartingDiscover] = useState(false);
+
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const discoverPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   /* ─── Initial load: trigger refresh + load jobs ─── */
   useEffect(() => {
@@ -217,6 +282,81 @@ export default function FindJobsPage() {
     }
   };
 
+  /* ─── Discover: start a new run + poll status ─── */
+  const stopDiscoverPolling = useCallback(() => {
+    if (discoverPollRef.current) {
+      clearInterval(discoverPollRef.current);
+      discoverPollRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => {
+    return () => stopDiscoverPolling();
+  }, [stopDiscoverPolling]);
+
+  const pollDiscover = useCallback(
+    async (runId: string) => {
+      try {
+        const res = await fetch(`/api/jobs/discover/${runId}`);
+        if (!res.ok) return;
+        const data = (await res.json()) as { run: DiscoveryRun; jobs: JobListing[] };
+        setDiscoverRun(data.run);
+        setDiscoverJobs(data.jobs || []);
+        if (data.run.status !== "running") {
+          stopDiscoverPolling();
+          if (data.run.status === "done") {
+            toast.success(`Discovery complete: ${data.run.total_inserted} jobs saved.`);
+            // Refresh the Browse list so newly scraped jobs appear.
+            searchJobs(searchQuery, 1);
+          } else if (data.run.error) {
+            toast.error(`Discovery failed: ${data.run.error}`);
+          }
+        }
+      } catch {
+        // Silently swallow — next poll will retry.
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [stopDiscoverPolling, searchQuery]
+  );
+
+  const startDiscover = async () => {
+    const q = discoverQuery.trim();
+    if (q.length < 2) {
+      toast.error("Enter a role or keyword (min 2 characters).");
+      return;
+    }
+    setIsStartingDiscover(true);
+    setDiscoverJobs([]);
+    setDiscoverRun(null);
+    try {
+      const res = await fetch("/api/jobs/discover", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          query: q,
+          country: discoverCountry.trim() || undefined,
+          max_results: discoverMaxResults,
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "Failed to start discovery.");
+      }
+      const { run_id } = (await res.json()) as { run_id: string };
+      toast.success("Discovery started — scanning the web for live jobs.");
+      // Kick off polling.
+      stopDiscoverPolling();
+      await pollDiscover(run_id);
+      discoverPollRef.current = setInterval(() => pollDiscover(run_id), 2500);
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : "Failed to start discovery.";
+      toast.error(message);
+    } finally {
+      setIsStartingDiscover(false);
+    }
+  };
+
   /* ─── Navigate to resume workspace with pre-filled data ─── */
   const generateResumeFromJob = (job: {
     title: string;
@@ -277,6 +417,18 @@ export default function FindJobsPage() {
         >
           <Search className="w-3.5 h-3.5" />
           Browse Jobs
+        </button>
+        <button
+          onClick={() => setActiveTab("discover")}
+          className={cn(
+            "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+            activeTab === "discover"
+              ? "bg-foreground text-background shadow-sm"
+              : "text-muted-foreground hover:text-foreground"
+          )}
+        >
+          <Radar className="w-3.5 h-3.5" />
+          Discover Live
         </button>
         <button
           onClick={() => setActiveTab("import")}
@@ -477,6 +629,31 @@ export default function FindJobsPage() {
                                 {sourceConfig[job.source].label}
                               </span>
                             )}
+                            {(() => {
+                              const t = sourceTypeBadge(job.source_type);
+                              if (!t || job.source === "scraped") return null;
+                              return (
+                                <span className={cn("text-[10px] font-medium px-2 py-0.5 rounded-full", t.color)}>
+                                  {t.label}
+                                </span>
+                              );
+                            })()}
+                            {(() => {
+                              const c = confidenceBucket(job.extraction_confidence);
+                              if (!c) return null;
+                              return (
+                                <span className={cn("inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full", c.color)}>
+                                  <ShieldCheck className="w-3 h-3" />
+                                  {c.label}
+                                </span>
+                              );
+                            })()}
+                            {job.hiring_email && (
+                              <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                                <Mail className="w-3 h-3" />
+                                Hiring email
+                              </span>
+                            )}
                           </div>
 
                           {/* Brief description preview */}
@@ -551,7 +728,191 @@ export default function FindJobsPage() {
           </motion.div>
         )}
 
-        {/* ═══════════════════ TAB 2: IMPORT FROM URL ═══════════════════ */}
+        {/* ═══════════════════ TAB 2: DISCOVER LIVE ═══════════════════ */}
+        {activeTab === "discover" && (
+          <motion.div
+            key="discover"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="space-y-6"
+          >
+            <div className="rounded-xl border border-border/40 bg-card p-6 space-y-5">
+              <div>
+                <h2 className="text-base font-semibold text-foreground flex items-center gap-2 mb-1">
+                  <Radar className="w-4 h-4 text-primary" />
+                  Live Web Discovery
+                </h2>
+                <p className="text-xs text-muted-foreground">
+                  Scrape the live web for fresh job postings on company sites and ATS pages.
+                  Each result is AI-classified, structured, deduped, and saved to your Browse feed.
+                </p>
+              </div>
+
+              <div className="grid sm:grid-cols-[1fr_220px_140px_auto] gap-2">
+                <Input
+                  value={discoverQuery}
+                  onChange={(e) => setDiscoverQuery(e.target.value)}
+                  placeholder="Role or keyword (e.g. 'Senior React Engineer')"
+                  className="rounded-xl bg-muted/30 border-border/40 h-11"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      startDiscover();
+                    }
+                  }}
+                />
+                <Input
+                  value={discoverCountry}
+                  onChange={(e) => setDiscoverCountry(e.target.value)}
+                  placeholder="Country (optional)"
+                  className="rounded-xl bg-muted/30 border-border/40 h-11"
+                />
+                <Input
+                  type="number"
+                  min={1}
+                  max={50}
+                  value={discoverMaxResults}
+                  onChange={(e) => setDiscoverMaxResults(Math.max(1, Math.min(50, Number(e.target.value) || 20)))}
+                  className="rounded-xl bg-muted/30 border-border/40 h-11"
+                />
+                <Button
+                  onClick={startDiscover}
+                  disabled={isStartingDiscover || (discoverRun?.status === "running")}
+                  className="rounded-xl px-6 h-11 gap-2 shadow-sm"
+                >
+                  {isStartingDiscover || discoverRun?.status === "running" ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      {discoverRun?.status === "running" ? "Scanning..." : "Starting..."}
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-4 h-4" />
+                      Start Discovery
+                    </>
+                  )}
+                </Button>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+                <span className="font-medium">Tips:</span>
+                <span className="bg-muted/50 px-2 py-0.5 rounded-full">Be specific (“Backend Python Senior”)</span>
+                <span className="bg-muted/50 px-2 py-0.5 rounded-full">Country narrows results</span>
+                <span className="bg-muted/50 px-2 py-0.5 rounded-full">Max 50 results per run</span>
+              </div>
+            </div>
+
+            {/* Progress card */}
+            {discoverRun && (
+              <div className="rounded-xl border border-border/40 bg-card p-5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    {discoverRun.status === "running" ? (
+                      <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                    ) : discoverRun.status === "done" ? (
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    ) : (
+                      <AlertCircle className="w-4 h-4 text-destructive" />
+                    )}
+                    <span className="text-sm font-semibold text-foreground capitalize">
+                      {discoverRun.status}
+                    </span>
+                    <span className="text-xs text-muted-foreground">· “{discoverRun.query}”{discoverRun.country ? ` · ${discoverRun.country}` : ""}</span>
+                  </div>
+                  <span className="text-[11px] text-muted-foreground">{timeAgo(discoverRun.started_at)}</span>
+                </div>
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="rounded-lg bg-muted/40 px-3 py-2">
+                    <div className="text-[10px] uppercase tracking-wide text-muted-foreground">Found</div>
+                    <div className="text-lg font-semibold text-foreground">{discoverRun.total_found}</div>
+                  </div>
+                  <div className="rounded-lg bg-muted/40 px-3 py-2">
+                    <div className="text-[10px] uppercase tracking-wide text-muted-foreground">Kept</div>
+                    <div className="text-lg font-semibold text-foreground">{discoverRun.total_kept}</div>
+                  </div>
+                  <div className="rounded-lg bg-muted/40 px-3 py-2">
+                    <div className="text-[10px] uppercase tracking-wide text-muted-foreground">Saved</div>
+                    <div className="text-lg font-semibold text-foreground">{discoverRun.total_inserted}</div>
+                  </div>
+                </div>
+                {discoverRun.error && (
+                  <p className="text-xs text-destructive">{discoverRun.error}</p>
+                )}
+              </div>
+            )}
+
+            {/* Discovered jobs preview */}
+            {discoverJobs.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="text-sm font-semibold text-foreground">
+                  New jobs from this run ({discoverJobs.length})
+                </h3>
+                <div className="grid gap-3">
+                  {discoverJobs.map((job) => {
+                    const conf = confidenceBucket(job.extraction_confidence);
+                    return (
+                      <button
+                        key={job.id}
+                        onClick={() => setSelectedJob(job)}
+                        className="text-left rounded-xl border border-border/40 bg-card p-4 hover:border-border/60 hover:shadow-md transition-all"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <h4 className="text-sm font-semibold text-foreground line-clamp-1">{job.title}</h4>
+                            <p className="text-xs text-muted-foreground mt-0.5">{job.company}</p>
+                            <div className="flex flex-wrap items-center gap-2 mt-2">
+                              {job.location && (
+                                <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
+                                  <MapPin className="w-3 h-3" />
+                                  {job.location}
+                                </span>
+                              )}
+                              {conf && (
+                                <span className={cn("inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full", conf.color)}>
+                                  <ShieldCheck className="w-3 h-3" />
+                                  {conf.label}
+                                </span>
+                              )}
+                              {job.hiring_email && (
+                                <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                                  <Mail className="w-3 h-3" />
+                                  {job.hiring_email}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <ChevronRight className="w-4 h-4 text-muted-foreground/40 shrink-0" />
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {!discoverRun && !isStartingDiscover && (
+              <div className="rounded-xl border border-border/40 bg-muted/20 p-5 flex gap-4">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                  <Radar className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-semibold text-foreground mb-1">How discovery works</h4>
+                  <ol className="text-xs text-muted-foreground space-y-1 list-decimal list-inside">
+                    <li>Live web search for your role + country</li>
+                    <li>AI classifies each result (posting / careers / aggregator / noise)</li>
+                    <li>Approved pages are fetched and structured</li>
+                    <li>Hiring emails are extracted when present</li>
+                    <li>Verified jobs land in your Browse feed automatically</li>
+                  </ol>
+                </div>
+              </div>
+            )}
+          </motion.div>
+        )}
+
+        {/* ═══════════════════ TAB 3: IMPORT FROM URL ═══════════════════ */}
         {activeTab === "import" && (
           <motion.div
             key="import"
@@ -931,36 +1292,55 @@ export default function FindJobsPage() {
               </div>
 
               {/* Drawer Footer */}
-              <div className="px-6 py-4 border-t border-border/30 flex items-center gap-3 shrink-0 bg-card">
-                {selectedJob.apply_url && (
+              <div className="px-6 py-4 border-t border-border/30 flex flex-col gap-2 shrink-0 bg-card">
+                {(selectedJob.hiring_email || selectedJob.contact_email) && (
                   <a
-                    href={selectedJob.apply_url}
+                    href={gmailComposeUrl(
+                      (selectedJob.hiring_email || selectedJob.contact_email) as string,
+                      selectedJob.title,
+                      selectedJob.company
+                    )}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex-1"
+                    className="w-full"
                   >
-                    <Button
-                      variant="outline"
-                      className="w-full gap-2 rounded-xl"
-                    >
-                      <ExternalLink className="w-3.5 h-3.5" />
-                      Apply on {sourceConfig[selectedJob.source]?.label || "Source"}
+                    <Button className="w-full gap-2 rounded-xl shadow-sm">
+                      <Mail className="w-3.5 h-3.5" />
+                      Email Hiring Contact ({selectedJob.hiring_email || selectedJob.contact_email})
                     </Button>
                   </a>
                 )}
-                <Button
-                  onClick={() => {
-                    generateResumeFromJob({
-                      title: selectedJob.title,
-                      company: selectedJob.company,
-                      description: selectedJob.description,
-                    });
-                  }}
-                  className="flex-1 gap-2 rounded-xl shadow-sm"
-                >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  Generate Resume
-                </Button>
+                <div className="flex items-center gap-3">
+                  {selectedJob.apply_url && (
+                    <a
+                      href={selectedJob.apply_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1"
+                    >
+                      <Button
+                        variant="outline"
+                        className="w-full gap-2 rounded-xl"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" />
+                        Apply on {sourceConfig[selectedJob.source]?.label || "Source"}
+                      </Button>
+                    </a>
+                  )}
+                  <Button
+                    onClick={() => {
+                      generateResumeFromJob({
+                        title: selectedJob.title,
+                        company: selectedJob.company,
+                        description: selectedJob.description,
+                      });
+                    }}
+                    className="flex-1 gap-2 rounded-xl shadow-sm"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    Generate Resume
+                  </Button>
+                </div>
               </div>
             </motion.div>
           </>

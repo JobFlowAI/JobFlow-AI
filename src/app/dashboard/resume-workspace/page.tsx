@@ -18,7 +18,6 @@ import {
   RotateCcw,
   Briefcase,
   Check,
-  Mail,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -840,23 +839,6 @@ function ResumeWorkspaceContent() {
                   className="gap-1.5 rounded-lg text-xs"
                 >
                   <Copy className="w-3.5 h-3.5" /> Copy Text
-                </Button>
-                
-                <Button
-                  onClick={() => {
-                    sessionStorage.setItem("jobflow_outreach_context", JSON.stringify({
-                      targetRole,
-                      company,
-                      jobDescription,
-                      resumeContent: generatedContent
-                    }));
-                    router.push("/dashboard/outreach");
-                  }}
-                  size="sm"
-                  variant="secondary"
-                  className="gap-1.5 rounded-lg text-xs font-semibold bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary transition-colors border border-primary/20"
-                >
-                  <Mail className="w-3.5 h-3.5" /> Write Outreach Email
                 </Button>
               </div>
             </div>

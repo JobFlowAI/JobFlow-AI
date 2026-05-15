@@ -33,3 +33,4 @@ build
 
 *.txt
 build_output.txt
+!scraper-service/**/*.txt

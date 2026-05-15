@@ -5,7 +5,6 @@ import Link from "next/link";
 import {
   LayoutDashboard,
   FileText,
-  Mail,
   Settings,
   History,
   User,
@@ -37,7 +36,6 @@ const mainNav = [
   { path: "/dashboard/resumes", label: "My Resumes", icon: FolderOpen },
   { path: "/dashboard/jobs", label: "Find Jobs", icon: Search },
   { path: "/dashboard/resume-workspace", label: "Resume AI", icon: FileText },
-  { path: "/dashboard/outreach", label: "Outreach", icon: Mail },
   { path: "/dashboard/activity", label: "Activity", icon: History },
 ];
 

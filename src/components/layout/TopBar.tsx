@@ -62,7 +62,6 @@ const breadcrumbMap: Record<string, string> = {
   "/dashboard": "Dashboard",
   "/dashboard/profile": "My Profile",
   "/dashboard/resume-workspace": "Resume AI",
-  "/dashboard/outreach": "Outreach",
   "/dashboard/activity": "Activity",
   "/dashboard/settings": "Settings",
 };

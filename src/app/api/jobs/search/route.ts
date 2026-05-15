@@ -23,10 +23,12 @@ export async function GET(req: NextRequest) {
     const query = searchParams.get("q")?.trim() || "";
     const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
     const source = searchParams.get("source") || "";
+    const sourceType = searchParams.get("source_type") || "";
     const employmentType = searchParams.get("type") || "";
     const country = searchParams.get("country") || "";
     const category = searchParams.get("category") || "";
     const subcategory = searchParams.get("subcategory") || "";
+    const includeInactive = searchParams.get("include_inactive") === "1";
 
     const offset = (page - 1) * PAGE_SIZE;
 
@@ -36,6 +38,14 @@ export async function GET(req: NextRequest) {
       .select("*", { count: "exact" })
       .order("posted_at", { ascending: false, nullsFirst: false })
       .range(offset, offset + PAGE_SIZE - 1);
+
+    if (!includeInactive) {
+      dbQuery = dbQuery.or("is_active.is.null,is_active.eq.true");
+    }
+
+    if (sourceType) {
+      dbQuery = dbQuery.eq("source_type", sourceType);
+    }
 
     // Full-text search if query provided
     if (query) {
