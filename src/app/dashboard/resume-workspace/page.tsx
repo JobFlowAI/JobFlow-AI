@@ -133,8 +133,8 @@ const creativeTemplates = [
 ];
 
 const steps = [
-  { num: 1, label: "Job Details" },
-  { num: 2, label: "Strategy" },
+  { num: 1, label: "Strategy" },
+  { num: 2, label: "Job Details" },
   { num: 3, label: "Generate" },
   { num: 4, label: "Preview" },
 ];
@@ -203,10 +203,10 @@ function ResumeWorkspaceContent() {
     "Generating resume…",
   ];
 
-  const canProceedStep1 =
-    targetRole.trim().length > 0 && jobDescription.trim().length > 20;
+  const canProceedStep1 = optimizationType !== null;
 
-  const canProceedStep2 = optimizationType !== null;
+  const canProceedStep2 =
+    targetRole.trim().length > 0 && jobDescription.trim().length > 20;
 
   const handleGenerate = async () => {
     setStep(3);
@@ -444,121 +444,10 @@ function ResumeWorkspaceContent() {
 
       {/* Step Content */}
       <AnimatePresence mode="wait">
-        {/* ────────── STEP 1: Job Description ────────── */}
+        {/* ────────── STEP 1: Strategy ────────── */}
         {step === 1 && (
           <motion.div
             key="step1"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.25 }}
-            className="space-y-6"
-          >
-            {/* Pre-filled badge */}
-            {preFilledFrom && (
-              <div className="rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                  <Briefcase className="w-4 h-4 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-foreground">
-                    Pre-filled from {preFilledFrom} job listing
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Review the details below and continue to generate your resume.
-                  </p>
-                </div>
-              </div>
-            )}
-
-            <div className="rounded-xl border border-border/40 bg-card p-6 space-y-6">
-              <div>
-                <h2 className="text-base font-semibold text-foreground flex items-center gap-2 mb-1">
-                  <Briefcase className="w-4 h-4 text-primary" />
-                  Target Position
-                </h2>
-                <p className="text-xs text-muted-foreground">
-                  Tell us about the role you&apos;re applying for.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
-                    Job Title <span className="text-destructive">*</span>
-                  </label>
-                  <Input
-                    value={targetRole}
-                    onChange={(e) => setTargetRole(e.target.value)}
-                    placeholder="Senior Frontend Engineer"
-                    className="rounded-lg bg-muted/30"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
-                    Company <span className="text-muted-foreground/50">(optional)</span>
-                  </label>
-                  <Input
-                    value={company}
-                    onChange={(e) => setCompany(e.target.value)}
-                    placeholder="Stripe"
-                    className="rounded-lg bg-muted/30"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="rounded-xl border border-border/40 bg-card p-6 space-y-4">
-              <div>
-                <h2 className="text-base font-semibold text-foreground flex items-center gap-2 mb-1">
-                  <FileText className="w-4 h-4 text-primary" />
-                  Job Description <span className="text-destructive text-xs">*</span>
-                </h2>
-                <p className="text-xs text-muted-foreground">
-                  Paste the full job posting. Our AI extracts key requirements to tailor your resume.
-                </p>
-              </div>
-
-              <Textarea
-                placeholder="Paste the full job description here. Include responsibilities, requirements, qualifications, and any preferred skills…"
-                className="min-h-[220px] rounded-xl bg-muted/30 border-border/40 resize-none text-sm leading-relaxed focus-visible:ring-primary/20"
-                value={jobDescription}
-                onChange={(e) => setJobDescription(e.target.value)}
-              />
-              <div className="flex justify-between text-xs">
-                <span className="text-muted-foreground">
-                  Minimum 20 characters for analysis
-                </span>
-                <span
-                  className={
-                    jobDescription.length > 20
-                      ? "text-success font-medium"
-                      : "text-muted-foreground"
-                  }
-                >
-                  {jobDescription.length} chars
-                </span>
-              </div>
-            </div>
-
-            {/* Step 1 Actions */}
-            <div className="flex justify-end">
-              <Button
-                onClick={() => setStep(2)}
-                disabled={!canProceedStep1}
-                className="gap-2 rounded-xl shadow-sm px-8"
-              >
-                Continue
-                <ArrowRight className="w-4 h-4" />
-              </Button>
-            </div>
-          </motion.div>
-        )}
-
-        {/* ────────── STEP 2: Optimization Strategy ────────── */}
-        {step === 2 && (
-          <motion.div
-            key="step2"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
@@ -581,6 +470,7 @@ function ResumeWorkspaceContent() {
                   onClick={() => {
                     setOptimizationType("ats");
                     setSelectedTemplate("clean");
+                    setStep(2);
                   }}
                   className={cn(
                     "text-left p-5 rounded-xl border-2 transition-all duration-200 group",
@@ -685,7 +575,7 @@ function ResumeWorkspaceContent() {
                         Choose a Template
                       </h2>
                       <p className="text-xs text-muted-foreground">
-                        Select a design that matches your personal brand.
+                        Select a design that matches your personal brand. Clicking a template will proceed to the next step.
                       </p>
                     </div>
 
@@ -693,7 +583,10 @@ function ResumeWorkspaceContent() {
                       {creativeTemplates.map((tpl) => (
                         <button
                           key={tpl.id}
-                          onClick={() => setSelectedTemplate(tpl.id)}
+                          onClick={() => {
+                            setSelectedTemplate(tpl.id);
+                            setStep(2);
+                          }}
                           className={cn(
                             "text-left p-4 rounded-xl border-2 transition-all duration-200",
                             selectedTemplate === tpl.id
@@ -718,6 +611,106 @@ function ResumeWorkspaceContent() {
                 </motion.div>
               )}
             </AnimatePresence>
+
+          </motion.div>
+        )}
+
+        {/* ────────── STEP 2: Job Details ────────── */}
+        {step === 2 && (
+          <motion.div
+            key="step2"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.25 }}
+            className="space-y-6"
+          >
+            {/* Pre-filled badge */}
+            {preFilledFrom && (
+              <div className="rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                  <Briefcase className="w-4 h-4 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-foreground">
+                    Pre-filled from {preFilledFrom} job listing
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Review the details below and continue to generate your resume.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            <div className="rounded-xl border border-border/40 bg-card p-6 space-y-6">
+              <div>
+                <h2 className="text-base font-semibold text-foreground flex items-center gap-2 mb-1">
+                  <Briefcase className="w-4 h-4 text-primary" />
+                  Target Position
+                </h2>
+                <p className="text-xs text-muted-foreground">
+                  Tell us about the role you&apos;re applying for.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+                    Job Title <span className="text-destructive">*</span>
+                  </label>
+                  <Input
+                    value={targetRole}
+                    onChange={(e) => setTargetRole(e.target.value)}
+                    placeholder="Senior Frontend Engineer"
+                    className="rounded-lg bg-muted/30"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+                    Company <span className="text-muted-foreground/50">(optional)</span>
+                  </label>
+                  <Input
+                    value={company}
+                    onChange={(e) => setCompany(e.target.value)}
+                    placeholder="Stripe"
+                    className="rounded-lg bg-muted/30"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-border/40 bg-card p-6 space-y-4">
+              <div>
+                <h2 className="text-base font-semibold text-foreground flex items-center gap-2 mb-1">
+                  <FileText className="w-4 h-4 text-primary" />
+                  Job Description <span className="text-destructive text-xs">*</span>
+                </h2>
+                <p className="text-xs text-muted-foreground">
+                  Paste the full job posting. Our AI extracts key requirements to tailor your resume.
+                </p>
+              </div>
+
+              <Textarea
+                placeholder="Paste the full job description here. Include responsibilities, requirements, qualifications, and any preferred skills…"
+                className="min-h-[220px] rounded-xl bg-muted/30 border-border/40 resize-none text-sm leading-relaxed focus-visible:ring-primary/20"
+                value={jobDescription}
+                onChange={(e) => setJobDescription(e.target.value)}
+              />
+              <div className="flex justify-between text-xs">
+                <span className="text-muted-foreground">
+                  Minimum 20 characters for analysis
+                </span>
+                <span
+                  className={
+                    jobDescription.length > 20
+                      ? "text-success font-medium"
+                      : "text-muted-foreground"
+                  }
+                >
+                  {jobDescription.length} chars
+                </span>
+              </div>
+            </div>
 
             {/* Step 2 Actions */}
             <div className="flex items-center justify-between">
