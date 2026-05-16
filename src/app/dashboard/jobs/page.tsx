@@ -1,23 +1,21 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Search,
   Link2,
   MapPin,
   Building2,
   Clock,
   ExternalLink,
   Sparkles,
-  RefreshCw,
   Briefcase,
   X,
   ChevronRight,
   Loader2,
   Globe,
-  ArrowRight,
   AlertCircle,
   FileText,
   DollarSign,
@@ -149,17 +147,7 @@ function stripHtml(html: string): string {
 
 export default function FindJobsPage() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<"browse" | "discover" | "import">("browse");
-
-  /* ─── Browse State ─── */
-  const [searchQuery, setSearchQuery] = useState("");
-  const [jobs, setJobs] = useState<JobListing[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [hasSearched, setHasSearched] = useState(false);
-  const [totalResults, setTotalResults] = useState(0);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(false);
+  const [activeTab, setActiveTab] = useState<"discover" | "import">("discover");
   const [selectedJob, setSelectedJob] = useState<JobListing | null>(null);
 
   /* ─── Import State ─── */
@@ -175,82 +163,7 @@ export default function FindJobsPage() {
   const [discoverJobs, setDiscoverJobs] = useState<JobListing[]>([]);
   const [isStartingDiscover, setIsStartingDiscover] = useState(false);
 
-  const searchInputRef = useRef<HTMLInputElement>(null);
   const discoverPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  /* ─── Initial load: trigger refresh + load jobs ─── */
-  useEffect(() => {
-    async function initialLoad() {
-      // Trigger cache refresh (will skip if fresh)
-      try {
-        await fetch("/api/jobs/refresh", { method: "POST" });
-      } catch {
-        // Silently fail — cache might just be fresh
-      }
-      // Load initial jobs
-      searchJobs("", 1, true);
-    }
-    initialLoad();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  /* ─── Search jobs from our cached DB ─── */
-  const searchJobs = useCallback(
-    async (query: string, pageNum: number, isInitial = false) => {
-      setIsLoading(true);
-      if (!isInitial) setHasSearched(true);
-
-      try {
-        const params = new URLSearchParams();
-        if (query) params.set("q", query);
-        params.set("page", String(pageNum));
-
-        const res = await fetch(`/api/jobs/search?${params.toString()}`);
-        if (!res.ok) throw new Error("Search failed");
-
-        const data = await res.json();
-
-        if (pageNum === 1) {
-          setJobs(data.jobs || []);
-        } else {
-          setJobs((prev) => [...prev, ...(data.jobs || [])]);
-        }
-        setTotalResults(data.totalResults || 0);
-        setPage(pageNum);
-        setHasMore(data.hasMore || false);
-      } catch {
-        toast.error("Failed to search jobs. Please try again.");
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    []
-  );
-
-  /* ─── Refresh cache ─── */
-  const handleRefresh = async () => {
-    setIsRefreshing(true);
-    try {
-      const res = await fetch("/api/jobs/refresh", { method: "POST" });
-      const data = await res.json();
-      if (data.skipped) {
-        toast.info("Job cache is already fresh.");
-      } else {
-        toast.success(`Refreshed: ${data.upserted} jobs updated.`);
-        searchJobs(searchQuery, 1);
-      }
-    } catch {
-      toast.error("Failed to refresh job listings.");
-    } finally {
-      setIsRefreshing(false);
-    }
-  };
-
-  /* ─── Handle search submit ─── */
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    searchJobs(searchQuery, 1);
-  };
 
   /* ─── Extract job from URL ─── */
   const handleExtract = async () => {
@@ -306,8 +219,6 @@ export default function FindJobsPage() {
           stopDiscoverPolling();
           if (data.run.status === "done") {
             toast.success(`Discovery complete: ${data.run.total_inserted} jobs saved.`);
-            // Refresh the Browse list so newly scraped jobs appear.
-            searchJobs(searchQuery, 1);
           } else if (data.run.error) {
             toast.error(`Discovery failed: ${data.run.error}`);
           }
@@ -316,8 +227,7 @@ export default function FindJobsPage() {
         // Silently swallow — next poll will retry.
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [stopDiscoverPolling, searchQuery]
+    [stopDiscoverPolling]
   );
 
   const startDiscover = async () => {
@@ -384,40 +294,14 @@ export default function FindJobsPage() {
             Find Jobs
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Browse listings or import from any job board — then generate a
+            Discover live jobs or import from any URL — then generate a
             tailored resume.
           </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleRefresh}
-            disabled={isRefreshing}
-            className="gap-2 rounded-xl text-xs"
-          >
-            <RefreshCw
-              className={cn("w-3.5 h-3.5", isRefreshing && "animate-spin")}
-            />
-            {isRefreshing ? "Refreshing..." : "Refresh Feed"}
-          </Button>
         </div>
       </div>
 
       {/* Tab Switcher */}
       <div className="flex items-center gap-1 p-1 rounded-xl bg-muted/50 border border-border/40 w-fit">
-        <button
-          onClick={() => setActiveTab("browse")}
-          className={cn(
-            "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200",
-            activeTab === "browse"
-              ? "bg-foreground text-background shadow-sm"
-              : "text-muted-foreground hover:text-foreground"
-          )}
-        >
-          <Search className="w-3.5 h-3.5" />
-          Browse Jobs
-        </button>
         <button
           onClick={() => setActiveTab("discover")}
           className={cn(
@@ -445,290 +329,7 @@ export default function FindJobsPage() {
       </div>
 
       <AnimatePresence mode="wait">
-        {/* ═══════════════════ TAB 1: BROWSE JOBS ═══════════════════ */}
-        {activeTab === "browse" && (
-          <motion.div
-            key="browse"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
-            className="space-y-5"
-          >
-            {/* Search Bar */}
-            <form onSubmit={handleSearch} className="flex gap-2">
-              <div className="relative flex-1">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  ref={searchInputRef}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search by job title, company, or keyword..."
-                  className="pl-10 rounded-xl bg-muted/30 border-border/40 h-11"
-                />
-                {searchQuery && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSearchQuery("");
-                      searchJobs("", 1);
-                    }}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
-                )}
-              </div>
-              <Button
-                type="submit"
-                className="rounded-xl px-6 h-11 gap-2 shadow-sm"
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Search className="w-4 h-4" />
-                )}
-                Search
-              </Button>
-            </form>
-
-            {/* Results Count */}
-            {(hasSearched || jobs.length > 0) && (
-              <div className="flex items-center justify-between">
-                <p className="text-xs text-muted-foreground">
-                  {totalResults > 0 ? (
-                    <>
-                      Showing{" "}
-                      <span className="font-medium text-foreground">
-                        {jobs.length}
-                      </span>{" "}
-                      of{" "}
-                      <span className="font-medium text-foreground">
-                        {totalResults}
-                      </span>{" "}
-                      jobs
-                    </>
-                  ) : isLoading ? (
-                    "Searching..."
-                  ) : (
-                    "No jobs found — try a different search term"
-                  )}
-                </p>
-                <div className="flex items-center gap-1.5">
-                  {Object.entries(sourceConfig).map(([key, cfg]) => (
-                    <span
-                      key={key}
-                      className={cn(
-                        "text-[10px] font-medium px-2 py-0.5 rounded-full",
-                        cfg.color
-                      )}
-                    >
-                      {cfg.label}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Job Cards */}
-            {isLoading && jobs.length === 0 ? (
-              <div className="grid gap-3">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="animate-pulse rounded-xl border border-border/40 bg-card p-5"
-                  >
-                    <div className="flex items-start gap-4">
-                      <div className="w-11 h-11 rounded-xl bg-muted" />
-                      <div className="flex-1 space-y-2">
-                        <div className="h-4 bg-muted rounded w-2/3" />
-                        <div className="h-3 bg-muted rounded w-1/3" />
-                        <div className="h-3 bg-muted rounded w-full mt-3" />
-                        <div className="h-3 bg-muted rounded w-4/5" />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : jobs.length > 0 ? (
-              <div className="grid gap-3">
-                {jobs.map((job, index) => (
-                  <motion.div
-                    key={job.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.03 }}
-                  >
-                    <button
-                      onClick={() => setSelectedJob(job)}
-                      className={cn(
-                        "w-full text-left rounded-xl border-2 bg-card p-5 transition-all duration-200 group hover:shadow-md",
-                        selectedJob?.id === job.id
-                          ? "border-foreground/30 shadow-sm"
-                          : "border-border/40 hover:border-border/60"
-                      )}
-                    >
-                      <div className="flex items-start gap-4">
-                        {/* Company Avatar */}
-                        <div className="w-11 h-11 rounded-xl bg-muted/60 flex items-center justify-center shrink-0 border border-border/30 overflow-hidden">
-                          {job.company_logo ? (
-                            <img
-                              src={job.company_logo}
-                              alt={job.company}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <Building2 className="w-5 h-5 text-muted-foreground/50" />
-                          )}
-                        </div>
-
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between gap-3">
-                            <div>
-                              <h3 className="font-semibold text-sm text-foreground group-hover:text-primary transition-colors line-clamp-1">
-                                {job.title}
-                              </h3>
-                              <p className="text-xs text-muted-foreground mt-0.5">
-                                {job.company}
-                              </p>
-                            </div>
-                            <ChevronRight className="w-4 h-4 text-muted-foreground/40 group-hover:text-foreground shrink-0 transition-colors mt-0.5" />
-                          </div>
-
-                          <div className="flex flex-wrap items-center gap-2 mt-2.5">
-                            {job.location && (
-                              <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
-                                <MapPin className="w-3 h-3" />
-                                {job.location}
-                              </span>
-                            )}
-                            {job.employment_type && (
-                              <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
-                                <Briefcase className="w-3 h-3" />
-                                {job.employment_type}
-                              </span>
-                            )}
-                            {job.salary && (
-                              <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
-                                <DollarSign className="w-3 h-3" />
-                                {job.salary}
-                              </span>
-                            )}
-                            <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
-                              <Clock className="w-3 h-3" />
-                              {timeAgo(job.posted_at)}
-                            </span>
-                            {sourceConfig[job.source] && (
-                              <span
-                                className={cn(
-                                  "text-[10px] font-medium px-2 py-0.5 rounded-full",
-                                  sourceConfig[job.source].color
-                                )}
-                              >
-                                {sourceConfig[job.source].label}
-                              </span>
-                            )}
-                            {(() => {
-                              const t = sourceTypeBadge(job.source_type);
-                              if (!t || job.source === "scraped") return null;
-                              return (
-                                <span className={cn("text-[10px] font-medium px-2 py-0.5 rounded-full", t.color)}>
-                                  {t.label}
-                                </span>
-                              );
-                            })()}
-                            {(() => {
-                              const c = confidenceBucket(job.extraction_confidence);
-                              if (!c) return null;
-                              return (
-                                <span className={cn("inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full", c.color)}>
-                                  <ShieldCheck className="w-3 h-3" />
-                                  {c.label}
-                                </span>
-                              );
-                            })()}
-                            {job.hiring_email && (
-                              <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-primary/10 text-primary">
-                                <Mail className="w-3 h-3" />
-                                Hiring email
-                              </span>
-                            )}
-                          </div>
-
-                          {/* Brief description preview */}
-                          <p className="text-xs text-muted-foreground mt-2 line-clamp-2 leading-relaxed">
-                            {stripHtml(job.description).slice(0, 200)}...
-                          </p>
-                        </div>
-                      </div>
-                    </button>
-                  </motion.div>
-                ))}
-
-                {/* Load More */}
-                {hasMore && (
-                  <div className="flex justify-center pt-2">
-                    <Button
-                      variant="outline"
-                      onClick={() => searchJobs(searchQuery, page + 1)}
-                      disabled={isLoading}
-                      className="gap-2 rounded-xl"
-                    >
-                      {isLoading ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <ArrowRight className="w-4 h-4" />
-                      )}
-                      Load More
-                    </Button>
-                  </div>
-                )}
-              </div>
-            ) : !isLoading && hasSearched ? (
-              <div className="flex flex-col items-center justify-center py-20 text-center">
-                <div className="w-14 h-14 rounded-2xl bg-muted/50 flex items-center justify-center mb-4">
-                  <Search className="w-7 h-7 text-muted-foreground/40" />
-                </div>
-                <h3 className="font-semibold text-foreground mb-1">
-                  No results found
-                </h3>
-                <p className="text-sm text-muted-foreground max-w-sm">
-                  Try adjusting your search terms, or import a job directly from
-                  any URL using the Import tab.
-                </p>
-              </div>
-            ) : !isLoading ? (
-              <div className="flex flex-col items-center justify-center py-20 text-center">
-                <div className="w-14 h-14 rounded-2xl bg-muted/50 flex items-center justify-center mb-4">
-                  <Globe className="w-7 h-7 text-muted-foreground/40" />
-                </div>
-                <h3 className="font-semibold text-foreground mb-1">
-                  No jobs in cache yet
-                </h3>
-                <p className="text-sm text-muted-foreground max-w-sm mb-4">
-                  Click &quot;Refresh Feed&quot; to fetch the latest job listings
-                  from multiple sources.
-                </p>
-                <Button
-                  onClick={handleRefresh}
-                  disabled={isRefreshing}
-                  className="gap-2 rounded-xl shadow-sm"
-                >
-                  <RefreshCw
-                    className={cn(
-                      "w-4 h-4",
-                      isRefreshing && "animate-spin"
-                    )}
-                  />
-                  {isRefreshing ? "Refreshing..." : "Refresh Feed"}
-                </Button>
-              </div>
-            ) : null}
-          </motion.div>
-        )}
-
-        {/* ═══════════════════ TAB 2: DISCOVER LIVE ═══════════════════ */}
+        {/* ═══════════════════ DISCOVER LIVE ═══════════════════ */}
         {activeTab === "discover" && (
           <motion.div
             key="discover"
