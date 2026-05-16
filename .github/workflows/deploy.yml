@@ -14,15 +14,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.2.2
-        with:
-          host: ${{ secrets.DO_HOST }}
-          username: ${{ secrets.DO_USERNAME }}
-          key: ${{ secrets.DO_SSH_KEY }}
-          command_timeout: 12m
-          script_stop: true
-          script: |
+      - name: Deploy via Native SSH
+        env:
+          SSH_KEY: ${{ secrets.DO_SSH_KEY }}
+          HOST: ${{ secrets.DO_HOST }}
+          USERNAME: ${{ secrets.DO_USERNAME }}
+        run: |
+          # Setup SSH Key
+          mkdir -p ~/.ssh
+          echo "$SSH_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          
+          # Add Droplet to known_hosts to prevent strict checking prompt
+          ssh-keyscan -H $HOST >> ~/.ssh/known_hosts
+          
+          # Execute deployment commands over SSH
+          ssh $USERNAME@$HOST << 'EOF'
             set -e
 
             echo "==> Navigating to project directory..."
@@ -52,3 +59,4 @@ jobs:
             pm2 restart ecosystem.config.cjs --update-env || pm2 start ecosystem.config.cjs
 
             echo "==> Deploy complete!"
+          EOF
