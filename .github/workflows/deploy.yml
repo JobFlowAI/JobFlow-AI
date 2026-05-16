@@ -42,6 +42,11 @@ jobs:
             mkdir -p .next/standalone/.next/static
             cp -a public/. .next/standalone/public/
             cp -a .next/static/. .next/standalone/.next/static/
+            cp -a .next/server/. .next/standalone/.next/server/ || true
+            
+            echo "==> Copying Environment Variables..."
+            cp .env.production .next/standalone/.env.production
+            cp .env.production .next/standalone/.env
 
             echo "==> Restarting PM2 process..."
             pm2 restart ecosystem.config.cjs --update-env || pm2 start ecosystem.config.cjs
