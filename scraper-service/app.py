@@ -57,11 +57,12 @@ def scrape_run(
         country=body.country,
         max_results=body.max_results,
         user_id=body.user_id,
+        filters=body.filters.model_dump(),
     )
 
     def _worker():
         # Drain the generator so persistence side-effects happen.
-        for _ in run_discovery(run_id, body.query, body.country, body.max_results):
+        for _ in run_discovery(run_id, body.query, body.country, body.max_results, body.filters):
             pass
 
     Thread(target=_worker, daemon=True).start()
@@ -92,7 +93,7 @@ async def scrape_run_stream(
 
     async def event_gen():
         loop = asyncio.get_event_loop()
-        gen = run_discovery(run_id, query, country, max_results)
+        gen = run_discovery(run_id, query, country, max_results)  # SSE variant: no filters (future work)
         while True:
             if await request.is_disconnected():
                 break

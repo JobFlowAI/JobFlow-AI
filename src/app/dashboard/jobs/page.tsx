@@ -24,6 +24,8 @@ import {
   Mail,
   Radar,
   ShieldCheck,
+  SlidersHorizontal,
+  ChevronDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -76,6 +78,54 @@ const sourceConfig: Record<string, { label: string; color: string }> = {
   adzuna: { label: "Adzuna", color: "bg-cyan-500/10 text-cyan-600" },
   jsearch: { label: "JSearch", color: "bg-indigo-500/10 text-indigo-600" },
   scraped: { label: "Scraped", color: "bg-fuchsia-500/10 text-fuchsia-600" },
+};
+
+/* ─── Filter types ─── */
+type WorkMode = "remote" | "hybrid" | "onsite";
+type JobType = "full_time" | "part_time" | "contract" | "internship" | "freelance";
+type ExperienceLevel = "entry" | "mid" | "senior" | "lead";
+type DatePosted = "any" | "24h" | "week" | "month";
+
+interface DiscoverFilters {
+  work_modes: WorkMode[];
+  job_types: JobType[];
+  experience_levels: ExperienceLevel[];
+  date_posted: DatePosted;
+}
+
+const WORK_MODE_OPTIONS: { value: WorkMode; label: string }[] = [
+  { value: "remote", label: "Remote" },
+  { value: "hybrid", label: "Hybrid" },
+  { value: "onsite", label: "On-site" },
+];
+
+const JOB_TYPE_OPTIONS: { value: JobType; label: string }[] = [
+  { value: "full_time", label: "Full-time" },
+  { value: "part_time", label: "Part-time" },
+  { value: "contract", label: "Contract" },
+  { value: "internship", label: "Internship" },
+  { value: "freelance", label: "Freelance" },
+];
+
+const EXP_LEVEL_OPTIONS: { value: ExperienceLevel; label: string }[] = [
+  { value: "entry", label: "Entry" },
+  { value: "mid", label: "Mid-level" },
+  { value: "senior", label: "Senior" },
+  { value: "lead", label: "Lead / Staff" },
+];
+
+const DATE_POSTED_OPTIONS: { value: DatePosted; label: string }[] = [
+  { value: "any", label: "Any time" },
+  { value: "24h", label: "Last 24h" },
+  { value: "week", label: "Last week" },
+  { value: "month", label: "Last month" },
+];
+
+const DEFAULT_FILTERS: DiscoverFilters = {
+  work_modes: [],
+  job_types: [],
+  experience_levels: [],
+  date_posted: "any",
 };
 
 /* ─── Confidence helpers ─── */
@@ -162,6 +212,8 @@ export default function FindJobsPage() {
   const [discoverRun, setDiscoverRun] = useState<DiscoveryRun | null>(null);
   const [discoverJobs, setDiscoverJobs] = useState<JobListing[]>([]);
   const [isStartingDiscover, setIsStartingDiscover] = useState(false);
+  const [filters, setFilters] = useState<DiscoverFilters>(DEFAULT_FILTERS);
+  const [showFilters, setShowFilters] = useState(false);
 
   const discoverPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -247,6 +299,7 @@ export default function FindJobsPage() {
           query: q,
           country: discoverCountry.trim() || undefined,
           max_results: discoverMaxResults,
+          filters,
         }),
       });
       if (!res.ok) {
@@ -399,9 +452,159 @@ export default function FindJobsPage() {
 
               <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
                 <span className="font-medium">Tips:</span>
-                <span className="bg-muted/50 px-2 py-0.5 rounded-full">Be specific (“Backend Python Senior”)</span>
+                <span className="bg-muted/50 px-2 py-0.5 rounded-full">Be specific ("Backend Python Senior")</span>
                 <span className="bg-muted/50 px-2 py-0.5 rounded-full">Country narrows results</span>
                 <span className="bg-muted/50 px-2 py-0.5 rounded-full">Max 50 results per run</span>
+              </div>
+
+              {/* Filter toggle */}
+              <div>
+                <button
+                  type="button"
+                  onClick={() => setShowFilters((v) => !v)}
+                  className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <SlidersHorizontal className="w-3.5 h-3.5" />
+                  Filters
+                  {(filters.work_modes.length + filters.job_types.length + filters.experience_levels.length + (filters.date_posted !== "any" ? 1 : 0)) > 0 && (
+                    <span className="ml-0.5 inline-flex items-center justify-center w-4 h-4 rounded-full bg-primary text-primary-foreground text-[10px] font-semibold">
+                      {filters.work_modes.length + filters.job_types.length + filters.experience_levels.length + (filters.date_posted !== "any" ? 1 : 0)}
+                    </span>
+                  )}
+                  <ChevronDown className={cn("w-3.5 h-3.5 transition-transform", showFilters && "rotate-180")} />
+                </button>
+
+                {showFilters && (
+                  <div className="mt-3 rounded-xl border border-border/40 bg-muted/20 p-4 space-y-4">
+                    {/* Work mode */}
+                    <div className="space-y-1.5">
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Work mode</p>
+                      <div className="flex flex-wrap gap-2">
+                        {WORK_MODE_OPTIONS.map(({ value, label }) => {
+                          const active = filters.work_modes.includes(value);
+                          return (
+                            <button
+                              key={value}
+                              type="button"
+                              onClick={() =>
+                                setFilters((f) => ({
+                                  ...f,
+                                  work_modes: active
+                                    ? f.work_modes.filter((m) => m !== value)
+                                    : [...f.work_modes, value],
+                                }))
+                              }
+                              className={cn(
+                                "px-3 py-1 rounded-full text-xs font-medium border transition-all",
+                                active
+                                  ? "bg-foreground text-background border-foreground"
+                                  : "bg-transparent text-muted-foreground border-border/60 hover:border-border hover:text-foreground"
+                              )}
+                            >
+                              {label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Job type */}
+                    <div className="space-y-1.5">
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Job type</p>
+                      <div className="flex flex-wrap gap-2">
+                        {JOB_TYPE_OPTIONS.map(({ value, label }) => {
+                          const active = filters.job_types.includes(value);
+                          return (
+                            <button
+                              key={value}
+                              type="button"
+                              onClick={() =>
+                                setFilters((f) => ({
+                                  ...f,
+                                  job_types: active
+                                    ? f.job_types.filter((t) => t !== value)
+                                    : [...f.job_types, value],
+                                }))
+                              }
+                              className={cn(
+                                "px-3 py-1 rounded-full text-xs font-medium border transition-all",
+                                active
+                                  ? "bg-foreground text-background border-foreground"
+                                  : "bg-transparent text-muted-foreground border-border/60 hover:border-border hover:text-foreground"
+                              )}
+                            >
+                              {label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Experience level */}
+                    <div className="space-y-1.5">
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Experience</p>
+                      <div className="flex flex-wrap gap-2">
+                        {EXP_LEVEL_OPTIONS.map(({ value, label }) => {
+                          const active = filters.experience_levels.includes(value);
+                          return (
+                            <button
+                              key={value}
+                              type="button"
+                              onClick={() =>
+                                setFilters((f) => ({
+                                  ...f,
+                                  experience_levels: active
+                                    ? f.experience_levels.filter((e) => e !== value)
+                                    : [...f.experience_levels, value],
+                                }))
+                              }
+                              className={cn(
+                                "px-3 py-1 rounded-full text-xs font-medium border transition-all",
+                                active
+                                  ? "bg-foreground text-background border-foreground"
+                                  : "bg-transparent text-muted-foreground border-border/60 hover:border-border hover:text-foreground"
+                              )}
+                            >
+                              {label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Date posted */}
+                    <div className="space-y-1.5">
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Date posted</p>
+                      <div className="flex flex-wrap gap-2">
+                        {DATE_POSTED_OPTIONS.map(({ value, label }) => (
+                          <button
+                            key={value}
+                            type="button"
+                            onClick={() => setFilters((f) => ({ ...f, date_posted: value }))}
+                            className={cn(
+                              "px-3 py-1 rounded-full text-xs font-medium border transition-all",
+                              filters.date_posted === value
+                                ? "bg-foreground text-background border-foreground"
+                                : "bg-transparent text-muted-foreground border-border/60 hover:border-border hover:text-foreground"
+                            )}
+                          >
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {(filters.work_modes.length + filters.job_types.length + filters.experience_levels.length + (filters.date_posted !== "any" ? 1 : 0)) > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setFilters(DEFAULT_FILTERS)}
+                        className="text-[11px] text-muted-foreground hover:text-foreground transition-colors underline underline-offset-2"
+                      >
+                        Clear all filters
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -420,7 +623,7 @@ export default function FindJobsPage() {
                     <span className="text-sm font-semibold text-foreground capitalize">
                       {discoverRun.status}
                     </span>
-                    <span className="text-xs text-muted-foreground">· “{discoverRun.query}”{discoverRun.country ? ` · ${discoverRun.country}` : ""}</span>
+                    <span className="text-xs text-muted-foreground">· &quot;{discoverRun.query}&quot;{discoverRun.country ? ` · ${discoverRun.country}` : ""}</span>
                   </div>
                   <span className="text-[11px] text-muted-foreground">{timeAgo(discoverRun.started_at)}</span>
                 </div>
