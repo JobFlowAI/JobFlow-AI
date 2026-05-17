@@ -59,7 +59,7 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Server-side Onboarding Check (Optimized with Cockie Cache)
+  // Server-side Onboarding Check (Optimized with Cookie Cache)
   if (user && request.nextUrl.pathname.startsWith("/dashboard")) {
     const isOnboardingPage = request.nextUrl.pathname === "/dashboard/onboarding";
     const hasOnboardedCookie = request.cookies.get("jobflow_onboarded")?.value === "true";

@@ -261,8 +261,18 @@ export default function Dashboard() {
               </p>
             </div>
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <TrendingUp className="w-3 h-3 text-success" />
-              <span className="text-success font-medium">+12%</span>
+              {(() => {
+                const thisWeekTotal = weeklyData.reduce((sum, d) => sum + d.resumes, 0);
+                const growth = thisWeekTotal > 0 ? thisWeekTotal : 0;
+                return growth > 0 ? (
+                  <>
+                    <TrendingUp className="w-3 h-3 text-success" />
+                    <span className="text-success font-medium">{growth} this week</span>
+                  </>
+                ) : (
+                  <span>No activity</span>
+                );
+              })()}
             </div>
           </div>
           <div className="h-[200px]">

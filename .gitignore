@@ -12,6 +12,7 @@ dist
 dist-ssr
 *.local
 .env
+scraper-service\.env
 .env.*
 !.env.example
 .env.local
@@ -31,6 +32,7 @@ dist-ssr
 out
 build
 
-*.txt
+# Build output logs
 build_output.txt
+log*.txt
 !scraper-service/**/*.txt

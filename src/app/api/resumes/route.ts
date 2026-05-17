@@ -3,6 +3,41 @@ import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
+/**
+ * Validates that the request originates from our own site (CSRF protection).
+ * Returns true if the origin matches, false otherwise.
+ */
+function isValidOrigin(req: NextRequest): boolean {
+  const origin = req.headers.get("origin");
+  const referer = req.headers.get("referer");
+  const host = req.headers.get("host");
+
+  // Allow requests with no origin (e.g., server-side fetches, curl)
+  if (!origin && !referer) return true;
+
+  const allowed = host ? [host] : [];
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  if (siteUrl) {
+    try { allowed.push(new URL(siteUrl).host); } catch { /* ignore */ }
+  }
+
+  if (origin) {
+    try {
+      const originHost = new URL(origin).host;
+      return allowed.some(h => h === originHost);
+    } catch { return false; }
+  }
+
+  if (referer) {
+    try {
+      const refHost = new URL(referer).host;
+      return allowed.some(h => h === refHost);
+    } catch { return false; }
+  }
+
+  return false;
+}
+
 export async function GET(req: NextRequest) {
   try {
     const supabase = await createClient();
@@ -31,13 +66,19 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json(data);
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unexpected error.";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
 export async function POST(req: NextRequest) {
   try {
+    // CSRF protection
+    if (!isValidOrigin(req)) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
@@ -47,9 +88,35 @@ export async function POST(req: NextRequest) {
 
     const json = await req.json();
 
+    // If client provides an ID, verify ownership before allowing upsert
+    if (json.id) {
+      const { data: existing } = await supabase
+        .from("user_resumes")
+        .select("id")
+        .eq("id", json.id)
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      // If a row exists with this ID but doesn't belong to this user, reject
+      if (!existing) {
+        const { data: anyRow } = await supabase
+          .from("user_resumes")
+          .select("id")
+          .eq("id", json.id)
+          .maybeSingle();
+
+        if (anyRow) {
+          return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+        }
+      }
+    }
+
+    // Generate server-side ID for new resumes if client didn't provide one
+    const resumeId = json.id || `resume_${Date.now()}_${crypto.randomUUID().slice(0, 8)}`;
+
     // Map frontend fields (camelCase) to DB fields (snake_case)
     const payload = {
-      id: json.id,
+      id: resumeId,
       user_id: user.id,
       target_role: json.targetRole,
       company: json.company,
@@ -75,7 +142,8 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ success: true, data });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unexpected error.";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
