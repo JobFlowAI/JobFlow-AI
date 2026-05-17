@@ -629,16 +629,19 @@ export default function FindJobsPage() {
                 </div>
                 <div className="grid grid-cols-3 gap-3">
                   <div className="rounded-lg bg-muted/40 px-3 py-2">
-                    <div className="text-[10px] uppercase tracking-wide text-muted-foreground">Found</div>
+                    <div className="text-[10px] uppercase tracking-wide text-muted-foreground">Scanned</div>
                     <div className="text-lg font-semibold text-foreground">{discoverRun.total_found}</div>
+                    <div className="text-[9px] text-muted-foreground/60">raw DDG results</div>
                   </div>
                   <div className="rounded-lg bg-muted/40 px-3 py-2">
-                    <div className="text-[10px] uppercase tracking-wide text-muted-foreground">Kept</div>
+                    <div className="text-[10px] uppercase tracking-wide text-muted-foreground">Extracted</div>
                     <div className="text-lg font-semibold text-foreground">{discoverRun.total_kept}</div>
+                    <div className="text-[9px] text-muted-foreground/60">jobs parsed</div>
                   </div>
                   <div className="rounded-lg bg-muted/40 px-3 py-2">
                     <div className="text-[10px] uppercase tracking-wide text-muted-foreground">Saved</div>
                     <div className="text-lg font-semibold text-foreground">{discoverRun.total_inserted}</div>
+                    <div className="text-[9px] text-muted-foreground/60">added to feed</div>
                   </div>
                 </div>
                 {discoverRun.error && (
@@ -671,6 +674,18 @@ export default function FindJobsPage() {
                                 <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
                                   <MapPin className="w-3 h-3" />
                                   {job.location}
+                                </span>
+                              )}
+                              {job.employment_type && (
+                                <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-muted/60 text-muted-foreground">
+                                  <Briefcase className="w-3 h-3" />
+                                  {job.employment_type}
+                                </span>
+                              )}
+                              {job.salary && (
+                                <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600">
+                                  <DollarSign className="w-3 h-3" />
+                                  {job.salary}
                                 </span>
                               )}
                               {conf && (
@@ -1042,10 +1057,18 @@ export default function FindJobsPage() {
                       {selectedJob.salary}
                     </span>
                   )}
-                  <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <Clock className="w-3 h-3" />
-                    {timeAgo(selectedJob.posted_at)}
-                  </span>
+                  {selectedJob.posted_at && (
+                    <span className="inline-flex items-center gap-1.5 text-xs font-medium bg-muted/50 px-3 py-1.5 rounded-lg">
+                      <Clock className="w-3 h-3" />
+                      Posted {timeAgo(selectedJob.posted_at)}
+                    </span>
+                  )}
+                  {selectedJob.closing_at && (
+                    <span className="inline-flex items-center gap-1.5 text-xs font-medium bg-destructive/10 text-destructive px-3 py-1.5 rounded-lg">
+                      <Clock className="w-3 h-3" />
+                      Closes {new Date(selectedJob.closing_at).toLocaleDateString()}
+                    </span>
+                  )}
                   {sourceConfig[selectedJob.source] && (
                     <span
                       className={cn(
