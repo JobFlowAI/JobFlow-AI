@@ -53,16 +53,30 @@ def make_external_id(job: dict) -> str:
 # Runs
 # ──────────────────────────────────────────────────────────────────────────────
 
-def create_run(query: str, country: Optional[str], max_results: int, user_id: Optional[str]) -> str:
-    row = {
+def create_run(
+    query: str,
+    country: Optional[str],
+    max_results: int,
+    user_id: Optional[str],
+    filters: Optional[dict] = None,
+) -> str:
+    row: dict = {
         "query": query,
         "country": country,
         "max_results": max_results,
         "user_id": user_id,
         "status": "running",
     }
-    res = client().table("job_discovery_runs").insert(row).execute()
-    return res.data[0]["id"]
+    if filters:
+        row["filters"] = filters
+    try:
+        res = client().table("job_discovery_runs").insert(row).execute()
+        return res.data[0]["id"]
+    except Exception:
+        # Fallback: retry without filters if the column doesn't exist yet.
+        row.pop("filters", None)
+        res = client().table("job_discovery_runs").insert(row).execute()
+        return res.data[0]["id"]
 
 
 def update_run(run_id: str, **fields) -> None:

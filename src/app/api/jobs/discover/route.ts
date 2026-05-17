@@ -33,6 +33,24 @@ export async function POST(req: NextRequest) {
       ? Math.max(1, Math.min(rawMax, MAX_RESULTS_CAP))
       : 20;
 
+    const VALID_WORK_MODES = ["remote", "hybrid", "onsite"] as const;
+    const VALID_JOB_TYPES = ["full_time", "part_time", "contract", "internship", "freelance"] as const;
+    const VALID_EXP_LEVELS = ["entry", "mid", "senior", "lead"] as const;
+    const VALID_DATE_POSTED = ["any", "24h", "week", "month"] as const;
+
+    const work_modes = Array.isArray(body.filters?.work_modes)
+      ? body.filters.work_modes.filter((v: unknown) => VALID_WORK_MODES.includes(v as never))
+      : [];
+    const job_types = Array.isArray(body.filters?.job_types)
+      ? body.filters.job_types.filter((v: unknown) => VALID_JOB_TYPES.includes(v as never))
+      : [];
+    const experience_levels = Array.isArray(body.filters?.experience_levels)
+      ? body.filters.experience_levels.filter((v: unknown) => VALID_EXP_LEVELS.includes(v as never))
+      : [];
+    const date_posted = VALID_DATE_POSTED.includes(body.filters?.date_posted)
+      ? body.filters.date_posted
+      : "any";
+
     if (!query || query.length < 2) {
       return NextResponse.json(
         { error: "Please enter a search query (min 2 characters)." },
@@ -51,6 +69,7 @@ export async function POST(req: NextRequest) {
         country: country || null,
         max_results,
         user_id: user.id,
+        filters: { work_modes, job_types, experience_levels, date_posted },
       }),
       signal: AbortSignal.timeout(15000),
     });
