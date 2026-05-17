@@ -15,25 +15,27 @@ from persistence import upsert_job, finish_run
 from schemas import DiscoverFilters
 
 
+# Simple single-term representations — DDGS v6 does not support complex boolean
+# OR groups or negative operators reliably; keep the query natural language.
 _WORK_MODE_TERMS: dict[str, str] = {
     "remote": "remote",
     "hybrid": "hybrid",
-    "onsite": "(on-site OR onsite OR in-office)",
+    "onsite": "onsite",
 }
 
 _JOB_TYPE_TERMS: dict[str, str] = {
-    "full_time": '("full-time" OR "full time")',
-    "part_time": '("part-time" OR "part time")',
+    "full_time": "full-time",
+    "part_time": "part-time",
     "contract": "contract",
-    "internship": "(internship OR intern)",
-    "freelance": "(freelance OR freelancer)",
+    "internship": "internship",
+    "freelance": "freelance",
 }
 
 _EXP_TERMS: dict[str, str] = {
-    "entry": "(entry level OR junior OR graduate)",
-    "mid": "(mid-level OR intermediate)",
-    "senior": "(senior OR sr)",
-    "lead": "(lead OR staff OR principal)",
+    "entry": "junior",
+    "mid": "mid-level",
+    "senior": "senior",
+    "lead": "lead",
 }
 
 # Maps date_posted values to DDGS timelimit codes.
@@ -45,28 +47,39 @@ _DATE_TIMELIMIT: dict[str, Optional[str]] = {
 }
 
 
-def _build_query(query: str, country: Optional[str], filters: Optional[DiscoverFilters] = None) -> str:
-    q = query.strip()
-    parts = [q]
+def _build_query(
+    query: str,
+    country: Optional[str],
+    filters: Optional[DiscoverFilters] = None,
+    bare: bool = False,
+) -> str:
+    """Build a DDGS-friendly natural-language search query.
 
-    if filters:
-        wm = [_WORK_MODE_TERMS[m] for m in filters.work_modes if m in _WORK_MODE_TERMS]
-        if wm:
-            parts.append(" OR ".join(wm))
+    DDGS v6 does not reliably support complex boolean syntax (OR groups,
+    quoted multi-word negatives).  Keep everything as simple space-separated
+    keywords so DDG can actually find results.
 
-        jt = [_JOB_TYPE_TERMS[t] for t in filters.job_types if t in _JOB_TYPE_TERMS]
-        if jt:
-            parts.append(" OR ".join(jt))
+    When ``bare=True`` generate the minimal fallback query used on retry.
+    """
+    parts = [query.strip()]
 
-        exp = [_EXP_TERMS[e] for e in filters.experience_levels if e in _EXP_TERMS]
-        if exp:
-            parts.append(" OR ".join(exp))
+    if not bare and filters:
+        for m in filters.work_modes:
+            if m in _WORK_MODE_TERMS:
+                parts.append(_WORK_MODE_TERMS[m])
+        for t in filters.job_types:
+            if t in _JOB_TYPE_TERMS:
+                parts.append(_JOB_TYPE_TERMS[t])
+        for e in filters.experience_levels:
+            if e in _EXP_TERMS:
+                parts.append(_EXP_TERMS[e])
 
     if country:
-        parts.append(f'"{country}"')
-    # Bias toward direct postings; subtract obvious noise.
-    parts.append('(jobs OR hiring OR careers OR "apply now")')
-    parts.append('-"top 10" -"directory" -"news"')
+        parts.append(country)
+
+    # Lightweight intent bias — single short phrase, no complex operators.
+    parts.append("job opening")
+
     return " ".join(parts)
 
 
@@ -136,10 +149,24 @@ def run_discovery(
     try:
         search_query = _build_query(query, country, filters)
         timelimit = _DATE_TIMELIMIT.get(filters.date_posted)
+        yield {"type": "log", "message": f"Search query: {search_query}"}
 
         with DDGS() as ddgs:
             # Pull a wider net than max_results so classification can be picky.
-            results = ddgs.text(search_query, max_results=max_results * 4, timelimit=timelimit)
+            fetch_n = max_results * 4
+            raw = ddgs.text(search_query, max_results=fetch_n, timelimit=timelimit)
+            results: list[dict] = list(raw) if raw else []
+
+            # Fallback: if DDG returned nothing, retry with bare query (no filter terms).
+            if not results:
+                bare_query = _build_query(query, country, bare=True)
+                if bare_query != search_query:
+                    yield {"type": "log", "message": f"No results — retrying with bare query: {bare_query}"}
+                    raw2 = ddgs.text(bare_query, max_results=fetch_n, timelimit=timelimit)
+                    results = list(raw2) if raw2 else []
+
+            if not results:
+                yield {"type": "log", "message": "DuckDuckGo returned no results for this query. Try a different keyword or country."}
 
             for result in results:
                 if total_kept >= max_results:
