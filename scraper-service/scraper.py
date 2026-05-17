@@ -153,7 +153,7 @@ def run_discovery(
 
         with DDGS() as ddgs:
             # Pull a wider net than max_results so classification can be picky.
-            fetch_n = max_results * 4
+            fetch_n = max_results * 2
             raw = ddgs.text(search_query, max_results=fetch_n, timelimit=timelimit)
             results: list[dict] = list(raw) if raw else []
 
@@ -189,9 +189,11 @@ def run_discovery(
 
                 # 2. LLM classification
                 label = classify_result(query, url, title, snippet)
-                if label not in ("direct_job_posting", "careers_page"):
-                    yield {"type": "log", "message": f"Skipped ({label}): {domain}"}
+                if label == "noise":
+                    yield {"type": "log", "message": f"Skipped (noise): {domain}"}
                     continue
+                # Accept direct_job_posting, careers_page AND aggregator job pages
+                # (LinkedIn/Indeed/ZipRecruiter pages contain full job data worth extracting)
 
                 # 3. Fetch + extract
                 page_text = fetch_page(url)
